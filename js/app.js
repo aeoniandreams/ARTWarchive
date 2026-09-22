@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=6";
+} from "./firebase-config.js?v=7";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=6";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=6";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=7";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=7";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -240,10 +240,15 @@ document.getElementById('library-nav-btn').addEventListener('click', () => {
 });
 
 // ── 라우팅 ──
+const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk"];
+
 function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
   views[name].classList.remove("hidden");
   document.body.classList.toggle("home-bg-active", name === "home");
+  if (name !== "list") {
+    document.body.classList.remove(...LIST_BG_CLASSES);
+  }
 }
 
 window.addEventListener("hashchange", router);
@@ -277,6 +282,11 @@ async function renderListView(catId, subId) {
   const cat = findCategory(catId);
   const sub = findSubcategory(catId, subId);
   document.getElementById("list-breadcrumb").textContent = `${cat?.label ?? catId} > ${sub?.label ?? subId}`;
+
+  document.body.classList.remove(...LIST_BG_CLASSES);
+  if (LIST_BG_CLASSES.includes(`list-bg-${catId}`)) {
+    document.body.classList.add(`list-bg-${catId}`);
+  }
 
   document.getElementById("new-record-btn").onclick = () => {
     location.hash = `#/new/${catId}/${subId}`;
