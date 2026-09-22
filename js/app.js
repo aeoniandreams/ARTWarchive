@@ -528,6 +528,12 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     return;
   }
 
+  console.log("[디버그] 저장 시도 시점 로그인 상태:", {
+    uid: auth.currentUser?.uid,
+    email: auth.currentUser?.email,
+    isNull: auth.currentUser === null,
+  });
+
   try {
     if (editingRecordId) {
       await updateDoc(doc(db, "records", editingRecordId), {
@@ -612,6 +618,11 @@ document.getElementById("btn-library-insert-image").addEventListener("click", ()
 
 document.getElementById("save-library-btn").addEventListener("click", async () => {
   const newTableHtml = libraryContent.innerHTML;
+  console.log("[디버그] 저장 시도 시점 로그인 상태:", {
+    uid: auth.currentUser?.uid,
+    email: auth.currentUser?.email,
+    isNull: auth.currentUser === null,
+  });
   try {
     await setDoc(doc(db, "settings", "library"), {
       tableHtml: newTableHtml,
