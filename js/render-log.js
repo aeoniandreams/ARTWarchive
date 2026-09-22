@@ -91,7 +91,10 @@ export function parseLibraryTable(container) {
 
 // root: 대화 로그가 들어있는 컨테이너 엘리먼트 (예: 뷰어 화면의 div)
 // lib: parseLibraryTable()로 미리 만들어둔 전역 캐릭터 라이브러리 객체
-export function renderLog(root, lib = {}) {
+// options.showAvatars: false로 주면 라이브러리에 사진이 있어도 프로필 사진을 표시하지 않음
+//   (이름/내용은 그대로 나오고, 사진이 붙는 레이아웃만 빠짐 — 톡 보관함 외 카테고리용)
+export function renderLog(root, lib = {}, options = {}) {
+  const showAvatars = options.showAvatars !== false;
   const tables = Array.from(root.querySelectorAll("table"));
   if (tables.length < 1) return;
 
@@ -190,7 +193,7 @@ export function renderLog(root, lib = {}) {
       const isRight = rawName.startsWith(">");
       const name = isRight ? rawName.slice(1) : rawName;
       const key = name + "|" + nameColor;
-      const entry = lib[key];
+      const entry = showAvatars ? lib[key] : undefined;
       const nameColorStyle = nameColor ? ` style="color:${nameColor}"` : "";
 
       const row = document.createElement("div");

@@ -1,9 +1,4 @@
-import { auth, db, storage } from "./firebase-config.js";
-import {
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { auth, db } from "./firebase-config.js";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -236,7 +231,8 @@ async function renderViewerView(recordId) {
   viewerBreadcrumb.innerHTML = `${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}">수정</a>`;
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
-  renderLog(viewerContent, libraryData);
+  // 프로필 사진은 톡 보관함 기록에서만 보여준다.
+  renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk" });
 }
 
 // ── 에디터 화면 ──
@@ -478,7 +474,7 @@ document.getElementById("btn-library-paste-html").addEventListener("click", () =
   openPasteModal(libraryContent);
 });
 
-// 이미지 추가: 커서가 놓인 칸(td)에 이미지를 업로드해서 넣는다.
+// 이미지 추가: 커서가 놓인 칸(td)에 이미지 링크(URL)를 넣는다.
 function getCursorCell(container) {
   const sel = window.getSelection();
   if (!sel.rangeCount) return null;
@@ -490,38 +486,15 @@ function getCursorCell(container) {
   return null;
 }
 
-const libraryImageInput = document.getElementById("library-image-input");
-const libraryImageBtn = document.getElementById("btn-library-insert-image");
-let libraryImageTargetCell = null;
-
-libraryImageBtn.addEventListener("click", () => {
-  libraryImageTargetCell = getCursorCell(libraryContent);
-  if (!libraryImageTargetCell) {
+document.getElementById("btn-library-insert-image").addEventListener("click", () => {
+  const targetCell = getCursorCell(libraryContent);
+  if (!targetCell) {
     alert("이미지를 넣을 칸(사진 칸)에 커서를 놓고 눌러주세요.");
     return;
   }
-  libraryImageInput.click();
-});
-
-libraryImageInput.addEventListener("change", async () => {
-  const file = libraryImageInput.files[0];
-  libraryImageInput.value = "";
-  if (!file || !libraryImageTargetCell) return;
-
-  const targetCell = libraryImageTargetCell;
-  const originalHtml = targetCell.innerHTML;
-  targetCell.textContent = "업로드 중...";
-  try {
-    const path = `library/${Date.now()}_${file.name}`;
-    const fileRef = storageRef(storage, path);
-    await uploadBytes(fileRef, file);
-    const url = await getDownloadURL(fileRef);
-    targetCell.innerHTML = `<img src="${url}" />`;
-  } catch (e) {
-    console.error("이미지 업로드 실패:", e);
-    targetCell.innerHTML = originalHtml;
-    alert("이미지 업로드에 실패했습니다.");
-  }
+  const url = prompt("이미지 URL을 입력하세요:");
+  if (!url) return;
+  targetCell.innerHTML = `<img src="${url}" />`;
 });
 
 document.getElementById("save-library-btn").addEventListener("click", async () => {
