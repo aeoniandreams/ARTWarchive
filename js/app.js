@@ -1,4 +1,9 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, db, storage } from "./firebase-config.js";
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -441,15 +446,16 @@ function renderLibraryView() {
   libraryContent.innerHTML = libraryTableHtml;
 }
 
+const LIBRARY_MIN_COLUMNS = 10;
+
 document.getElementById("btn-library-insert-table").addEventListener("click", () => {
   if (libraryContent.querySelector("table")) {
     alert("이미 표가 있습니다. '캐릭터 칸 추가'로 인원을 늘려주세요.");
     return;
   }
-  libraryContent.innerHTML = `<table><tbody>
-    <tr><td>이름1</td><td>이름2</td><td>이름3</td></tr>
-    <tr><td><img src="이미지 URL1" /></td><td><img src="이미지 URL2" /></td><td><img src="이미지 URL3" /></td></tr>
-  </tbody></table>`;
+  const nameCells = Array.from({ length: LIBRARY_MIN_COLUMNS }, () => "<td><br></td>").join("");
+  const imgCells = Array.from({ length: LIBRARY_MIN_COLUMNS }, () => "<td><br></td>").join("");
+  libraryContent.innerHTML = `<table><tbody><tr>${nameCells}</tr><tr>${imgCells}</tr></tbody></table>`;
 });
 
 document.getElementById("btn-library-add-character").addEventListener("click", () => {
@@ -461,15 +467,61 @@ document.getElementById("btn-library-add-character").addEventListener("click", (
   const rows = table.querySelectorAll("tr");
   if (rows.length < 2) return;
   const nameTd = document.createElement("td");
-  nameTd.textContent = "이름";
+  nameTd.innerHTML = "<br>";
   rows[0].appendChild(nameTd);
   const imgTd = document.createElement("td");
-  imgTd.innerHTML = `<img src="이미지 URL" />`;
+  imgTd.innerHTML = "<br>";
   rows[1].appendChild(imgTd);
 });
 
 document.getElementById("btn-library-paste-html").addEventListener("click", () => {
   openPasteModal(libraryContent);
+});
+
+// 이미지 추가: 커서가 놓인 칸(td)에 이미지를 업로드해서 넣는다.
+function getCursorCell(container) {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return null;
+  let node = sel.getRangeAt(0).startContainer;
+  if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+  if (!node || !node.closest) return null;
+  const td = node.closest("td");
+  if (td && container.contains(td)) return td;
+  return null;
+}
+
+const libraryImageInput = document.getElementById("library-image-input");
+const libraryImageBtn = document.getElementById("btn-library-insert-image");
+let libraryImageTargetCell = null;
+
+libraryImageBtn.addEventListener("click", () => {
+  libraryImageTargetCell = getCursorCell(libraryContent);
+  if (!libraryImageTargetCell) {
+    alert("이미지를 넣을 칸(사진 칸)에 커서를 놓고 눌러주세요.");
+    return;
+  }
+  libraryImageInput.click();
+});
+
+libraryImageInput.addEventListener("change", async () => {
+  const file = libraryImageInput.files[0];
+  libraryImageInput.value = "";
+  if (!file || !libraryImageTargetCell) return;
+
+  const targetCell = libraryImageTargetCell;
+  const originalHtml = targetCell.innerHTML;
+  targetCell.textContent = "업로드 중...";
+  try {
+    const path = `library/${Date.now()}_${file.name}`;
+    const fileRef = storageRef(storage, path);
+    await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
+    targetCell.innerHTML = `<img src="${url}" />`;
+  } catch (e) {
+    console.error("이미지 업로드 실패:", e);
+    targetCell.innerHTML = originalHtml;
+    alert("이미지 업로드에 실패했습니다.");
+  }
 });
 
 document.getElementById("save-library-btn").addEventListener("click", async () => {
