@@ -154,7 +154,7 @@ body {
 }
 #record-title { width: 100%; }
 
-#editor-toolbar {
+.editor-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -164,7 +164,7 @@ body {
   border-radius: 8px 8px 0 0;
   background: var(--panel);
 }
-#editor-toolbar button {
+.editor-toolbar button {
   padding: 6px 10px;
   border: 1px solid var(--border);
   border-radius: 5px;
@@ -172,20 +172,21 @@ body {
   cursor: pointer;
   font-size: 0.85rem;
 }
-#editor-toolbar button:hover { background: var(--accent-soft); }
-#editor-toolbar input[type="color"] { width: 32px; padding: 0; border: 1px solid var(--border); border-radius: 5px; }
+.editor-toolbar button:hover { background: var(--accent-soft); }
+.editor-toolbar input[type="color"] { width: 32px; padding: 0; border: 1px solid var(--border); border-radius: 5px; }
 
-#editor-content {
+#editor-content, #library-content {
   min-height: 400px;
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 0 0 8px 8px;
   background: white;
 }
-#editor-content table { border-collapse: collapse; margin: 10px 0; }
-#editor-content table td { border: 1px solid var(--border); padding: 6px; min-width: 60px; }
+#library-content { min-height: 160px; }
+#editor-content table, #library-content table { border-collapse: collapse; margin: 10px 0; }
+#editor-content table td, #library-content table td { border: 1px solid var(--border); padding: 6px; min-width: 60px; }
 
-#save-record-btn {
+#save-record-btn, #save-library-btn {
   margin-top: 16px;
   padding: 10px 20px;
   border: none;
@@ -195,6 +196,20 @@ body {
   font-weight: bold;
   cursor: pointer;
 }
+
+#library-nav-btn {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 0 20px 16px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: left;
+}
+#library-nav-btn:hover { background: var(--accent-soft); }
 
 /* ─────────────────────────────────────────────────────────── */
 /* 대화 로그 렌더링 (기존 티스토리 코드 이식, .log-render 안에서만 동작) */

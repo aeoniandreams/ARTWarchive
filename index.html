@@ -23,6 +23,7 @@
 <div id="app-shell" class="hidden">
   <nav id="sidebar">
     <div class="site-title" data-route="home">ARTWarchive</div>
+    <button id="library-nav-btn">캐릭터 라이브러리 관리</button>
     <div id="category-nav"></div>
     <button id="logout-btn">로그아웃</button>
   </nav>
@@ -55,11 +56,10 @@
         <select id="record-subcategory"></select>
       </div>
 
-      <div id="editor-toolbar">
+      <div id="editor-toolbar" class="editor-toolbar">
         <button type="button" data-cmd="bold"><b>B</b></button>
         <button type="button" data-cmd="italic"><i>I</i></button>
         <input type="color" id="color-picker" title="글자색" />
-        <button type="button" id="btn-insert-library">라이브러리 표 삽입</button>
         <button type="button" id="btn-insert-table">대화 표 삽입</button>
         <button type="button" id="btn-add-row">행 추가</button>
         <button type="button" data-quick="/나레이션">나레이션</button>
@@ -79,6 +79,21 @@
       <div class="breadcrumb" id="viewer-breadcrumb"></div>
       <h2 id="viewer-title"></h2>
       <div id="viewer-content" class="log-render"></div>
+    </section>
+
+    <!-- 캐릭터 라이브러리 관리 화면 -->
+    <section id="library-view" class="hidden">
+      <div class="breadcrumb">캐릭터 라이브러리 관리</div>
+      <p class="breadcrumb">여기서 등록한 이름·사진은 모든 기록에 공통으로 적용됩니다. 기록을 쓸 때마다 다시 넣지 않아도 돼요.</p>
+
+      <div id="library-toolbar" class="editor-toolbar">
+        <button type="button" id="btn-library-insert-table">라이브러리 표 삽입</button>
+        <button type="button" id="btn-library-add-character">캐릭터 칸 추가</button>
+        <button type="button" id="btn-library-paste-html">HTML 붙여넣기</button>
+      </div>
+      <div id="library-content" contenteditable="true"></div>
+
+      <button id="save-library-btn">저장</button>
     </section>
 
   </main>

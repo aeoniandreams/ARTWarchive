@@ -8,6 +8,7 @@ import {
   collection,
   addDoc,
   updateDoc,
+  setDoc,
   doc,
   getDoc,
   getDocs,
@@ -17,7 +18,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { CATEGORIES, findCategory, findSubcategory } from "./categories.js";
-import { renderLog } from "./render-log.js";
+import { renderLog, parseLibraryTable } from "./render-log.js";
 
 // ── DOM refs ──
 // 로그인 화면에서 이메일 입력을 받지 않고, 이 고정 계정으로 로그인합니다.
@@ -37,7 +38,22 @@ const views = {
   list: document.getElementById("list-view"),
   editor: document.getElementById("editor-view"),
   viewer: document.getElementById("viewer-view"),
+  library: document.getElementById("library-view"),
 };
+
+// ── 캐릭터 라이브러리 (전역, 모든 기록에 공통 적용) ──
+let libraryData = {}; // parseLibraryTable() 결과, renderLog에 넘겨줌
+
+let libraryTableHtml = "";
+
+async function loadLibrary() {
+  const snap = await getDoc(doc(db, "settings", "library"));
+  libraryTableHtml = snap.exists() ? snap.data().tableHtml || "" : "";
+  const temp = document.createElement("div");
+  temp.innerHTML = libraryTableHtml;
+  libraryData = parseLibraryTable(temp);
+  return libraryTableHtml;
+}
 
 // ── 인증 ──
 loginBtn.addEventListener("click", async () => {
@@ -64,11 +80,12 @@ loginPassword.addEventListener("keydown", (e) => {
 
 logoutBtn.addEventListener("click", () => signOut(auth));
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     loginScreen.classList.add("hidden");
     appShell.classList.remove("hidden");
     buildSidebar();
+    await loadLibrary();
     router();
   } else {
     loginScreen.classList.remove("hidden");
@@ -121,6 +138,10 @@ document.getElementById('new-record-btn-home').addEventListener('click', () => {
   location.hash = `#/new/${firstCat.id}/${firstSub.id}`;
 });
 
+document.getElementById('library-nav-btn').addEventListener('click', () => {
+  location.hash = '#/library';
+});
+
 // ── 라우팅 ──
 function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
@@ -145,6 +166,9 @@ function router() {
   } else if (route === "view" && a) {
     showView("viewer");
     renderViewerView(a);
+  } else if (route === "library") {
+    showView("library");
+    renderLibraryView();
   } else {
     showView("home");
   }
@@ -207,7 +231,7 @@ async function renderViewerView(recordId) {
   viewerBreadcrumb.innerHTML = `${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}">수정</a>`;
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
-  renderLog(viewerContent);
+  renderLog(viewerContent, libraryData);
 }
 
 // ── 에디터 화면 ──
@@ -278,16 +302,6 @@ document.getElementById("color-picker").addEventListener("input", (e) => {
   document.execCommand("foreColor", false, e.target.value);
 });
 
-// 라이브러리 표 삽입 (첫 표: 1행 이름 / 2행 이미지)
-document.getElementById("btn-insert-library").addEventListener("click", () => {
-  editorContent.focus();
-  const html = `<table><tbody>
-    <tr><td>이름1</td><td>이름2</td><td>이름3</td></tr>
-    <tr><td><img src="이미지 URL1" /></td><td><img src="이미지 URL2" /></td><td><img src="이미지 URL3" /></td></tr>
-  </tbody></table><p><br></p>`;
-  document.execCommand("insertHTML", false, html);
-});
-
 // 대화 표 삽입
 document.getElementById("btn-insert-table").addEventListener("click", () => {
   editorContent.focus();
@@ -333,18 +347,25 @@ document.querySelectorAll("#editor-toolbar button[data-quick]").forEach((btn) =>
 });
 
 // HTML 붙여넣기 (기존 티스토리 표 HTML을 그대로 붙여넣는 기능)
+// 기록 에디터/라이브러리 에디터 둘 다에서 쓰므로, 열 때 대상(pasteTarget)을 지정해둔다.
 const pasteModal = document.getElementById("paste-modal");
 const pasteTextarea = document.getElementById("paste-textarea");
+let pasteTarget = null;
 
-document.getElementById("btn-paste-html").addEventListener("click", () => {
+function openPasteModal(targetEl) {
+  pasteTarget = targetEl;
   pasteTextarea.value = "";
   pasteModal.classList.remove("hidden");
+}
+
+document.getElementById("btn-paste-html").addEventListener("click", () => {
+  openPasteModal(editorContent);
 });
 document.getElementById("paste-cancel-btn").addEventListener("click", () => {
   pasteModal.classList.add("hidden");
 });
 document.getElementById("paste-confirm-btn").addEventListener("click", () => {
-  editorContent.insertAdjacentHTML("beforeend", pasteTextarea.value);
+  if (pasteTarget) pasteTarget.insertAdjacentHTML("beforeend", pasteTextarea.value);
   pasteModal.classList.add("hidden");
 });
 
@@ -381,4 +402,54 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     });
     location.hash = `#/view/${newDoc.id}`;
   }
+});
+
+// ── 캐릭터 라이브러리 관리 화면 ──
+const libraryContent = document.getElementById("library-content");
+
+function renderLibraryView() {
+  libraryContent.innerHTML = libraryTableHtml;
+}
+
+document.getElementById("btn-library-insert-table").addEventListener("click", () => {
+  if (libraryContent.querySelector("table")) {
+    alert("이미 표가 있습니다. '캐릭터 칸 추가'로 인원을 늘려주세요.");
+    return;
+  }
+  libraryContent.innerHTML = `<table><tbody>
+    <tr><td>이름1</td><td>이름2</td><td>이름3</td></tr>
+    <tr><td><img src="이미지 URL1" /></td><td><img src="이미지 URL2" /></td><td><img src="이미지 URL3" /></td></tr>
+  </tbody></table>`;
+});
+
+document.getElementById("btn-library-add-character").addEventListener("click", () => {
+  const table = libraryContent.querySelector("table");
+  if (!table) {
+    alert("먼저 '라이브러리 표 삽입'으로 표를 만들어주세요.");
+    return;
+  }
+  const rows = table.querySelectorAll("tr");
+  if (rows.length < 2) return;
+  const nameTd = document.createElement("td");
+  nameTd.textContent = "이름";
+  rows[0].appendChild(nameTd);
+  const imgTd = document.createElement("td");
+  imgTd.innerHTML = `<img src="이미지 URL" />`;
+  rows[1].appendChild(imgTd);
+});
+
+document.getElementById("btn-library-paste-html").addEventListener("click", () => {
+  openPasteModal(libraryContent);
+});
+
+document.getElementById("save-library-btn").addEventListener("click", async () => {
+  libraryTableHtml = libraryContent.innerHTML;
+  await setDoc(doc(db, "settings", "library"), {
+    tableHtml: libraryTableHtml,
+    updatedAt: serverTimestamp(),
+  });
+  const temp = document.createElement("div");
+  temp.innerHTML = libraryTableHtml;
+  libraryData = parseLibraryTable(temp);
+  alert("저장되었습니다.");
 });

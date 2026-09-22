@@ -1,9 +1,13 @@
 // 티스토리에서 쓰던 표 -> 대화로그 변환 스크립트를 사이트용으로 이식한 버전.
-// 원본과 다른 점(티스토리 에디터 전용 요소 제거):
+// 원본과 다른 점:
 //   - figure[data-ke-type='table'] 등 티스토리 스킨 전용 선택자를 없애고,
 //     렌더링 대상 컨테이너(.log-render) 안의 table을 기준으로 동작하도록 변경.
 //   - document 전체가 아니라 특정 컨테이너(root)를 인자로 받아 그 안에서만 동작.
-// 나머지 파싱 규칙(라이브러리 표, /나레이션, /코드, /접기, /끝, >이름, /표)은 원본 그대로.
+//   - 캐릭터 라이브러리(이름·사진 매칭 표)를 기록마다 넣지 않고, 사이트 전역에
+//     하나만 저장해두고 매 기록 렌더링 시 그 라이브러리를 넘겨받아 사용.
+//     -> 기록 안의 표는 이제 전부 "대화 표"로 취급 (예전처럼 첫 번째 표를
+//        라이브러리로 특별 취급하지 않음).
+// 나머지 파싱 규칙(/나레이션, /코드, /접기, /끝, >이름, /표)은 원본 그대로.
 
 const decodeHtml = (html) => {
   const txt = document.createElement("textarea");
@@ -59,34 +63,40 @@ export function resizeContentImages(root) {
   });
 }
 
+// 라이브러리 표(1행: 이름, 2행: 이미지) 하나를 파싱해서 {name|color: {src,color}} 객체로 변환.
+// 캐릭터 라이브러리 관리 화면에서 저장된 표 HTML을 렌더링용으로 미리 파싱해둘 때 사용.
+export function parseLibraryTable(container) {
+  const lib = {};
+  const table = container.querySelector("table");
+  if (!table) return lib;
+  const rows = table.querySelectorAll("tr");
+  if (rows.length < 2) return lib;
+
+  const names = rows[0].querySelectorAll("td");
+  const imgs = rows[1].querySelectorAll("td");
+  names.forEach((cell, idx) => {
+    const name = cell.innerText.trim();
+    const img = imgs[idx] ? imgs[idx].querySelector("img") : null;
+    if (name && img) {
+      const color = getColor(cell);
+      const key = name + "|" + color;
+      lib[key] = {
+        src: img.getAttribute("data-src") || img.getAttribute("src") || img.src,
+        color: color,
+      };
+    }
+  });
+  return lib;
+}
+
 // root: 대화 로그가 들어있는 컨테이너 엘리먼트 (예: 뷰어 화면의 div)
-export function renderLog(root) {
+// lib: parseLibraryTable()로 미리 만들어둔 전역 캐릭터 라이브러리 객체
+export function renderLog(root, lib = {}) {
   const tables = Array.from(root.querySelectorAll("table"));
   if (tables.length < 1) return;
 
-  const lib = {};
-  const firstTable = tables[0];
-  const rows = firstTable.querySelectorAll("tr");
-
-  if (rows.length >= 2) {
-    const names = rows[0].querySelectorAll("td");
-    const imgs = rows[1].querySelectorAll("td");
-    names.forEach((cell, idx) => {
-      const name = cell.innerText.trim();
-      const img = imgs[idx] ? imgs[idx].querySelector("img") : null;
-      if (name && img) {
-        const color = getColor(cell);
-        const key = name + "|" + color;
-        lib[key] = {
-          src: img.getAttribute("data-src") || img.getAttribute("src") || img.src,
-          color: color,
-        };
-      }
-    });
-  }
-
-  tables.forEach((table, idx) => {
-    if (idx === 0 || table.dataset.done === "true") return;
+  tables.forEach((table) => {
+    if (table.dataset.done === "true") return;
 
     // 원하는 표만 실제 표로 유지: 첫 칸이 "/표"
     const firstCell = table.querySelector("tr td");
@@ -221,6 +231,5 @@ export function renderLog(root) {
     target.style.display = "none";
   });
 
-  (firstTable.closest("figure") || firstTable).style.display = "none";
   resizeContentImages(root);
 }
