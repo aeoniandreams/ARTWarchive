@@ -50,7 +50,7 @@ button, input, select, textarea {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 40px;
-  width: 320px;
+  width: min(320px, 90vw);
   text-align: center;
 }
 #login-box h1 { font-size: 1.2rem; margin-bottom: 20px; }
@@ -120,7 +120,7 @@ button, input, select, textarea {
   padding: 0;
 }
 
-#main-area { flex: 1; padding: 30px 40px; max-width: 900px; }
+#main-area { flex: 1; padding: 30px 40px; max-width: 900px; margin: 0 auto; }
 #main-area h2 { font-size: 20px; margin: 0 0 8px; }
 
 .breadcrumb { color: var(--text-dim); margin-bottom: 16px; font-size: 0.9rem; }
@@ -268,8 +268,6 @@ button, input, select, textarea {
   display: block; width: 100%; font-style: normal; text-align: inherit;
   padding: var(--nar-padding);
   margin-bottom: var(--nar-to-next-margin);
-  background: var(--accent-soft);
-  border-radius: 6px;
 }
 .log-render .is-narration + .is-narration { margin-top: calc(var(--nar-to-next-margin) * -1 + var(--nar-to-nar-margin)); }
 .log-render .is-narration .c-talk { color: inherit; text-align: inherit; }
@@ -305,3 +303,29 @@ button, input, select, textarea {
 .log-render .s-fold-btn img { display: inline !important; width: auto !important; height: 20% !important; vertical-align: middle !important; opacity: 1 !important; visibility: visible !important; max-width: none !important; }
 .log-render .s-fold-content { display: none; }
 .log-render .s-fold-content.open { display: block; }
+
+/* ── 모바일 반응형 ── */
+@media (max-width: 768px) {
+  #app-shell { flex-direction: column; }
+
+  #sidebar {
+    width: 100%;
+    flex-shrink: 1;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+  }
+
+  #main-area {
+    padding: 20px 16px;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .record-list li { padding: 12px; }
+
+  #editor-view .field-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  #record-category, #record-subcategory { flex: 1 1 140px; }
+
+  .has-p, .is-right { flex-wrap: wrap; }
+}
