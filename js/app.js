@@ -20,9 +20,12 @@ import { CATEGORIES, findCategory, findSubcategory } from "./categories.js";
 import { renderLog } from "./render-log.js";
 
 // ── DOM refs ──
+// 로그인 화면에서 이메일 입력을 받지 않고, 이 고정 계정으로 로그인합니다.
+// Firebase 콘솔 > Authentication 에 이 이메일로 사용자를 만들고 비밀번호를 지인들과 공유하세요.
+const SHARED_LOGIN_EMAIL = "guest@artwarchive.app";
+
 const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");
-const loginEmail = document.getElementById("login-email");
 const loginPassword = document.getElementById("login-password");
 const loginBtn = document.getElementById("login-btn");
 const loginError = document.getElementById("login-error");
@@ -40,10 +43,14 @@ const views = {
 loginBtn.addEventListener("click", async () => {
   loginError.textContent = "";
   try {
-    await signInWithEmailAndPassword(auth, loginEmail.value.trim(), loginPassword.value);
+    await signInWithEmailAndPassword(auth, SHARED_LOGIN_EMAIL, loginPassword.value);
   } catch (e) {
-    loginError.textContent = "로그인 실패: 이메일 또는 비밀번호를 확인하세요.";
+    loginError.textContent = "로그인 실패: 비밀번호를 확인하세요.";
   }
+});
+
+loginPassword.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") loginBtn.click();
 });
 
 logoutBtn.addEventListener("click", () => signOut(auth));
