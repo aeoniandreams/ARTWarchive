@@ -32,11 +32,11 @@ export const SHARED_LOGIN_EMAIL = "user@gmail.com";
 //       match /{document=**} {
 //         allow read: if request.auth != null;
 //         allow write: if request.auth != null
-//                      && request.auth.token.email == "admin@artwarchive.app";
+//                      && request.auth.token.email == "aeoniandreams@gmail.com";
 //       }
 //     }
 //   }
-export const ADMIN_EMAIL = "admin@artwarchive.app";
+export const ADMIN_EMAIL = "aeoniandreams@gmail.com";
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
