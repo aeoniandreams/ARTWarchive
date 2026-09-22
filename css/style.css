@@ -158,16 +158,16 @@ button, input, select, textarea {
    레이아웃을 안 밀어내므로, 사이드바를 열어도 이 위치는 그대로 유지된다. */
 #site-logo {
   position: fixed;
-  top: 14px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  height: 40px;
+  transform: translate(-50%, -50%);
+  height: 80px;
   width: auto;
   z-index: 10;
   pointer-events: none;
 }
 @media (max-width: 768px) {
-  #site-logo { height: 32px; }
+  #site-logo { height: 64px; }
 }
 
 /* 딤 없이, 바깥을 클릭하면 닫히는 용도로만 쓰는 투명 레이어 */
