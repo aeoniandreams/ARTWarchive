@@ -327,6 +327,45 @@ function getCursorRow() {
   return null;
 }
 
+// 표 안에서 커서가 놓인 <td>를 찾는다 (표 밖이면 null). 에디터/라이브러리 둘 다에서 씀.
+function getCursorCell(container) {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return null;
+  let node = sel.getRangeAt(0).startContainer;
+  if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+  if (!node || !node.closest) return null;
+  const td = node.closest("td");
+  if (td && container.contains(td)) return td;
+  return null;
+}
+
+function placeCursorInCell(cell) {
+  const range = document.createRange();
+  range.selectNodeContents(cell);
+  range.collapse(true);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+// 표 안에서 위/아래 방향키를 누르면 같은 열의 위/아랫줄로 바로 이동한다.
+// (기본 동작은 줄 안의 옆 칸을 먼저 거쳐가서, 그걸 막고 세로 이동만 하게 함)
+function handleTableVerticalNav(e, container) {
+  if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+  const cell = getCursorCell(container);
+  if (!cell) return;
+  const row = cell.parentElement;
+  const cellIndex = Array.prototype.indexOf.call(row.children, cell);
+  const targetRow = e.key === "ArrowDown" ? row.nextElementSibling : row.previousElementSibling;
+  if (!targetRow) return;
+  const targetCell = targetRow.children[cellIndex] || targetRow.children[targetRow.children.length - 1];
+  if (!targetCell) return;
+  e.preventDefault();
+  placeCursorInCell(targetCell);
+}
+
+editorContent.addEventListener("keydown", (e) => handleTableVerticalNav(e, editorContent));
+
 function makeBlankRow() {
   const tr = document.createElement("tr");
   const td1 = document.createElement("td");
@@ -437,6 +476,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
 
 // ── 캐릭터 라이브러리 관리 화면 ──
 const libraryContent = document.getElementById("library-content");
+libraryContent.addEventListener("keydown", (e) => handleTableVerticalNav(e, libraryContent));
 
 function renderLibraryView() {
   libraryContent.innerHTML = libraryTableHtml;
@@ -475,17 +515,6 @@ document.getElementById("btn-library-paste-html").addEventListener("click", () =
 });
 
 // 이미지 추가: 커서가 놓인 칸(td)에 이미지 링크(URL)를 넣는다.
-function getCursorCell(container) {
-  const sel = window.getSelection();
-  if (!sel.rangeCount) return null;
-  let node = sel.getRangeAt(0).startContainer;
-  if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-  if (!node || !node.closest) return null;
-  const td = node.closest("td");
-  if (td && container.contains(td)) return td;
-  return null;
-}
-
 document.getElementById("btn-library-insert-image").addEventListener("click", () => {
   const targetCell = getCursorCell(libraryContent);
   if (!targetCell) {
