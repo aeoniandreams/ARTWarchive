@@ -318,9 +318,9 @@ body.home-bg-active #site-logo { display: block; }
 /* ── 리스트 화면 ── */
 #list-logo {
   display: block;
-  height: 56px;
+  height: 112px;
   width: auto;
-  margin: 0 auto 20px;
+  margin: -10px auto 20px;
   cursor: pointer;
 }
 
