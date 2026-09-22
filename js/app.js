@@ -305,7 +305,7 @@ document.getElementById("color-picker").addEventListener("input", (e) => {
 // 대화 표 삽입
 document.getElementById("btn-insert-table").addEventListener("click", () => {
   editorContent.focus();
-  const html = `<table><tbody><tr><td>이름</td><td>내용</td></tr></tbody></table><p><br></p>`;
+  const html = `<table><tbody><tr><td><br></td><td><br></td></tr></tbody></table><p><br></p>`;
   document.execCommand("insertHTML", false, html);
 });
 
@@ -314,35 +314,65 @@ function lastTable() {
   return tables.length ? tables[tables.length - 1] : null;
 }
 
-function appendRow(nameText, contentText) {
-  const table = lastTable();
-  if (!table) {
-    alert("먼저 '대화 표 삽입'으로 표를 만들어주세요.");
-    return;
-  }
-  let tbody = table.querySelector("tbody") || table;
-  const tr = document.createElement("tr");
-  const td1 = document.createElement("td");
-  td1.textContent = nameText;
-  const td2 = document.createElement("td");
-  td2.textContent = contentText;
-  tr.appendChild(td1);
-  tr.appendChild(td2);
-  tbody.appendChild(tr);
+// 현재 커서가 놓여 있는 <tr>을 찾는다 (표 밖이면 null)
+function getCursorRow() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return null;
+  let node = sel.getRangeAt(0).startContainer;
+  if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+  if (!node || !node.closest) return null;
+  const tr = node.closest("tr");
+  if (tr && editorContent.contains(tr)) return tr;
+  return null;
 }
 
+function makeBlankRow() {
+  const tr = document.createElement("tr");
+  const td1 = document.createElement("td");
+  td1.innerHTML = "<br>";
+  const td2 = document.createElement("td");
+  td2.innerHTML = "<br>";
+  tr.appendChild(td1);
+  tr.appendChild(td2);
+  return tr;
+}
+
+// 행 추가: 몇 줄을 추가할지 물어보고, 커서가 있는 행 바로 아래에 삽입
 document.getElementById("btn-add-row").addEventListener("click", () => {
-  appendRow("이름", "내용");
+  const countStr = prompt("몇 줄을 추가할까요?", "1");
+  if (countStr === null) return;
+  const count = parseInt(countStr, 10);
+  if (!count || count < 1) return;
+
+  let insertAfter = getCursorRow();
+  if (!insertAfter) {
+    const table = lastTable();
+    if (!table) {
+      alert("먼저 '대화 표 삽입'으로 표를 만들어주세요.");
+      return;
+    }
+    const rows = table.querySelectorAll("tr");
+    insertAfter = rows[rows.length - 1];
+  }
+
+  for (let i = 0; i < count; i++) {
+    const tr = makeBlankRow();
+    insertAfter.insertAdjacentElement("afterend", tr);
+    insertAfter = tr;
+  }
 });
 
+// 접기 / 접기 끝 / 표 유지: 새 행을 만들지 않고, 커서가 있는 행의 첫 칸(이름 칸)에 문구를 추가
 document.querySelectorAll("#editor-toolbar button[data-quick]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    const keyword = btn.dataset.quick;
-    if (keyword === "/끝") {
-      appendRow("/끝", "");
-    } else {
-      appendRow(keyword, "");
+    const tr = getCursorRow();
+    if (!tr) {
+      alert("커서를 표 안의 칸에 놓아주세요.");
+      return;
     }
+    const firstTd = tr.querySelector("td");
+    if (!firstTd) return;
+    firstTd.textContent = firstTd.textContent.trim() + btn.dataset.quick;
   });
 });
 

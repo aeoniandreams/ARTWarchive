@@ -25,7 +25,7 @@
 
 body {
   margin: 0;
-  font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  font-family: "Pretendard JP Variable", "Apple SD Gothic Neo", sans-serif;
   background: var(--bg);
   color: var(--text);
 }
@@ -185,6 +185,8 @@ body {
 #library-content { min-height: 160px; }
 #editor-content table, #library-content table { border-collapse: collapse; margin: 10px 0; }
 #editor-content table td, #library-content table td { border: 1px solid var(--border); padding: 6px; min-width: 60px; }
+#editor-content table td:first-child { min-width: 90px; }
+#editor-content table td:nth-child(2) { min-width: 420px; }
 
 #save-record-btn, #save-library-btn {
   margin-top: 16px;
