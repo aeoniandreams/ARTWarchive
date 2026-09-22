@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js";
+} from "./firebase-config.js?v=2";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js";
-import { renderLog, parseLibraryTable } from "./render-log.js";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=2";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=2";
 
 // ── DOM refs ──
 const loginScreen = document.getElementById("login-screen");
