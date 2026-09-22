@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=7";
+} from "./firebase-config.js?v=8";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=7";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=7";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=8";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=8";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -39,6 +39,10 @@ const categoryNav = document.getElementById("category-nav");
 const sidebar = document.getElementById("sidebar");
 const sidebarToggleBtn = document.getElementById("sidebar-toggle-btn");
 const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+
+document.getElementById("list-logo").addEventListener("click", () => {
+  location.hash = "#/home";
+});
 
 // ── 사이드바 서랍 열기/닫기 (데스크탑/모바일 공통) ──
 function openSidebar() {

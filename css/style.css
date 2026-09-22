@@ -127,6 +127,7 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--bg) url("../images/loading-bg.webp") center / cover no-repeat;
 }
 #login-box {
   background: var(--panel);
@@ -308,6 +309,14 @@ body.home-bg-active #site-logo { display: block; }
 }
 
 /* ── 리스트 화면 ── */
+#list-logo {
+  display: block;
+  height: 56px;
+  width: auto;
+  margin: 0 auto 20px;
+  cursor: pointer;
+}
+
 .record-list { list-style: none; padding: 0; margin: 0; }
 .record-list li {
   padding: 14px 16px;
