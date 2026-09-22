@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=14";
+} from "./firebase-config.js?v=15";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=14";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=14";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=15";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=15";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -308,7 +308,15 @@ async function renderListView(catId, subId) {
     where("subcategory", "==", subId),
     orderBy("createdAt", "desc")
   );
-  const snap = await getDocs(q);
+
+  let snap;
+  try {
+    snap = await getDocs(q);
+  } catch (e) {
+    console.error("리스트 조회 실패:", e.code, e.message);
+    listEl.innerHTML = `<li class='empty-state'>목록을 불러오지 못했습니다: ${e.code || e.message}<br>(Firestore에 복합 색인이 필요할 수 있어요 — 콘솔 오류 메시지의 링크를 확인해주세요)</li>`;
+    return;
+  }
 
   if (snap.empty) {
     listEl.innerHTML = "<li class='empty-state'>아직 기록이 없습니다.</li>";
@@ -343,7 +351,7 @@ async function renderViewerView(recordId) {
   const data = snap.data();
   const cat = findCategory(data.category);
   const sub = findSubcategory(data.category, data.subcategory);
-  viewerBreadcrumb.innerHTML = `${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}" data-admin-only class="hidden">수정</a>`;
+  viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}">&larr; 목록으로</a> &nbsp;·&nbsp; ${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}" data-admin-only class="hidden">수정</a>`;
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
