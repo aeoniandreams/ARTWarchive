@@ -202,8 +202,26 @@ button, input, select, textarea {
   pointer-events: none;
 }
 body.home-bg-active #site-logo { display: block; }
+
+#site-subtitle {
+  display: none;
+  position: fixed;
+  top: calc(50% + 42px);
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffffff;
+  text-align: center;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 3px;
+  z-index: 10;
+  pointer-events: none;
+}
+body.home-bg-active #site-subtitle { display: block; }
+
 @media (max-width: 768px) {
   #site-logo { height: 128px; }
+  #site-subtitle { top: calc(50% + 26px); font-size: 13px; letter-spacing: 2px; }
 }
 
 /* 딤 없이, 바깥을 클릭하면 닫히는 용도로만 쓰는 투명 레이어 */
