@@ -179,7 +179,7 @@ function buildSidebar() {
 
     const header = document.createElement("div");
     header.className = "cat-header";
-    header.innerHTML = `<img class="cat-icon icon-${cat.id}" src="${cat.icon}" alt="" /><span>${cat.label}</span>`;
+    header.innerHTML = `<img class="cat-icon icon-${cat.id}" src="${cat.icon}" alt="" /><span class="cat-label">${cat.label}</span><svg class="cat-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>`;
 
     const subList = document.createElement("div");
     subList.className = "subcat-list";
@@ -197,6 +197,7 @@ function buildSidebar() {
 
     header.addEventListener("click", () => {
       subList.classList.toggle("open");
+      header.querySelector(".cat-chevron").classList.toggle("open", subList.classList.contains("open"));
     });
 
     group.appendChild(header);
