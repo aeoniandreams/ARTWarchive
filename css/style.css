@@ -195,15 +195,15 @@ button, input, select, textarea {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  height: 80px;
+  transform: translate(-50%, calc(-50% - 40px));
+  height: 160px;
   width: auto;
   z-index: 10;
   pointer-events: none;
 }
 body.home-bg-active #site-logo { display: block; }
 @media (max-width: 768px) {
-  #site-logo { height: 64px; }
+  #site-logo { height: 128px; }
 }
 
 /* 딤 없이, 바깥을 클릭하면 닫히는 용도로만 쓰는 투명 레이어 */

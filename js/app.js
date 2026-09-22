@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=10";
+} from "./firebase-config.js?v=11";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=10";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=10";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=11";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=11";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -118,6 +118,9 @@ onAuthStateChanged(auth, async (user) => {
     appShell.classList.remove("hidden");
     buildSidebar();
     await loadLibrary();
+    // 이전 세션에서 리스트/에디터 등에 있다가 새로고침했거나, 로그아웃 후
+    // 다시 로그인했을 때 그 화면이 남아있지 않도록 항상 홈부터 보여준다.
+    location.hash = "#/home";
     router();
   } else {
     loginScreen.classList.remove("hidden");
