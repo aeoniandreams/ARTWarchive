@@ -102,7 +102,7 @@ function buildSidebar() {
 
     const header = document.createElement("div");
     header.className = "cat-header";
-    header.innerHTML = `<span class="cat-icon">${cat.icon}</span><span>${cat.label}</span>`;
+    header.innerHTML = `<img class="cat-icon" src="${cat.icon}" alt="" /><span>${cat.label}</span>`;
 
     const subList = document.createElement("div");
     subList.className = "subcat-list";

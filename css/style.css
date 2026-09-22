@@ -96,10 +96,10 @@ button, input, select, textarea {
   gap: 8px;
   padding: 10px 20px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
 }
 .cat-header:hover { background: var(--accent-soft); }
-.cat-icon { font-size: 1.05rem; }
+.cat-icon { width: 22px; height: 22px; object-fit: contain; border-radius: 6px; }
 .subcat-list { display: none; }
 .subcat-list.open { display: block; }
 .subcat-item {

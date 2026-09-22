@@ -1,5 +1,5 @@
 // 1차/2차 카테고리 정의. label은 화면에 보이는 이름, id는 내부적으로 쓰는 고유 값.
-// icon은 나중에 실제 아이콘(이미지 경로 또는 이모지)으로 교체.
+// icon은 icons/ 폴더의 아이콘 이미지 경로.
 
 const sixNames = ["아크투루스", "스피카", "베가", "알페라츠", "폴룩스", "시리우스"];
 const sixIds = ["arcturus", "spica", "vega", "alpheratz", "pollux", "sirius"];
@@ -12,7 +12,7 @@ export const CATEGORIES = [
   {
     id: "main_story",
     label: "메인 스토리",
-    icon: "📖",
+    icon: "icons/main_story.webp",
     subcategories: Array.from({ length: 13 }, (_, i) => ({
       id: `f${i + 1}`,
       label: `${i + 1}F`,
@@ -21,13 +21,13 @@ export const CATEGORIES = [
   {
     id: "diary",
     label: "다이어리",
-    icon: "📔",
+    icon: "icons/diary.webp",
     subcategories: makeSix(),
   },
   {
     id: "talk",
     label: "톡 보관함",
-    icon: "💬",
+    icon: "icons/talk.webp",
     subcategories: [
       { id: "daily", label: "일별 기록" },
       { id: "by_card", label: "카드별 기록" },
@@ -40,7 +40,7 @@ export const CATEGORIES = [
   {
     id: "call",
     label: "전화 기록",
-    icon: "☎",
+    icon: "icons/call.webp",
     subcategories: makeSix(),
   },
 ];
