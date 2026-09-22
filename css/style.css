@@ -278,7 +278,7 @@ body.home-bg-active #site-subtitle { display: block; }
 .subcat-list.open { display: block; }
 .subcat-item {
   padding: 8px 20px 8px 46px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #ffffff;
   cursor: pointer;
 }
