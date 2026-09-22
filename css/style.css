@@ -216,6 +216,7 @@ body.home-bg-active #site-logo { display: block; }
   letter-spacing: 3px;
   z-index: 10;
   pointer-events: none;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7), 0 0 2px rgba(0, 0, 0, 0.5);
 }
 body.home-bg-active #site-subtitle { display: block; }
 
@@ -526,4 +527,7 @@ body.home-bg-active #site-subtitle { display: block; }
   #record-category, #record-subcategory { flex: 1 1 140px; }
 
   .has-p, .is-right { flex-wrap: wrap; }
+
+  /* 좁은 화면에서 표시되는 부분을 오른쪽으로 좀 더 이동 */
+  body.list-bg-main_story { background-position: 75% center; }
 }
