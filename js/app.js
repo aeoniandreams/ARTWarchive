@@ -224,11 +224,6 @@ function buildSidebar() {
   });
 }
 
-document.querySelector('.site-title').addEventListener('click', () => {
-  location.hash = '#/home';
-  closeSidebar();
-});
-
 document.getElementById('library-nav-btn').addEventListener('click', () => {
   location.hash = '#/library';
   closeSidebar();

@@ -101,11 +101,11 @@ button, input, select, textarea {
   border: none;
   border-radius: 8px;
   background: none;
-  color: var(--text);
+  color: #ffffff;
   cursor: pointer;
 }
 #sidebar-toggle-btn svg { width: 20px; height: 20px; }
-#sidebar-toggle-btn:hover { background: var(--accent-soft); }
+#sidebar-toggle-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
 /* 딤 없이, 바깥을 클릭하면 닫히는 용도로만 쓰는 투명 레이어 */
 #sidebar-backdrop {
@@ -134,13 +134,7 @@ button, input, select, textarea {
   overflow-y: auto;
 }
 #sidebar.open { transform: translateX(0); }
-.sidebar-nav-group { flex: 1; display: flex; flex-direction: column; }
-#sidebar .site-title {
-  font-weight: bold;
-  font-size: 1.1rem;
-  padding: 0 20px 20px;
-  cursor: pointer;
-}
+.sidebar-nav-group { flex: 1; display: flex; flex-direction: column; margin-top: 46px; }
 .cat-group { margin-bottom: 4px; }
 .cat-header {
   display: flex;
