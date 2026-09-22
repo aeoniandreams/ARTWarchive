@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=22";
+} from "./firebase-config.js?v=23";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=22";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=22";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=23";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=23";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -471,11 +471,11 @@ let editingRecordId = null;
 
 async function renderEditorView({ categoryId, subcategoryId, recordId }) {
   editingRecordId = recordId || null;
-  editorBreadcrumb.textContent = recordId ? "기록 수정" : "새 기록 추가";
   recordTitleInput.value = "";
   editorContent.innerHTML = "";
 
   if (recordId) {
+    editorBreadcrumb.innerHTML = `<a href="#/view/${recordId}">&larr; 기록으로</a> &nbsp;·&nbsp; 기록 수정`;
     const snap = await getDoc(doc(db, "records", recordId));
     if (snap.exists()) {
       const data = snap.data();
@@ -485,6 +485,7 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
       editorContent.innerHTML = data.tableHtml || "";
     }
   } else {
+    editorBreadcrumb.innerHTML = `<a href="#/list/${categoryId}/${subcategoryId}">&larr; 목록으로</a> &nbsp;·&nbsp; 새 기록 추가`;
     recordCategorySelect.value = categoryId;
     fillSubcategorySelect(categoryId, subcategoryId);
   }
