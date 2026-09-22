@@ -279,10 +279,10 @@ body.home-bg-active #site-subtitle { display: block; }
 .subcat-item {
   padding: 8px 20px 8px 46px;
   font-size: 0.9rem;
-  color: var(--text-dim);
+  color: #ffffff;
   cursor: pointer;
 }
-.subcat-item:hover, .subcat-item.active { color: var(--text); background: var(--accent-soft); }
+.subcat-item:hover, .subcat-item.active { color: #ffffff; background: var(--accent-soft); }
 
 .sidebar-footer {
   display: flex;
