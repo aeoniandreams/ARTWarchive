@@ -1,0 +1,263 @@
+:root {
+  --bg: #faf8f5;
+  --panel: #ffffff;
+  --border: #e5e0d8;
+  --text: #2b2b2b;
+  --text-dim: #7a7a7a;
+  --accent: #c9977b;
+  --accent-soft: #f2e4da;
+  --sidebar-w: 240px;
+
+  /* 대화로그 렌더링 변수 (기존 티스토리 코드 그대로) */
+  --p-size: 45px;
+  --p-gap: 10px;
+  --no-img-w: 80px;
+  --nar-padding: 8px 10px;
+  --row-margin: 25px;
+  --nar-to-next-margin: 30px;
+  --nar-to-nar-margin: 0px;
+  --fold-btn-bottom-gap: 25px;
+  --fold-bottom-gap: 5px;
+  --fold-btn-active-color: #4fd8d1;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.hidden { display: none !important; }
+
+/* ── 로그인 화면 ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#login-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  width: 320px;
+  text-align: center;
+}
+#login-box h1 { font-size: 1.2rem; margin-bottom: 20px; }
+#login-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+#login-box button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+#login-error { color: #c0392b; font-size: 0.85rem; margin-top: 8px; min-height: 1em; }
+
+/* ── 앱 레이아웃 ── */
+#app-shell { display: flex; min-height: 100vh; }
+
+#sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+}
+#sidebar .site-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0 20px 20px;
+  cursor: pointer;
+}
+.cat-group { margin-bottom: 4px; }
+.cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.cat-header:hover { background: var(--accent-soft); }
+.cat-icon { font-size: 1.05rem; }
+.subcat-list { display: none; }
+.subcat-list.open { display: block; }
+.subcat-item {
+  padding: 8px 20px 8px 46px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.subcat-item:hover, .subcat-item.active { color: var(--text); background: var(--accent-soft); }
+
+#logout-btn {
+  margin: 20px 20px 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+#main-area { flex: 1; padding: 30px 40px; max-width: 900px; }
+
+.breadcrumb { color: var(--text-dim); margin-bottom: 16px; font-size: 0.9rem; }
+
+#new-record-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* ── 리스트 화면 ── */
+.record-list { list-style: none; padding: 0; margin: 0; }
+.record-list li {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: var(--panel);
+  cursor: pointer;
+}
+.record-list li:hover { border-color: var(--accent); }
+.record-list .record-title { font-weight: 600; }
+.record-list .record-meta { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+.empty-state { color: var(--text-dim); padding: 40px 0; text-align: center; }
+
+/* ── 에디터 화면 ── */
+#editor-view .field-row { margin-bottom: 12px; }
+#editor-view input[type="text"], #editor-view select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+#record-title { width: 100%; }
+
+#editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: var(--panel);
+}
+#editor-toolbar button {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+#editor-toolbar button:hover { background: var(--accent-soft); }
+#editor-toolbar input[type="color"] { width: 32px; padding: 0; border: 1px solid var(--border); border-radius: 5px; }
+
+#editor-content {
+  min-height: 400px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  background: white;
+}
+#editor-content table { border-collapse: collapse; margin: 10px 0; }
+#editor-content table td { border: 1px solid var(--border); padding: 6px; min-width: 60px; }
+
+#save-record-btn {
+  margin-top: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* 대화 로그 렌더링 (기존 티스토리 코드 이식, .log-render 안에서만 동작) */
+/* ─────────────────────────────────────────────────────────── */
+
+.log-render table { display: none !important; }
+.log-render .s-keep-table { display: block !important; }
+.log-render .s-keep-table table { display: table !important; }
+.log-render .s-keep-table td, .log-render .s-keep-table th { padding: 7px; }
+.log-render .s-keep-table table { width: 55%; }
+@media (max-width: 768px) { .log-render .s-keep-table table { width: 65%; } }
+
+.log-render .s-container { margin: 2rem 0; font-size: inherit; width: 100%; }
+.log-render .s-container > *:last-child { margin-bottom: 0 !important; }
+.log-render .s-row { display: flex; align-items: flex-start; line-height: 1.6; width: 100%; }
+
+.log-render .has-p { gap: var(--p-gap); margin-bottom: var(--row-margin); }
+.log-render .has-p .p-box { flex: 0 0 var(--p-size); width: var(--p-size); height: var(--p-size); border-radius: 50%; overflow: hidden; background: #f0f0f0; }
+.log-render .has-p .p-box img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; margin: 0 !important; max-width: none !important; }
+.log-render .has-p .t-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.log-render .no-p { margin-bottom: var(--row-margin); }
+.log-render .no-p .c-name { flex: 0 0 var(--no-img-w); }
+.log-render .no-p .c-talk { flex: 1; padding-left: 2px; }
+
+.log-render .is-narration {
+  display: block; width: 100%; font-style: normal; text-align: inherit;
+  padding: var(--nar-padding);
+  margin-bottom: var(--nar-to-next-margin);
+  background: var(--accent-soft);
+  border-radius: 6px;
+}
+.log-render .is-narration + .is-narration { margin-top: calc(var(--nar-to-next-margin) * -1 + var(--nar-to-nar-margin)); }
+.log-render .is-narration .c-talk { color: inherit; text-align: inherit; }
+
+.log-render .is-code { margin-bottom: var(--row-margin); display: block; width: 100%; }
+
+.log-render .is-right { justify-content: flex-end; gap: var(--p-gap); margin-bottom: var(--row-margin); }
+.log-render .is-right .t-area { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; }
+.log-render .is-right .c-talk { text-align: right; }
+.log-render .is-right .p-box { flex: 0 0 var(--p-size); width: var(--p-size); height: var(--p-size); border-radius: 50%; overflow: hidden; background: #f0f0f0; }
+.log-render .is-right .p-box img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; margin: 0 !important; max-width: none !important; }
+.log-render .is-right .c-talk img { margin-left: auto !important; margin-right: 0 !important; }
+.log-render .is-right .c-talk figure { margin-left: auto !important; margin-right: 0 !important; }
+
+.log-render .c-name { font-weight: bold; margin-bottom: 3px; color: inherit; }
+.log-render .c-talk { color: inherit; word-break: break-all; width: 100%; }
+
+.log-render .c-talk figure { margin: 10px 0 !important; }
+.log-render .c-talk figure img { display: block !important; opacity: 1 !important; visibility: visible !important; }
+.log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; }
+
+.log-render .s-fold-btns { display: flex; width: 100%; margin: 6px 0 var(--fold-btn-bottom-gap); gap: 1em; }
+.log-render .s-fold-btn {
+  flex: 1; cursor: pointer; background: none; border: none; padding: 0;
+  font-size: inherit; font-weight: bold; color: inherit;
+  font-family: inherit; text-align: left;
+}
+.log-render .s-fold-btn:hover { color: var(--fold-btn-active-color); }
+.log-render .s-fold-btns.has-open .s-fold-btn:not(.open):hover { color: inherit; opacity: 0.6; }
+.log-render .s-fold-btn.open { color: var(--fold-btn-active-color); }
+.log-render .s-fold-btn::before { content: "▶ "; font-size: 0.75em; }
+.log-render .s-fold-btn.open::before { content: "▼ "; font-size: 0.75em; }
+.log-render .s-fold-btn img { display: inline !important; width: auto !important; height: 20% !important; vertical-align: middle !important; opacity: 1 !important; visibility: visible !important; max-width: none !important; }
+.log-render .s-fold-content { display: none; }
+.log-render .s-fold-content.open { display: block; }

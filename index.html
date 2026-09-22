@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ARTWarchive</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- 로그인 화면 -->
+<div id="login-screen">
+  <div id="login-box">
+    <h1>ARTWarchive</h1>
+    <input type="email" id="login-email" placeholder="이메일" />
+    <input type="password" id="login-password" placeholder="비밀번호" />
+    <button id="login-btn">로그인</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- 앱 본체 -->
+<div id="app-shell" class="hidden">
+  <nav id="sidebar">
+    <div class="site-title" data-route="home">ARTWarchive</div>
+    <div id="category-nav"></div>
+    <button id="logout-btn">로그아웃</button>
+  </nav>
+
+  <main id="main-area">
+
+    <!-- 홈 화면 -->
+    <section id="home-view">
+      <h2>ARTWarchive</h2>
+      <p class="breadcrumb">왼쪽에서 카테고리를 선택하거나, 새 기록을 추가하세요.</p>
+      <button id="new-record-btn-home">+ 새 기록 추가</button>
+    </section>
+
+    <!-- 리스트 화면 -->
+    <section id="list-view" class="hidden">
+      <div class="breadcrumb" id="list-breadcrumb"></div>
+      <button id="new-record-btn">+ 새 기록 추가</button>
+      <ul class="record-list" id="record-list"></ul>
+    </section>
+
+    <!-- 에디터 화면 -->
+    <section id="editor-view" class="hidden">
+      <div class="breadcrumb" id="editor-breadcrumb"></div>
+
+      <div class="field-row">
+        <input type="text" id="record-title" placeholder="제목" />
+      </div>
+      <div class="field-row">
+        <select id="record-category"></select>
+        <select id="record-subcategory"></select>
+      </div>
+
+      <div id="editor-toolbar">
+        <button type="button" data-cmd="bold"><b>B</b></button>
+        <button type="button" data-cmd="italic"><i>I</i></button>
+        <input type="color" id="color-picker" title="글자색" />
+        <button type="button" id="btn-insert-library">라이브러리 표 삽입</button>
+        <button type="button" id="btn-insert-table">대화 표 삽입</button>
+        <button type="button" id="btn-add-row">행 추가</button>
+        <button type="button" data-quick="/나레이션">나레이션</button>
+        <button type="button" data-quick="/코드">코드</button>
+        <button type="button" data-quick="/접기">접기</button>
+        <button type="button" data-quick="/끝">접기 끝</button>
+        <button type="button" data-quick="/표">표 유지</button>
+        <button type="button" id="btn-paste-html">HTML 붙여넣기</button>
+      </div>
+      <div id="editor-content" contenteditable="true"></div>
+
+      <button id="save-record-btn">저장</button>
+    </section>
+
+    <!-- 뷰어 화면 -->
+    <section id="viewer-view" class="hidden">
+      <div class="breadcrumb" id="viewer-breadcrumb"></div>
+      <h2 id="viewer-title"></h2>
+      <div id="viewer-content" class="log-render"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- HTML 붙여넣기 모달 -->
+<div id="paste-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;">
+  <div style="background:white;padding:20px;border-radius:8px;width:600px;max-width:90vw;">
+    <h3 style="margin-top:0;">기존 티스토리 표 HTML 붙여넣기</h3>
+    <textarea id="paste-textarea" style="width:100%;height:200px;"></textarea>
+    <div style="margin-top:10px;text-align:right;">
+      <button id="paste-cancel-btn">취소</button>
+      <button id="paste-confirm-btn">삽입</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
