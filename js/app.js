@@ -35,6 +35,23 @@ const sidebarModeBtn = document.getElementById("sidebar-mode-btn");
 const sidebarAdminBadge = document.getElementById("sidebar-admin-badge");
 const sidebarLogoutBtn = document.getElementById("sidebar-logout-btn");
 const categoryNav = document.getElementById("category-nav");
+const sidebar = document.getElementById("sidebar");
+const sidebarToggleBtn = document.getElementById("sidebar-toggle-btn");
+const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+
+// ── 사이드바 서랍 열기/닫기 (데스크탑/모바일 공통) ──
+function openSidebar() {
+  sidebar.classList.add("open");
+  sidebarBackdrop.classList.add("open");
+}
+function closeSidebar() {
+  sidebar.classList.remove("open");
+  sidebarBackdrop.classList.remove("open");
+}
+sidebarToggleBtn.addEventListener("click", () => {
+  sidebar.classList.contains("open") ? closeSidebar() : openSidebar();
+});
+sidebarBackdrop.addEventListener("click", closeSidebar);
 
 const views = {
   home: document.getElementById("home-view"),
@@ -191,6 +208,7 @@ function buildSidebar() {
       item.dataset.sub = sub.id;
       item.addEventListener("click", () => {
         location.hash = `#/list/${cat.id}/${sub.id}`;
+        closeSidebar();
       });
       subList.appendChild(item);
     });
@@ -208,10 +226,12 @@ function buildSidebar() {
 
 document.querySelector('.site-title').addEventListener('click', () => {
   location.hash = '#/home';
+  closeSidebar();
 });
 
 document.getElementById('library-nav-btn').addEventListener('click', () => {
   location.hash = '#/library';
+  closeSidebar();
 });
 
 // ── 라우팅 ──
