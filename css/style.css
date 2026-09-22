@@ -195,7 +195,7 @@ button, input, select, textarea {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, calc(-50% - 50px));
+  transform: translate(-50%, calc(-50% - 6vh));
   height: 160px;
   width: auto;
   z-index: 10;
@@ -206,7 +206,7 @@ body.home-bg-active #site-logo { display: block; }
 #site-subtitle {
   display: none;
   position: fixed;
-  top: calc(50% + 42px);
+  top: calc(50% - 6vh + 92px);
   left: 50%;
   transform: translateX(-50%);
   color: #ffffff;
@@ -222,7 +222,7 @@ body.home-bg-active #site-subtitle { display: block; }
 
 @media (max-width: 768px) {
   #site-logo { height: 128px; }
-  #site-subtitle { top: calc(50% + 26px); font-size: 13px; letter-spacing: 2px; }
+  #site-subtitle { top: calc(50% - 6vh + 76px); font-size: 13px; letter-spacing: 2px; }
 }
 
 /* 딤 없이, 바깥을 클릭하면 닫히는 용도로만 쓰는 투명 레이어 */
