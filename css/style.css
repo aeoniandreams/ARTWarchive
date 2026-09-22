@@ -121,10 +121,9 @@ button, input, select, textarea {
   gap: 8px;
   padding: 12px 20px 0;
   margin-top: 12px;
-  border-top: 1px solid var(--border);
 }
 .sidebar-mode-btn {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 500;
   color: var(--text-dim);
   cursor: pointer;

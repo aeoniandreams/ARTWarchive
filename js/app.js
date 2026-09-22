@@ -32,7 +32,7 @@ const loginPassword = document.getElementById("login-password");
 const loginBtn = document.getElementById("login-btn");
 const loginError = document.getElementById("login-error");
 const sidebarModeBtn = document.getElementById("sidebar-mode-btn");
-const sidebarModeLabel = document.getElementById("sidebar-mode-label");
+const sidebarAdminBadge = document.getElementById("sidebar-admin-badge");
 const sidebarLogoutBtn = document.getElementById("sidebar-logout-btn");
 const categoryNav = document.getElementById("category-nav");
 
@@ -105,7 +105,7 @@ let isAdmin = false;
 // 뷰어 화면의 "수정" 링크처럼 나중에 동적으로 생기는 요소도 있어서, 캐싱하지
 // 않고 매번 다시 조회한다.
 function applyAdminUI() {
-  sidebarModeLabel.textContent = isAdmin ? "관리자 모드" : "뷰어 모드";
+  sidebarAdminBadge.classList.toggle("hidden", !isAdmin);
   document.querySelectorAll("[data-admin-only]").forEach((el) => el.classList.toggle("hidden", !isAdmin));
 }
 
