@@ -26,8 +26,14 @@
 body {
   margin: 0;
   font-family: "Pretendard JP Variable", "Apple SD Gothic Neo", sans-serif;
+  font-size: 14px;
   background: var(--bg);
   color: var(--text);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 14px;
 }
 
 .hidden { display: none !important; }
@@ -115,6 +121,7 @@ body {
 }
 
 #main-area { flex: 1; padding: 30px 40px; max-width: 900px; }
+#main-area h2 { font-size: 20px; margin: 0 0 8px; }
 
 .breadcrumb { color: var(--text-dim); margin-bottom: 16px; font-size: 0.9rem; }
 
@@ -150,7 +157,6 @@ body {
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 1rem;
 }
 #record-title { width: 100%; }
 
