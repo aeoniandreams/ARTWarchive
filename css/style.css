@@ -31,6 +31,17 @@ body {
   color: var(--text);
 }
 
+/* 홈 화면일 때만: 배경 이미지가 사이드바 영역까지 포함해서 화면 전체를 덮음.
+   화면 비율이 달라도(모바일 등) cover로 잘리면서 채워지고, fixed라 스크롤해도
+   따라오지 않는다. */
+body.home-bg-active {
+  background-image: url("images/home-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 button, input, select, textarea {
   font-family: inherit;
   font-size: 14px;
@@ -79,13 +90,13 @@ button, input, select, textarea {
 #sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.6);
   border-right: 1px solid var(--border);
   padding: 20px 0;
   display: flex;
   flex-direction: column;
 }
-#category-nav { flex: 1; }
+.sidebar-nav-group { flex: 1; display: flex; flex-direction: column; }
 #sidebar .site-title {
   font-weight: bold;
   font-size: 1.1rem;
@@ -103,7 +114,7 @@ button, input, select, textarea {
 }
 .cat-header:hover { background: var(--accent-soft); }
 .cat-icon { width: 22px; height: 22px; object-fit: contain; border-radius: 6px; }
-.icon-main_story, .icon-talk, .icon-diary { position: relative; top: 1px; }
+.icon-main_story, .icon-talk, .icon-diary, .icon-call { position: relative; top: 1px; }
 .subcat-list { display: none; }
 .subcat-list.open { display: block; }
 .subcat-item {
@@ -257,9 +268,9 @@ button, input, select, textarea {
 #library-nav-btn {
   display: block;
   width: calc(100% - 40px);
-  margin: 0 20px 16px;
+  margin: 24px 20px 16px;
   padding: 8px 10px;
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 6px;
   background: white;
   cursor: pointer;

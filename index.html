@@ -24,8 +24,10 @@
 <div id="app-shell" class="hidden">
   <nav id="sidebar">
     <div class="site-title" data-route="home">ARTWarchive</div>
-    <button id="library-nav-btn" data-admin-only class="hidden">캐릭터 라이브러리 관리</button>
-    <div id="category-nav"></div>
+    <div class="sidebar-nav-group">
+      <div id="category-nav"></div>
+      <button id="library-nav-btn" data-admin-only class="hidden">캐릭터 라이브러리 관리</button>
+    </div>
     <div class="sidebar-footer">
       <button id="sidebar-mode-btn" class="sidebar-mode-btn">
         <span>@ae0niandreams</span><span id="sidebar-admin-badge" class="hidden"> · 관리자 모드</span>
@@ -40,8 +42,6 @@
 
     <!-- 홈 화면 -->
     <section id="home-view">
-      <h2>ARTWarchive</h2>
-      <p class="breadcrumb">왼쪽에서 카테고리를 선택하거나, 새 기록을 추가하세요.</p>
       <button id="new-record-btn-home" data-admin-only class="hidden">+ 새 기록 추가</button>
     </section>
 

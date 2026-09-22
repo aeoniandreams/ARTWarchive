@@ -223,6 +223,7 @@ document.getElementById('library-nav-btn').addEventListener('click', () => {
 function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
   views[name].classList.remove("hidden");
+  document.body.classList.toggle("home-bg-active", name === "home");
 }
 
 window.addEventListener("hashchange", router);
