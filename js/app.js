@@ -235,12 +235,88 @@ async function renderViewerView(recordId) {
   renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk" });
 }
 
+// ── 실행취소/다시실행 (Ctrl+Z / Ctrl+Y·Ctrl+Shift+Z) ──
+// 표 삽입/행 추가/HTML 붙여넣기 등 버튼으로 하는 조작은 직접 DOM을 바꾸는 방식이라
+// 브라우저 기본 실행취소 기록에 안 쌓여서, 타이핑 삭제만 취소되고 버튼으로 추가한
+// 내용은 안 지워지는 문제가 있었음. MutationObserver로 모든 변경(타이핑 포함)을
+// 감지해서 직접 undo/redo 스택을 관리하는 방식으로 교체.
+function setupUndoRedo(el) {
+  const undoStack = [];
+  let redoStack = [];
+  let debounceTimer = null;
+  let applying = false;
+
+  const snapshot = () => el.innerHTML;
+
+  function commit() {
+    if (applying) return;
+    const current = snapshot();
+    if (undoStack.length && undoStack[undoStack.length - 1] === current) return;
+    undoStack.push(current);
+    if (undoStack.length > 100) undoStack.shift();
+    redoStack = [];
+  }
+
+  function apply(html) {
+    applying = true;
+    el.innerHTML = html;
+    // MutationObserver 콜백은 마이크로태스크로 지연 실행되므로, applying을
+    // 동기적으로 바로 내리면 관찰자 콜백이 그 이후(=false 상태)에 실행돼
+    // 우리가 되돌린 변경을 새 변경으로 다시 스택에 쌓아버린다. 관찰자 콜백보다
+    // 뒤에 실행되도록 마이크로태스크로 한 틱 늦춰서 해제한다.
+    queueMicrotask(() => {
+      applying = false;
+    });
+  }
+
+  const observer = new MutationObserver(() => {
+    if (applying) return;
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(commit, 400);
+  });
+  observer.observe(el, { childList: true, subtree: true, characterData: true, attributes: true });
+
+  el.addEventListener("keydown", (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    const key = e.key.toLowerCase();
+    if (!mod) return;
+
+    if (key === "z" && !e.shiftKey) {
+      e.preventDefault();
+      clearTimeout(debounceTimer);
+      commit(); // 되돌리기 직전, 아직 안 쌓인 변경사항이 있으면 먼저 확정
+      if (undoStack.length > 1) {
+        const current = undoStack.pop();
+        redoStack.push(current);
+        apply(undoStack[undoStack.length - 1]);
+      }
+    } else if ((key === "z" && e.shiftKey) || key === "y") {
+      e.preventDefault();
+      if (redoStack.length) {
+        const next = redoStack.pop();
+        undoStack.push(next);
+        apply(next);
+      }
+    }
+  });
+
+  return {
+    reset() {
+      clearTimeout(debounceTimer);
+      undoStack.length = 0;
+      undoStack.push(snapshot());
+      redoStack = [];
+    },
+  };
+}
+
 // ── 에디터 화면 ──
 const recordTitleInput = document.getElementById("record-title");
 const recordCategorySelect = document.getElementById("record-category");
 const recordSubcategorySelect = document.getElementById("record-subcategory");
 const editorContent = document.getElementById("editor-content");
 const editorBreadcrumb = document.getElementById("editor-breadcrumb");
+const editorUndo = setupUndoRedo(editorContent);
 
 // 카테고리 select 채우기
 CATEGORIES.forEach((cat) => {
@@ -288,6 +364,7 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
     recordCategorySelect.value = categoryId;
     fillSubcategorySelect(categoryId, subcategoryId);
   }
+  editorUndo.reset();
 }
 
 // 서식 버튼 (굵게/기울임)
@@ -477,9 +554,11 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
 // ── 캐릭터 라이브러리 관리 화면 ──
 const libraryContent = document.getElementById("library-content");
 libraryContent.addEventListener("keydown", (e) => handleTableVerticalNav(e, libraryContent));
+const libraryUndo = setupUndoRedo(libraryContent);
 
 function renderLibraryView() {
   libraryContent.innerHTML = libraryTableHtml;
+  libraryUndo.reset();
 }
 
 const LIBRARY_MIN_COLUMNS = 10;
