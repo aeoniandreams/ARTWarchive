@@ -352,7 +352,7 @@ body.home-bg-active #site-subtitle { display: block; }
   border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 8px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   cursor: pointer;
 }
 .record-list li:hover { border-color: var(--accent); }
