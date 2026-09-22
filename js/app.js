@@ -528,26 +528,31 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     return;
   }
 
-  if (editingRecordId) {
-    await updateDoc(doc(db, "records", editingRecordId), {
-      title,
-      category,
-      subcategory,
-      tableHtml,
-      updatedAt: serverTimestamp(),
-    });
-    location.hash = `#/view/${editingRecordId}`;
-  } else {
-    const newDoc = await addDoc(collection(db, "records"), {
-      title,
-      category,
-      subcategory,
-      tableHtml,
-      authorUid: auth.currentUser.uid,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-    location.hash = `#/view/${newDoc.id}`;
+  try {
+    if (editingRecordId) {
+      await updateDoc(doc(db, "records", editingRecordId), {
+        title,
+        category,
+        subcategory,
+        tableHtml,
+        updatedAt: serverTimestamp(),
+      });
+      location.hash = `#/view/${editingRecordId}`;
+    } else {
+      const newDoc = await addDoc(collection(db, "records"), {
+        title,
+        category,
+        subcategory,
+        tableHtml,
+        authorUid: auth.currentUser.uid,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      location.hash = `#/view/${newDoc.id}`;
+    }
+  } catch (e) {
+    console.error("저장 실패:", e.code, e.message);
+    alert("저장에 실패했습니다: " + (e.code || e.message));
   }
 });
 
@@ -606,13 +611,19 @@ document.getElementById("btn-library-insert-image").addEventListener("click", ()
 });
 
 document.getElementById("save-library-btn").addEventListener("click", async () => {
-  libraryTableHtml = libraryContent.innerHTML;
-  await setDoc(doc(db, "settings", "library"), {
-    tableHtml: libraryTableHtml,
-    updatedAt: serverTimestamp(),
-  });
-  const temp = document.createElement("div");
-  temp.innerHTML = libraryTableHtml;
-  libraryData = parseLibraryTable(temp);
-  alert("저장되었습니다.");
+  const newTableHtml = libraryContent.innerHTML;
+  try {
+    await setDoc(doc(db, "settings", "library"), {
+      tableHtml: newTableHtml,
+      updatedAt: serverTimestamp(),
+    });
+    libraryTableHtml = newTableHtml;
+    const temp = document.createElement("div");
+    temp.innerHTML = libraryTableHtml;
+    libraryData = parseLibraryTable(temp);
+    alert("저장되었습니다.");
+  } catch (e) {
+    console.error("라이브러리 저장 실패:", e.code, e.message);
+    alert("저장에 실패했습니다: " + (e.code || e.message));
+  }
 });
