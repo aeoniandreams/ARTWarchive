@@ -181,8 +181,11 @@ body {
   border: 1px solid var(--border);
   border-radius: 0 0 8px 8px;
   background: white;
+  max-width: 100%;
+  overflow-x: auto;
 }
 #library-content { min-height: 160px; }
+#editor-content img, #library-content img { max-width: 100%; height: auto; }
 #editor-content table, #library-content table { border-collapse: collapse; margin: 10px 0; }
 #editor-content table td, #library-content table td { border: 1px solid var(--border); padding: 6px; }
 #editor-content table td { min-width: 60px; }

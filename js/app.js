@@ -20,9 +20,6 @@ import {
 import { CATEGORIES, findCategory, findSubcategory } from "./categories.js";
 import { renderLog, parseLibraryTable } from "./render-log.js";
 
-// 임시 디버그용: 콘솔에서 auth 상태로 직접 REST 요청을 테스트할 수 있게 노출 (문제 해결되면 제거 예정)
-window.__debugAuth = auth;
-
 // ── DOM refs ──
 // 로그인 화면에서 이메일 입력을 받지 않고, 이 고정 계정으로 로그인합니다.
 // Firebase 콘솔 > Authentication 에 이 이메일로 사용자를 만들고 비밀번호를 지인들과 공유하세요.
@@ -531,12 +528,6 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     return;
   }
 
-  console.log("[디버그] 저장 시도 시점 로그인 상태:", {
-    uid: auth.currentUser?.uid,
-    email: auth.currentUser?.email,
-    isNull: auth.currentUser === null,
-  });
-
   try {
     if (editingRecordId) {
       await updateDoc(doc(db, "records", editingRecordId), {
@@ -621,11 +612,6 @@ document.getElementById("btn-library-insert-image").addEventListener("click", ()
 
 document.getElementById("save-library-btn").addEventListener("click", async () => {
   const newTableHtml = libraryContent.innerHTML;
-  console.log("[디버그] 저장 시도 시점 로그인 상태:", {
-    uid: auth.currentUser?.uid,
-    email: auth.currentUser?.email,
-    isNull: auth.currentUser === null,
-  });
   try {
     await setDoc(doc(db, "settings", "library"), {
       tableHtml: newTableHtml,
