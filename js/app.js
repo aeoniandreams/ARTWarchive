@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=8";
+} from "./firebase-config.js?v=9";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=8";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=8";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=9";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=9";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -244,7 +244,7 @@ document.getElementById('library-nav-btn').addEventListener('click', () => {
 });
 
 // ── 라우팅 ──
-const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk"];
+const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk", "list-bg-diary"];
 
 function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));

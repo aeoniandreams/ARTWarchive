@@ -59,6 +59,13 @@ body.list-bg-call {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
+body.list-bg-diary {
+  background-image: url("../images/list-bg/diary.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 body.list-bg-talk {
   background-image: url("../images/list-bg/talk.jpg");
   background-size: cover;
