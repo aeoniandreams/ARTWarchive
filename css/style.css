@@ -529,5 +529,5 @@ body.home-bg-active #site-subtitle { display: block; }
   .has-p, .is-right { flex-wrap: wrap; }
 
   /* 좁은 화면에서 표시되는 부분을 오른쪽으로 좀 더 이동 */
-  body.list-bg-main_story { background-position: 60% center; }
+  body.list-bg-main_story { background-position: 58% center; }
 }
