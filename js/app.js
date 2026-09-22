@@ -22,7 +22,7 @@ import { renderLog } from "./render-log.js";
 // ── DOM refs ──
 // 로그인 화면에서 이메일 입력을 받지 않고, 이 고정 계정으로 로그인합니다.
 // Firebase 콘솔 > Authentication 에 이 이메일로 사용자를 만들고 비밀번호를 지인들과 공유하세요.
-const SHARED_LOGIN_EMAIL = "guest@artwarchive.app";
+const SHARED_LOGIN_EMAIL = "user@gmail.com";
 
 const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");
