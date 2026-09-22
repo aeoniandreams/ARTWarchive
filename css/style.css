@@ -195,7 +195,7 @@ button, input, select, textarea {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, calc(-50% - 40px));
+  transform: translate(-50%, calc(-50% - 50px));
   height: 160px;
   width: auto;
   z-index: 10;
@@ -318,10 +318,13 @@ body.home-bg-active #site-logo { display: block; }
 /* ── 리스트 화면 ── */
 #list-logo {
   display: block;
-  height: 112px;
+  height: 80px;
   width: auto;
   margin: -10px auto 20px;
   cursor: pointer;
+}
+@media (max-width: 768px) {
+  #list-logo { height: 64px; }
 }
 
 .record-list { list-style: none; padding: 0; margin: 0; }
