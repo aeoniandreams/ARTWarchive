@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=3";
+} from "./firebase-config.js?v=4";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,10 +22,11 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=3";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=3";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=4";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=4";
 
 // ── DOM refs ──
+const loadingView = document.getElementById("loading-view");
 const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");
 const loginPassword = document.getElementById("login-password");
@@ -98,7 +99,16 @@ loginPassword.addEventListener("keydown", (e) => {
   if (e.key === "Enter") loginBtn.click();
 });
 
+// 로딩 화면이 최소 1초는 보이도록 — 너무 빨리 끝나면 이미지 애니메이션이
+// 한 프레임 반짝이고 사라지는 것처럼 보인다.
+const MIN_LOADING_MS = 1000;
+
 onAuthStateChanged(auth, async (user) => {
+  const elapsed = Date.now() - (window.__pageLoadStart || Date.now());
+  const remaining = Math.max(0, MIN_LOADING_MS - elapsed);
+  if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
+  loadingView.classList.add("hidden");
+
   if (user) {
     loginScreen.classList.add("hidden");
     appShell.classList.remove("hidden");
