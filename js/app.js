@@ -45,7 +45,16 @@ loginBtn.addEventListener("click", async () => {
   try {
     await signInWithEmailAndPassword(auth, SHARED_LOGIN_EMAIL, loginPassword.value);
   } catch (e) {
-    loginError.textContent = "로그인 실패: 비밀번호를 확인하세요.";
+    console.error("로그인 실패:", e.code, e.message);
+    if (e.code === "auth/unauthorized-domain") {
+      loginError.textContent = "이 도메인이 Firebase에 승인되지 않았습니다. (auth/unauthorized-domain)";
+    } else if (e.code === "auth/operation-not-allowed") {
+      loginError.textContent = "이메일/비밀번호 로그인이 비활성화되어 있습니다. (auth/operation-not-allowed)";
+    } else if (e.code === "auth/user-not-found" || e.code === "auth/invalid-credential") {
+      loginError.textContent = "공유 계정이 아직 만들어지지 않았습니다. (" + e.code + ")";
+    } else {
+      loginError.textContent = "로그인 실패: 비밀번호를 확인하세요. (" + e.code + ")";
+    }
   }
 });
 
