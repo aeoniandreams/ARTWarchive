@@ -1,11 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /records/{recordId} {
-      allow read, write: if request.auth != null;
-    }
-    match /settings/{docId} {
-      allow read, write: if request.auth != null;
+    match /{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.token.email == "admin@artwarchive.app";
     }
   }
 }

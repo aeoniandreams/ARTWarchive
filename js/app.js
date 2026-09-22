@@ -1,9 +1,14 @@
-import { auth, db } from "./firebase-config.js";
 import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  auth,
+  db,
+  adminAuth,
+  adminDb,
+  signInShared,
+  verifyAdminPassword,
+  logoutAdmin,
+  logoutAll,
+} from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
   addDoc,
@@ -21,16 +26,14 @@ import { CATEGORIES, findCategory, findSubcategory } from "./categories.js";
 import { renderLog, parseLibraryTable } from "./render-log.js";
 
 // ── DOM refs ──
-// 로그인 화면에서 이메일 입력을 받지 않고, 이 고정 계정으로 로그인합니다.
-// Firebase 콘솔 > Authentication 에 이 이메일로 사용자를 만들고 비밀번호를 지인들과 공유하세요.
-const SHARED_LOGIN_EMAIL = "user@gmail.com";
-
 const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");
 const loginPassword = document.getElementById("login-password");
 const loginBtn = document.getElementById("login-btn");
 const loginError = document.getElementById("login-error");
-const logoutBtn = document.getElementById("logout-btn");
+const sidebarModeBtn = document.getElementById("sidebar-mode-btn");
+const sidebarModeLabel = document.getElementById("sidebar-mode-label");
+const sidebarLogoutBtn = document.getElementById("sidebar-logout-btn");
 const categoryNav = document.getElementById("category-nav");
 
 const views = {
@@ -59,7 +62,7 @@ async function loadLibrary() {
 loginBtn.addEventListener("click", async () => {
   loginError.textContent = "";
   try {
-    await signInWithEmailAndPassword(auth, SHARED_LOGIN_EMAIL, loginPassword.value);
+    await signInShared(loginPassword.value);
   } catch (e) {
     console.error("로그인 실패:", e.code, e.message);
     if (e.code === "auth/unauthorized-domain") {
@@ -78,8 +81,6 @@ loginPassword.addEventListener("keydown", (e) => {
   if (e.key === "Enter") loginBtn.click();
 });
 
-logoutBtn.addEventListener("click", () => signOut(auth));
-
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     loginScreen.classList.add("hidden");
@@ -90,6 +91,82 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     loginScreen.classList.remove("hidden");
     appShell.classList.add("hidden");
+  }
+});
+
+// ── 관리자 모드 ──
+// 기록 추가/수정/라이브러리 저장은 관리자 모드에서만 할 수 있다. 관리자
+// 여부는 별도의 관리자 계정(adminAuth) 세션이 실제로 로그인되어 있는지로
+// 정해지고, 그 세션으로 로그인되어 있어야 Firestore 쓰기가 통과하므로
+// (규칙이 관리자 이메일에게만 write를 허용) 아래 UI 상태를 흉내내는
+// 것만으로는 저장이 되지 않는다. 브라우저에 저장되어 새로고침해도 유지된다.
+let isAdmin = false;
+
+// 뷰어 화면의 "수정" 링크처럼 나중에 동적으로 생기는 요소도 있어서, 캐싱하지
+// 않고 매번 다시 조회한다.
+function applyAdminUI() {
+  sidebarModeLabel.textContent = isAdmin ? "관리자 모드" : "뷰어 모드";
+  document.querySelectorAll("[data-admin-only]").forEach((el) => el.classList.toggle("hidden", !isAdmin));
+}
+
+onAuthStateChanged(adminAuth, (user) => {
+  isAdmin = !!user;
+  applyAdminUI();
+});
+
+const adminPasswordModal = document.getElementById("admin-password-modal");
+const adminPasswordInput = document.getElementById("admin-password-input");
+const adminPasswordError = document.getElementById("admin-password-error");
+const adminPasswordSubmitBtn = document.getElementById("admin-password-submit-btn");
+
+function openAdminPasswordModal() {
+  adminPasswordInput.value = "";
+  adminPasswordError.textContent = "";
+  adminPasswordModal.classList.remove("hidden");
+  adminPasswordInput.focus();
+}
+
+function closeAdminPasswordModal() {
+  adminPasswordModal.classList.add("hidden");
+}
+
+async function trySubmitAdminPassword() {
+  const password = adminPasswordInput.value;
+  if (!password) return;
+  adminPasswordSubmitBtn.disabled = true;
+  adminPasswordError.textContent = "";
+  try {
+    await verifyAdminPassword(password);
+    closeAdminPasswordModal();
+  } catch (e) {
+    console.error("관리자 로그인 실패:", e.code, e.message);
+    adminPasswordError.textContent = "비밀번호가 올바르지 않습니다. (" + e.code + ")";
+  } finally {
+    adminPasswordSubmitBtn.disabled = false;
+  }
+}
+
+sidebarModeBtn.addEventListener("click", () => {
+  if (isAdmin) {
+    logoutAdmin();
+  } else {
+    openAdminPasswordModal();
+  }
+});
+
+document.getElementById("admin-password-cancel-btn").addEventListener("click", closeAdminPasswordModal);
+adminPasswordSubmitBtn.addEventListener("click", trySubmitAdminPassword);
+adminPasswordInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") trySubmitAdminPassword();
+});
+
+// 관리자 모드에서는 먼저 뷰어 모드로만 내려가고, 뷰어 모드에서 한 번 더
+// 눌러야 실제로 로그인 화면까지 나간다.
+sidebarLogoutBtn.addEventListener("click", () => {
+  if (isAdmin) {
+    logoutAdmin();
+  } else {
+    logoutAll();
   }
 });
 
@@ -228,7 +305,8 @@ async function renderViewerView(recordId) {
   const data = snap.data();
   const cat = findCategory(data.category);
   const sub = findSubcategory(data.category, data.subcategory);
-  viewerBreadcrumb.innerHTML = `${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}">수정</a>`;
+  viewerBreadcrumb.innerHTML = `${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}" data-admin-only class="hidden">수정</a>`;
+  applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
   // 프로필 사진은 톡 보관함 기록에서만 보여준다.
@@ -530,7 +608,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
 
   try {
     if (editingRecordId) {
-      await updateDoc(doc(db, "records", editingRecordId), {
+      await updateDoc(doc(adminDb, "records", editingRecordId), {
         title,
         category,
         subcategory,
@@ -539,12 +617,12 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
       });
       location.hash = `#/view/${editingRecordId}`;
     } else {
-      const newDoc = await addDoc(collection(db, "records"), {
+      const newDoc = await addDoc(collection(adminDb, "records"), {
         title,
         category,
         subcategory,
         tableHtml,
-        authorUid: auth.currentUser.uid,
+        authorUid: adminAuth.currentUser.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -613,7 +691,7 @@ document.getElementById("btn-library-insert-image").addEventListener("click", ()
 document.getElementById("save-library-btn").addEventListener("click", async () => {
   const newTableHtml = libraryContent.innerHTML;
   try {
-    await setDoc(doc(db, "settings", "library"), {
+    await setDoc(doc(adminDb, "settings", "library"), {
       tableHtml: newTableHtml,
       updatedAt: serverTimestamp(),
     });

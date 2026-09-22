@@ -24,9 +24,16 @@
 <div id="app-shell" class="hidden">
   <nav id="sidebar">
     <div class="site-title" data-route="home">ARTWarchive</div>
-    <button id="library-nav-btn">캐릭터 라이브러리 관리</button>
+    <button id="library-nav-btn" data-admin-only class="hidden">캐릭터 라이브러리 관리</button>
     <div id="category-nav"></div>
-    <button id="logout-btn">로그아웃</button>
+    <div class="sidebar-footer">
+      <button id="sidebar-mode-btn" class="sidebar-mode-btn">
+        <span id="sidebar-mode-label">뷰어 모드</span>
+      </button>
+      <button id="sidebar-logout-btn" class="sidebar-logout-btn" aria-label="로그아웃">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+      </button>
+    </div>
   </nav>
 
   <main id="main-area">
@@ -35,13 +42,13 @@
     <section id="home-view">
       <h2>ARTWarchive</h2>
       <p class="breadcrumb">왼쪽에서 카테고리를 선택하거나, 새 기록을 추가하세요.</p>
-      <button id="new-record-btn-home">+ 새 기록 추가</button>
+      <button id="new-record-btn-home" data-admin-only class="hidden">+ 새 기록 추가</button>
     </section>
 
     <!-- 리스트 화면 -->
     <section id="list-view" class="hidden">
       <div class="breadcrumb" id="list-breadcrumb"></div>
-      <button id="new-record-btn">+ 새 기록 추가</button>
+      <button id="new-record-btn" data-admin-only class="hidden">+ 새 기록 추가</button>
       <ul class="record-list" id="record-list"></ul>
     </section>
 
@@ -108,6 +115,19 @@
       <button id="paste-cancel-btn">취소</button>
       <button id="paste-confirm-btn">삽입</button>
     </div>
+  </div>
+</div>
+
+<!-- 관리자 모드 비밀번호 확인 -->
+<div id="admin-password-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;">
+  <div style="background:white;padding:32px 28px;border-radius:12px;width:320px;max-width:90vw;text-align:center;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30" height="30" style="margin-bottom:8px;"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg>
+    <h3 style="margin:0 0 4px;">관리자 모드</h3>
+    <p style="margin:0 0 14px;color:var(--text-dim);font-size:0.85rem;">관리자 비밀번호를 입력해 주세요</p>
+    <input type="password" id="admin-password-input" placeholder="비밀번호" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid var(--border);border-radius:6px;text-align:center;" />
+    <button id="admin-password-submit-btn" style="width:100%;padding:10px;border:none;border-radius:6px;background:var(--accent);color:white;font-weight:bold;cursor:pointer;">확인</button>
+    <div id="admin-password-error" style="color:#c0392b;font-size:0.8rem;margin-top:8px;min-height:1em;"></div>
+    <button id="admin-password-cancel-btn" style="margin-top:10px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8rem;">취소</button>
   </div>
 </div>
 
