@@ -35,7 +35,7 @@ body {
    화면 비율이 달라도(모바일 등) cover로 잘리면서 채워지고, fixed라 스크롤해도
    따라오지 않는다. */
 body.home-bg-active {
-  background-image: url("images/home-bg.webp");
+  background-image: url("../images/home-bg.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

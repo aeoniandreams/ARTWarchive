@@ -209,12 +209,6 @@ document.querySelector('.site-title').addEventListener('click', () => {
   location.hash = '#/home';
 });
 
-document.getElementById('new-record-btn-home').addEventListener('click', () => {
-  const firstCat = CATEGORIES[0];
-  const firstSub = firstCat.subcategories[0];
-  location.hash = `#/new/${firstCat.id}/${firstSub.id}`;
-});
-
 document.getElementById('library-nav-btn').addEventListener('click', () => {
   location.hash = '#/library';
 });
