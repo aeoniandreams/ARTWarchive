@@ -54,7 +54,7 @@ body.list-bg-main_story {
 }
 /* 개별 기록(뷰어) 화면은 리스트보다 흰 레이어를 더 얹어서 한층 흐리게 보이도록 한다. */
 body.viewer-bg-main_story {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url("../images/list-bg/main_story.webp");
+  background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url("../images/list-bg/main_story.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
