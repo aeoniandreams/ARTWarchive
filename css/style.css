@@ -433,7 +433,7 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
 }
 .record-list li.empty-state:hover { border-color: transparent; }
 .empty-state-icon { width: 36px; height: 36px; color: var(--text-dim); opacity: 0.5; }
