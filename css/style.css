@@ -81,6 +81,14 @@ body.list-bg-talk {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
+/* 라이브러리 관리 화면은 로딩 화면과 같은 배경 이미지를 쓴다. */
+body.library-bg-active {
+  background-image: url("../images/loading-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 
 button, input, select, textarea {
   font-family: inherit;
@@ -330,7 +338,7 @@ body.home-bg-active #site-subtitle { display: block; }
 #main-area { padding: 70px 40px 30px; max-width: 900px; margin: 0 auto; }
 #main-area h2 { font-size: 20px; margin: 0 0 8px; }
 
-.breadcrumb { color: var(--text-dim); margin-bottom: 16px; font-size: 0.9rem; font-weight: 500; }
+.breadcrumb { color: #333333; margin-bottom: 16px; font-size: 0.9rem; font-weight: 500; }
 
 /* 스크롤해도 상단에 고정 — 좌측 상단 메뉴 아이콘(38px, top:16px)과 안 겹치게 그 아래로 둔다. */
 #viewer-breadcrumb {
@@ -370,7 +378,7 @@ body.list-bg-talk #viewer-breadcrumb {
   background-position: center;
   background-attachment: fixed;
 }
-.breadcrumb a { color: var(--text-dim); }
+.breadcrumb a { color: #333333; }
 .breadcrumb a:hover { color: var(--text); }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
 
@@ -425,7 +433,7 @@ body.list-bg-talk #viewer-breadcrumb {
 body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
 .record-list li.sortable-chosen { cursor: grabbing; }
 .record-list li.sortable-ghost { opacity: 0.4; }
-.empty-state { color: var(--text-dim); padding: 40px 0; text-align: center; }
+.empty-state { color: #333333; padding: 40px 0; text-align: center; }
 .record-list li.empty-state {
   border: none;
   background: none;
@@ -436,7 +444,7 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
   gap: 18px;
 }
 .record-list li.empty-state:hover { border-color: transparent; }
-.empty-state-icon { width: 36px; height: 36px; color: var(--text-dim); opacity: 0.5; }
+.empty-state-icon { width: 36px; height: 36px; color: #333333; opacity: 0.5; }
 
 /* ── 에디터 화면 ── */
 #editor-view .field-row { margin-bottom: 12px; }
