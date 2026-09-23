@@ -6,7 +6,7 @@
 <title>ARTWarchive</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="stylesheet" href="https://unpkg.com/pretendard-jp@1.3.9/dist/web/variable/pretendardvariable-jp-dynamic-subset.css" />
-<link rel="stylesheet" href="css/style.css?v=31" />
+<link rel="stylesheet" href="css/style.css?v=32" />
 <script>
   // 로딩 화면을 최소 1초는 보여주기 위한 기준 시각. firebase-config.js는 ES
   // 모듈이라 import가 끝나야 실행되는데, 그 안에서 시각을 재면 이미 import
@@ -118,10 +118,12 @@
     <!-- 리스트 화면 -->
     <section id="list-view" class="hidden">
       <img id="list-logo" src="images/logo.webp" alt="Arcana Twilight" />
-      <div class="breadcrumb" id="list-breadcrumb"></div>
-      <button id="new-record-btn" data-admin-only class="hidden" aria-label="새 기록 추가">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
-      </button>
+      <div class="list-header-row">
+        <div class="breadcrumb" id="list-breadcrumb"></div>
+        <button id="new-record-btn" data-admin-only class="hidden" aria-label="새 기록 추가">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+        </button>
+      </div>
       <ul class="record-list" id="record-list"></ul>
     </section>
 
@@ -206,6 +208,6 @@
   </div>
 </div>
 
-<script type="module" src="js/app.js?v=31"></script>
+<script type="module" src="js/app.js?v=32"></script>
 </body>
 </html>

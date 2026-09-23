@@ -99,7 +99,7 @@ button, input, select, textarea {
   align-items: center;
   gap: 14px;
   padding: 16px;
-  margin-top: -3rem;
+  margin-top: -6vh;
 }
 .loading-image {
   display: block;
@@ -328,8 +328,9 @@ body.home-bg-active #site-subtitle { display: block; }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
 
 #new-record-btn {
-  width: 44px;
-  height: 44px;
+  width: 35px;
+  height: 35px;
+  flex-shrink: 0;
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.6);
@@ -338,12 +339,19 @@ body.home-bg-active #site-subtitle { display: block; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-bottom: 20px;
 }
-#new-record-btn svg { width: 22px; height: 22px; }
+#new-record-btn svg { width: 18px; height: 18px; }
 #new-record-btn:hover { background: rgba(255, 255, 255, 0.8); }
 
 /* ── 리스트 화면 ── */
+.list-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.list-header-row .breadcrumb { margin-bottom: 0; }
 #list-logo, .page-logo {
   display: block;
   height: 80px;
