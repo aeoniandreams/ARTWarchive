@@ -342,6 +342,34 @@ body.home-bg-active #site-subtitle { display: block; }
   margin: -8px -12px 16px;
   border-radius: 6px;
 }
+/* 카테고리별로 보이는 배경화면과 똑같은 이미지를 이 부분에도 그대로 준다.
+   background-attachment: fixed는 요소 위치와 무관하게 뷰포트 기준으로 이미지
+   위치가 정해지므로, body 배경과 완전히 같은 크기/위치로 맞추면 마치 이 영역
+   너머로 body 배경이 그대로 비쳐 보이는 것처럼 이어진다. */
+body.viewer-bg-main_story #viewer-breadcrumb {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url("../images/list-bg/main_story.webp");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+body.list-bg-call #viewer-breadcrumb {
+  background-image: url("../images/list-bg/call.webp");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+body.list-bg-diary #viewer-breadcrumb {
+  background-image: url("../images/list-bg/diary.webp");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+body.list-bg-talk #viewer-breadcrumb {
+  background-image: url("../images/list-bg/talk.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
 .breadcrumb a { color: var(--text-dim); }
 .breadcrumb a:hover { color: var(--text); }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
@@ -462,7 +490,7 @@ body.home-bg-active #site-subtitle { display: block; }
 /* 수정창에서만: 토글 내용과 바깥 내용을 구분하는 옅은 회색 박스. 뷰어는 이 규칙이
    안 걸려있어서 독자에게는 박스 없이 그냥 내용만 보인다. */
 #editor-content .editor-toggle-body {
-  background: #f2f1ee;
+  background: #f8f7f5;
   border-radius: 6px;
   padding: 8px 10px;
 }
@@ -591,4 +619,5 @@ body.home-bg-active #site-subtitle { display: block; }
 
   /* 좁은 화면에서 표시되는 부분을 오른쪽으로 좀 더 이동 */
   body.list-bg-main_story, body.viewer-bg-main_story { background-position: 58% center; }
+  body.viewer-bg-main_story #viewer-breadcrumb { background-position: 58% center; }
 }
