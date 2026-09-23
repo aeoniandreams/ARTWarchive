@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=28";
+} from "./firebase-config.js?v=29";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=28";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=28";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=29";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=29";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -259,7 +259,7 @@ function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
   views[name].classList.remove("hidden");
   document.body.classList.toggle("home-bg-active", name === "home");
-  if (name !== "list") {
+  if (name !== "list" && name !== "viewer") {
     document.body.classList.remove(...LIST_BG_CLASSES);
   }
 }
@@ -357,6 +357,12 @@ async function renderViewerView(recordId) {
   const data = snap.data();
   const cat = findCategory(data.category);
   const sub = findSubcategory(data.category, data.subcategory);
+
+  document.body.classList.remove(...LIST_BG_CLASSES);
+  if (LIST_BG_CLASSES.includes(`list-bg-${data.category}`)) {
+    document.body.classList.add(`list-bg-${data.category}`);
+  }
+
   viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}">&larr; 목록으로</a> &nbsp;·&nbsp; ${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}" data-admin-only class="hidden">수정</a>`;
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
