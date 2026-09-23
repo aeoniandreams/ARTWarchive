@@ -339,6 +339,7 @@ body.home-bg-active #site-subtitle { display: block; }
 #main-area h2 { font-size: 20px; margin: 0 0 8px; }
 
 .breadcrumb { color: #333333; margin-bottom: 16px; font-size: 0.9rem; font-weight: 500; }
+.breadcrumb-chevron { width: 14px; height: 14px; vertical-align: -2px; margin: 0 2px; }
 
 /* 스크롤해도 상단에 고정 — 좌측 상단 메뉴 아이콘(38px, top:16px)과 안 겹치게 그 아래로 둔다. */
 #viewer-breadcrumb {
