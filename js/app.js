@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=39";
+} from "./firebase-config.js?v=40";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=39";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=39";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=40";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=40";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -684,11 +684,35 @@ document.querySelectorAll("#editor-toolbar button[data-quick]").forEach((btn) =>
 const pasteModal = document.getElementById("paste-modal");
 const pasteTextarea = document.getElementById("paste-textarea");
 let pasteTarget = null;
+// 모달을 열고 텍스트영역에 HTML을 입력하는 동안 브라우저 선택 영역은 그
+// 텍스트영역으로 옮겨가버려서, 확인 버튼을 눌렀을 때는 에디터 안 커서가
+// 어디 있었는지 알 수 없다. 그래서 모달을 여는 시점(포커스가 옮겨가기 전)의
+// 커서 위치를 Range로 저장해뒀다가, 확인 시 그 자리에 그대로 복원해서 넣는다.
+let pasteSavedRange = null;
 
 function openPasteModal(targetEl) {
   pasteTarget = targetEl;
+  const sel = window.getSelection();
+  pasteSavedRange =
+    sel.rangeCount > 0 && targetEl.contains(sel.getRangeAt(0).startContainer)
+      ? sel.getRangeAt(0).cloneRange()
+      : null;
   pasteTextarea.value = "";
   pasteModal.classList.remove("hidden");
+}
+
+// 저장해둔 Range를 복원하면서, 그 Range가 속한 가장 안쪽의 편집 가능 영역(토글
+// 본문처럼 중첩된 contenteditable일 수도 있음)에 포커스를 준다. 포커스를 먼저 주고
+// 그 다음에 선택 영역을 지정해야, focus()가 선택 영역을 건드려도 최종적으로는
+// 우리가 원하는 위치가 커서로 남는다.
+function restoreRangeAndFocus(range, fallbackTarget) {
+  let node = range.startContainer;
+  if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+  const editable = (node && node.closest && node.closest('[contenteditable="true"]')) || fallbackTarget;
+  if (editable) editable.focus();
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
 
 // 기록 에디터에서는 글자 배경색(하이라이트)을 못 넣게 막는다 — 글자 '색'은 그대로 두고
@@ -730,7 +754,18 @@ document.getElementById("paste-confirm-btn").addEventListener("click", () => {
       stripBackgroundColors(temp);
       html = temp.innerHTML;
     }
-    pasteTarget.insertAdjacentHTML("beforeend", html);
+    if (pasteSavedRange) {
+      restoreRangeAndFocus(pasteSavedRange, pasteTarget);
+    } else {
+      pasteTarget.focus();
+      const range = document.createRange();
+      range.selectNodeContents(pasteTarget);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    document.execCommand("insertHTML", false, html);
   }
   pasteModal.classList.add("hidden");
 });
