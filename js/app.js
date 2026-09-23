@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=35";
+} from "./firebase-config.js?v=36";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=35";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=35";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=36";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=36";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
