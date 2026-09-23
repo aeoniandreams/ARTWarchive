@@ -459,6 +459,13 @@ body.home-bg-active #site-subtitle { display: block; }
 .editor-toggle-title { outline: none; }
 .editor-toggle-body { display: none; padding-left: 22px; margin-top: 4px; }
 .editor-toggle.open .editor-toggle-body { display: block; }
+/* 수정창에서만: 토글 내용과 바깥 내용을 구분하는 옅은 회색 박스. 뷰어는 이 규칙이
+   안 걸려있어서 독자에게는 박스 없이 그냥 내용만 보인다. */
+#editor-content .editor-toggle-body {
+  background: #f2f1ee;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
 #editor-content table td:nth-child(2) { min-width: 420px; }
 
 #library-content table {

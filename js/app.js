@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=38";
+} from "./firebase-config.js?v=39";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=38";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=38";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=39";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=39";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -514,19 +514,19 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
 // 서식 버튼 (굵게/기울임)
 document.querySelectorAll("#editor-toolbar button[data-cmd]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    editorContent.focus();
+    ensureEditorFocus();
     document.execCommand(btn.dataset.cmd, false, null);
   });
 });
 
 document.getElementById("color-picker").addEventListener("input", (e) => {
-  editorContent.focus();
+  ensureEditorFocus();
   document.execCommand("foreColor", false, e.target.value);
 });
 
 // 대화 표 삽입
 document.getElementById("btn-insert-table").addEventListener("click", () => {
-  editorContent.focus();
+  ensureEditorFocus();
   const html = `<table><tbody><tr><td><br></td><td><br></td></tr></tbody></table><p><br></p>`;
   document.execCommand("insertHTML", false, html);
 });
@@ -537,7 +537,7 @@ document.getElementById("btn-insert-table").addEventListener("click", () => {
 // 넣을 수도 있다. 수정창과 뷰어 양쪽 다 같은 클래스/CSS를 쓰기 때문에 저장된
 // 뒤에도 독자가 직접 열고 닫을 수 있다.
 document.getElementById("btn-insert-toggle").addEventListener("click", () => {
-  editorContent.focus();
+  ensureEditorFocus();
   const html = `<div class="editor-toggle open" contenteditable="false"><div class="editor-toggle-header"><svg class="editor-toggle-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg><span class="editor-toggle-title" contenteditable="true">토글 제목</span></div><div class="editor-toggle-body" contenteditable="true"><p><br></p></div></div><p><br></p>`;
   document.execCommand("insertHTML", false, html);
 });
@@ -561,6 +561,21 @@ document.getElementById("main-area").addEventListener("click", (e) => {
 function lastTable() {
   const tables = editorContent.querySelectorAll("table");
   return tables.length ? tables[tables.length - 1] : null;
+}
+
+// 토글 안(.editor-toggle-body)은 contenteditable=false로 감싼 안쪽에 다시
+// contenteditable=true를 둔 중첩 구조라, 브라우저가 그 부분을 #editor-content와는
+// 별개의 편집 영역(activeElement)으로 취급한다. 이 상태에서 무조건
+// editorContent.focus()를 부르면 포커스가 바깥으로 튕겨나가면서 토글 안에
+// 있던 커서 위치(선택 영역)가 사라져, 이후 execCommand가 토글 밖에 삽입되거나
+// 아예 실패한다. 커서가 이미 에디터(토글 내부 포함) 안에 있으면 그대로 두고,
+// 정말 포커스가 벗어나 있을 때만 focus()를 부른다.
+function ensureEditorFocus() {
+  const sel = window.getSelection();
+  if (sel.rangeCount > 0 && editorContent.contains(sel.getRangeAt(0).startContainer)) {
+    return;
+  }
+  editorContent.focus();
 }
 
 // 현재 커서가 놓여 있는 <tr>을 찾는다 (표 밖이면 null)
