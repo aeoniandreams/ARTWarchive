@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=32";
+} from "./firebase-config.js?v=33";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=32";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=32";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=33";
+import { renderLog, parseLibraryTable } from "./render-log.js?v=33";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -522,6 +522,24 @@ document.getElementById("btn-insert-table").addEventListener("click", () => {
   editorContent.focus();
   const html = `<table><tbody><tr><td><br></td><td><br></td></tr></tbody></table><p><br></p>`;
   document.execCommand("insertHTML", false, html);
+});
+
+// 토글 삽입: 수정창 안에서만 접었다 펼 수 있는 구획. 제목은 커스텀 가능하고
+// 안에 표를 포함해 기존 툴바 기능을 그대로 쓸 수 있다. 열림/닫힘 표시는
+// #editor-content 안에서만 적용되는 CSS라, 저장된 뒤 뷰어에서 보일 때는
+// 항상 내용이 그대로 펼쳐진 상태로 보인다 (독자에게 내용이 숨겨지지 않음).
+document.getElementById("btn-insert-toggle").addEventListener("click", () => {
+  editorContent.focus();
+  const html = `<div class="editor-toggle open" contenteditable="false"><div class="editor-toggle-header"><svg class="editor-toggle-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg><span class="editor-toggle-title" contenteditable="true">토글 제목</span></div><div class="editor-toggle-body" contenteditable="true"><p><br></p></div></div><p><br></p>`;
+  document.execCommand("insertHTML", false, html);
+});
+
+// 토글 헤더 클릭 시 열림/닫힘 전환 (제목 텍스트 자체를 클릭한 경우는 편집을 위해 제외)
+editorContent.addEventListener("click", (e) => {
+  const header = e.target.closest(".editor-toggle-header");
+  if (!header || !editorContent.contains(header)) return;
+  if (e.target.closest(".editor-toggle-title")) return;
+  header.closest(".editor-toggle").classList.toggle("open");
 });
 
 function lastTable() {

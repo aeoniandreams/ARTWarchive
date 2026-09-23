@@ -422,6 +422,25 @@ body.home-bg-active #site-subtitle { display: block; }
 #editor-content table td, #library-content table td { border: 1px solid var(--border); padding: 6px; }
 #editor-content table td { min-width: 60px; }
 #editor-content table td:first-child { min-width: 90px; }
+
+/* 수정창 전용 토글 구획 — 접었다 펼 수 있는 건 편집 중일 때만이고, 저장된 뒤
+   뷰어에서는 (이 display:none 규칙 자체가 #editor-content 안에서만 걸려있어서)
+   상태와 무관하게 항상 펼쳐진 채로 보인다. */
+.editor-toggle { margin: 10px 0; }
+.editor-toggle-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 0;
+  font-weight: 600;
+}
+.editor-toggle-chevron { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.15s ease; }
+.editor-toggle.open .editor-toggle-chevron { transform: rotate(90deg); }
+.editor-toggle-title { outline: none; }
+.editor-toggle-body { padding-left: 22px; margin-top: 4px; }
+#editor-content .editor-toggle-body { display: none; }
+#editor-content .editor-toggle.open .editor-toggle-body { display: block; }
 #editor-content table td:nth-child(2) { min-width: 420px; }
 
 #library-content table {
