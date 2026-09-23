@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=42";
+} from "./firebase-config.js?v=43";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -21,9 +21,10 @@ import {
   where,
   orderBy,
   serverTimestamp,
+  writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=42";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=42";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=43";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=43";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -141,6 +142,8 @@ let isAdmin = false;
 function applyAdminUI() {
   sidebarAdminBadge.classList.toggle("hidden", !isAdmin);
   document.querySelectorAll("[data-admin-only]").forEach((el) => el.classList.toggle("hidden", !isAdmin));
+  document.body.classList.toggle("is-admin", isAdmin);
+  if (listSortableInstance) listSortableInstance.option("disabled", !isAdmin);
 }
 
 onAuthStateChanged(adminAuth, (user) => {
@@ -345,16 +348,63 @@ async function renderListView(catId, subId) {
     return;
   }
 
+  // 커스텀 순서(order)가 있으면 그걸 우선으로 정렬하고, 없는 기록들은 원래
+  // 쿼리 순서(최신순)를 그대로 유지한 채 뒤로 보낸다. Array.sort는 안정 정렬이라
+  // order가 같은(혹은 둘 다 없는) 항목끼리는 원래 순서가 그대로 유지된다.
+  const records = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+  records.sort((a, b) => {
+    const ao = typeof a.order === "number" ? a.order : null;
+    const bo = typeof b.order === "number" ? b.order : null;
+    if (ao !== null && bo !== null) return ao - bo;
+    if (ao !== null) return -1;
+    if (bo !== null) return 1;
+    return 0;
+  });
+
   listEl.innerHTML = "";
-  snap.forEach((docSnap) => {
-    const data = docSnap.data();
+  records.forEach((data) => {
     const li = document.createElement("li");
-    const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : "";
-    li.innerHTML = `<div class="record-title">${data.title || "(제목 없음)"}</div><div class="record-meta">${date}</div>`;
+    li.dataset.id = data.id;
+    li.innerHTML = `<div class="record-title">${data.title || "(제목 없음)"}</div>`;
     li.addEventListener("click", () => {
-      location.hash = `#/view/${docSnap.id}`;
+      location.hash = `#/view/${data.id}`;
     });
     listEl.appendChild(li);
+  });
+
+  initListSortable();
+}
+
+// ── 리스트 드래그 정렬 ──
+// 관리자 모드에서만 드래그로 순서를 바꿀 수 있고, 그 결과(order 필드)는
+// 뷰어를 포함한 모두에게 동일하게 적용된다.
+let listSortableInstance = null;
+
+function initListSortable() {
+  if (listSortableInstance) {
+    listSortableInstance.destroy();
+    listSortableInstance = null;
+  }
+  if (typeof Sortable === "undefined") return;
+  const listEl = document.getElementById("record-list");
+  listSortableInstance = Sortable.create(listEl, {
+    animation: 150,
+    disabled: !isAdmin,
+    onEnd: async () => {
+      const ids = Array.from(listEl.children)
+        .map((li) => li.dataset.id)
+        .filter(Boolean);
+      const batch = writeBatch(adminDb);
+      ids.forEach((id, index) => {
+        batch.update(doc(adminDb, "records", id), { order: index });
+      });
+      try {
+        await batch.commit();
+      } catch (e) {
+        console.error("순서 저장 실패:", e.code, e.message);
+        alert("순서 저장에 실패했습니다: " + (e.code || e.message));
+      }
+    },
   });
 }
 

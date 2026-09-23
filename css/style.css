@@ -421,7 +421,10 @@ body.list-bg-talk #viewer-breadcrumb {
 }
 .record-list li:hover { border-color: var(--accent); }
 .record-list .record-title { font-weight: 600; }
-.record-list .record-meta { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+/* 관리자 모드일 때만 드래그로 순서를 바꿀 수 있어서, 그때만 grab 커서로 안내한다. */
+body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
+.record-list li.sortable-chosen { cursor: grabbing; }
+.record-list li.sortable-ghost { opacity: 0.4; }
 .empty-state { color: var(--text-dim); padding: 40px 0; text-align: center; }
 .record-list li.empty-state {
   border: none;
