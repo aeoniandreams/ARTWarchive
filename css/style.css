@@ -99,6 +99,7 @@ button, input, select, textarea {
   align-items: center;
   gap: 14px;
   padding: 16px;
+  margin-top: -3rem;
 }
 .loading-image {
   display: block;
@@ -321,7 +322,7 @@ body.home-bg-active #site-subtitle { display: block; }
 #main-area { padding: 70px 40px 30px; max-width: 900px; margin: 0 auto; }
 #main-area h2 { font-size: 20px; margin: 0 0 8px; }
 
-.breadcrumb { color: var(--text-dim); margin-bottom: 16px; font-size: 0.9rem; }
+.breadcrumb { color: var(--text-dim); margin-bottom: 16px; font-size: 0.9rem; font-weight: 500; }
 .breadcrumb a { color: var(--text-dim); }
 .breadcrumb a:hover { color: var(--text); }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
