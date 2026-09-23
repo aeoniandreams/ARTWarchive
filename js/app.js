@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=37";
+} from "./firebase-config.js?v=38";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=37";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=37";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=38";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=38";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -368,7 +368,7 @@ async function renderViewerView(recordId) {
     document.body.classList.add(`list-bg-${data.category}`);
   }
 
-  viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}">&larr; 목록으로</a> &nbsp;·&nbsp; ${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}" data-admin-only class="hidden">수정</a>`;
+  viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" aria-label="목록으로">&larr;</a> &nbsp;·&nbsp; ${cat?.label ?? data.category} &gt; ${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}" data-admin-only class="hidden">수정</a>`;
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
