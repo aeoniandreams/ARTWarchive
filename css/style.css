@@ -433,7 +433,7 @@ body.list-bg-talk #viewer-breadcrumb {
 body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
 .record-list li.sortable-chosen { cursor: grabbing; }
 .record-list li.sortable-ghost { opacity: 0.4; }
-.empty-state { color: #333333; padding: 40px 0; text-align: center; }
+.empty-state { color: #333333; opacity: 0.5; font-weight: 500; padding: 40px 0; text-align: center; }
 .record-list li.empty-state {
   border: none;
   background: none;
