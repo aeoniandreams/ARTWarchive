@@ -417,6 +417,11 @@ body.list-bg-talk #viewer-breadcrumb {
 #list-logo { cursor: pointer; }
 @media (max-width: 768px) {
   #list-logo, .page-logo { height: 64px; }
+  .empty-state { padding-top: 50px; }
+}
+/* 모바일 가로처럼 세로 공간이 짧을 때는 내려간 만큼이 과해 보여서 원래 위치로 되돌린다. */
+@media (max-height: 450px) {
+  .empty-state { padding-top: 40px; }
 }
 
 .record-list { list-style: none; padding: 0; margin: 0; }
@@ -434,7 +439,7 @@ body.list-bg-talk #viewer-breadcrumb {
 body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
 .record-list li.sortable-chosen { cursor: grabbing; }
 .record-list li.sortable-ghost { opacity: 0.4; }
-.empty-state { color: #333333; opacity: 0.5; font-weight: 500; padding: 40px 0; text-align: center; }
+.empty-state { color: #333333; opacity: 0.5; font-weight: 500; padding: 60px 0 40px; text-align: center; }
 .record-list li.empty-state {
   border: none;
   background: none;
