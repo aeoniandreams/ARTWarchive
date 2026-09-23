@@ -423,6 +423,17 @@ body.list-bg-talk #viewer-breadcrumb {
 .record-list .record-title { font-weight: 600; }
 .record-list .record-meta { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
 .empty-state { color: var(--text-dim); padding: 40px 0; text-align: center; }
+.record-list li.empty-state {
+  border: none;
+  background: none;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.record-list li.empty-state:hover { border-color: transparent; }
+.empty-state-icon { width: 36px; height: 36px; color: var(--text-dim); opacity: 0.5; }
 
 /* ── 에디터 화면 ── */
 #editor-view .field-row { margin-bottom: 12px; }
@@ -474,6 +485,10 @@ body.list-bg-talk #viewer-breadcrumb {
    DOM 레벨 구획이라, 표를 통째로 여러 개 담을 수 있다. 수정창·뷰어 양쪽에서
    동일하게 열고 닫을 수 있도록 범위를 제한하지 않았다. */
 .editor-toggle { margin: 10px 0; }
+/* 뷰어에서 제목 바로 다음에 토글이 오면 제목의 margin-bottom(8px)과 이 토글의
+   margin-top(10px)이 겹쳐 실제 간격이 10px밖에 안 됐다. 20px로 늘려 제목과의
+   간격을 10px 더 벌렸다. */
+#viewer-content > .editor-toggle:first-child { margin-top: 20px; }
 .editor-toggle-header {
   display: flex;
   align-items: center;

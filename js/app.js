@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=41";
+} from "./firebase-config.js?v=42";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=41";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=41";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=42";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=42";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -293,6 +293,19 @@ function router() {
   }
 }
 
+// 카테고리별로 "아직 기록이 없습니다" 빈 상태에 보여줄 아이콘 (lucide-static).
+const EMPTY_STATE_ICONS = {
+  call: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 2 6 6" /><path d="m22 2-6 6" /><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg>',
+  talk: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /><path d="M12 11h.01" /><path d="M16 11h.01" /><path d="M8 11h.01" /></svg>',
+  diary: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17h1.5" /><path d="M12 22h1.5" /><path d="M12 2h1.5" /><path d="M17.5 22H19a1 1 0 0 0 1-1" /><path d="M17.5 2H19a1 1 0 0 1 1 1v1.5" /><path d="M20 14v3h-2.5" /><path d="M20 8.5V10" /><path d="M4 10V8.5" /><path d="M4 19.5V14" /><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H8" /><path d="M8 22H6.5a1 1 0 0 1 0-5H8" /></svg>',
+  main_story: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1" /><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" /><path d="m9.5 17 5-5" /><path d="m9.5 12 5 5" /></svg>',
+};
+
+function emptyStateHtml(catId) {
+  const icon = EMPTY_STATE_ICONS[catId] || "";
+  return `<li class="empty-state"><span class="empty-state-icon">${icon}</span>아직 기록이 없습니다.</li>`;
+}
+
 // ── 리스트 화면 ──
 async function renderListView(catId, subId) {
   const cat = findCategory(catId);
@@ -328,7 +341,7 @@ async function renderListView(catId, subId) {
   }
 
   if (snap.empty) {
-    listEl.innerHTML = "<li class='empty-state'>아직 기록이 없습니다.</li>";
+    listEl.innerHTML = emptyStateHtml(catId);
     return;
   }
 
