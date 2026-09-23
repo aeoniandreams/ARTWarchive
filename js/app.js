@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=33";
+} from "./firebase-config.js?v=34";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=33";
-import { renderLog, parseLibraryTable } from "./render-log.js?v=33";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=34";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=34";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -254,13 +254,16 @@ document.getElementById('library-nav-btn').addEventListener('click', () => {
 
 // ── 라우팅 ──
 const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk", "list-bg-diary"];
+// 뷰어(개별 기록 화면)에서 리스트보다 더 흐리게 보여줄 카테고리는 여기서 별도 클래스로 덮어쓴다.
+const VIEWER_BG_CLASS_MAP = { main_story: "viewer-bg-main_story" };
+const ALL_BG_CLASSES = [...LIST_BG_CLASSES, ...Object.values(VIEWER_BG_CLASS_MAP)];
 
 function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
   views[name].classList.remove("hidden");
   document.body.classList.toggle("home-bg-active", name === "home");
   if (name !== "list" && name !== "viewer") {
-    document.body.classList.remove(...LIST_BG_CLASSES);
+    document.body.classList.remove(...ALL_BG_CLASSES);
   }
 }
 
@@ -296,7 +299,7 @@ async function renderListView(catId, subId) {
   const sub = findSubcategory(catId, subId);
   document.getElementById("list-breadcrumb").textContent = `${cat?.label ?? catId} > ${sub?.label ?? subId}`;
 
-  document.body.classList.remove(...LIST_BG_CLASSES);
+  document.body.classList.remove(...ALL_BG_CLASSES);
   if (LIST_BG_CLASSES.includes(`list-bg-${catId}`)) {
     document.body.classList.add(`list-bg-${catId}`);
   }
@@ -358,8 +361,10 @@ async function renderViewerView(recordId) {
   const cat = findCategory(data.category);
   const sub = findSubcategory(data.category, data.subcategory);
 
-  document.body.classList.remove(...LIST_BG_CLASSES);
-  if (LIST_BG_CLASSES.includes(`list-bg-${data.category}`)) {
+  document.body.classList.remove(...ALL_BG_CLASSES);
+  if (VIEWER_BG_CLASS_MAP[data.category]) {
+    document.body.classList.add(VIEWER_BG_CLASS_MAP[data.category]);
+  } else if (LIST_BG_CLASSES.includes(`list-bg-${data.category}`)) {
     document.body.classList.add(`list-bg-${data.category}`);
   }
 
@@ -367,6 +372,8 @@ async function renderViewerView(recordId) {
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
+  // 토글 제목 등 수정창에서만 필요했던 contenteditable 흔적은 읽기 전용 화면에서 지운다.
+  viewerContent.querySelectorAll("[contenteditable]").forEach((el) => el.removeAttribute("contenteditable"));
   // 프로필 사진은 톡 보관함 기록에서만 보여준다.
   renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk" });
 }
@@ -524,22 +531,31 @@ document.getElementById("btn-insert-table").addEventListener("click", () => {
   document.execCommand("insertHTML", false, html);
 });
 
-// 토글 삽입: 수정창 안에서만 접었다 펼 수 있는 구획. 제목은 커스텀 가능하고
-// 안에 표를 포함해 기존 툴바 기능을 그대로 쓸 수 있다. 열림/닫힘 표시는
-// #editor-content 안에서만 적용되는 CSS라, 저장된 뒤 뷰어에서 보일 때는
-// 항상 내용이 그대로 펼쳐진 상태로 보인다 (독자에게 내용이 숨겨지지 않음).
+// 토글 삽입: 접었다 펼 수 있는 구획. 제목은 커스텀 가능하고 안에 표를 포함해
+// 기존 툴바 기능을 그대로 쓸 수 있다. 표 안의 /접기·/끝(행 단위로 파싱되는
+// 대화 접기)과는 완전히 별개 — 이쪽은 DOM 레벨의 구획이라 표를 통째로 여러 개
+// 넣을 수도 있다. 수정창과 뷰어 양쪽 다 같은 클래스/CSS를 쓰기 때문에 저장된
+// 뒤에도 독자가 직접 열고 닫을 수 있다.
 document.getElementById("btn-insert-toggle").addEventListener("click", () => {
   editorContent.focus();
   const html = `<div class="editor-toggle open" contenteditable="false"><div class="editor-toggle-header"><svg class="editor-toggle-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg><span class="editor-toggle-title" contenteditable="true">토글 제목</span></div><div class="editor-toggle-body" contenteditable="true"><p><br></p></div></div><p><br></p>`;
   document.execCommand("insertHTML", false, html);
 });
 
-// 토글 헤더 클릭 시 열림/닫힘 전환 (제목 텍스트 자체를 클릭한 경우는 편집을 위해 제외)
-editorContent.addEventListener("click", (e) => {
+// 토글 헤더 클릭 시 열림/닫힘 전환 (제목 텍스트 자체를 클릭한 경우는 편집을 위해 제외).
+// 수정창·뷰어 둘 다에서 동작해야 해서 #main-area에 위임해뒀다 — 뷰어 내용은
+// innerHTML로 통째로 갈아끼워지기 때문에, 요소별로 직접 리스너를 달면 매번
+// 다시 달아야 한다.
+document.getElementById("main-area").addEventListener("click", (e) => {
   const header = e.target.closest(".editor-toggle-header");
-  if (!header || !editorContent.contains(header)) return;
+  if (!header) return;
   if (e.target.closest(".editor-toggle-title")) return;
-  header.closest(".editor-toggle").classList.toggle("open");
+  const toggle = header.closest(".editor-toggle");
+  toggle.classList.toggle("open");
+  if (toggle.classList.contains("open")) {
+    // 접혀있던 동안 크기 계산이 안 된 이미지가 있을 수 있어 다시 계산한다.
+    setTimeout(() => resizeContentImages(toggle), 50);
+  }
 });
 
 function lastTable() {

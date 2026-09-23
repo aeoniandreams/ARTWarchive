@@ -52,6 +52,14 @@ body.list-bg-main_story {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
+/* 개별 기록(뷰어) 화면은 리스트보다 흰 레이어를 더 얹어서 한층 흐리게 보이도록 한다. */
+body.viewer-bg-main_story {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url("../images/list-bg/main_story.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 body.list-bg-call {
   background-image: url("../images/list-bg/call.webp");
   background-size: cover;
@@ -139,7 +147,7 @@ button, input, select, textarea {
 }
 #login-box {
   background: var(--panel);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 12px;
   padding: 40px;
   width: min(320px, 90vw);
@@ -423,9 +431,9 @@ body.home-bg-active #site-subtitle { display: block; }
 #editor-content table td { min-width: 60px; }
 #editor-content table td:first-child { min-width: 90px; }
 
-/* 수정창 전용 토글 구획 — 접었다 펼 수 있는 건 편집 중일 때만이고, 저장된 뒤
-   뷰어에서는 (이 display:none 규칙 자체가 #editor-content 안에서만 걸려있어서)
-   상태와 무관하게 항상 펼쳐진 채로 보인다. */
+/* 접었다 펼 수 있는 토글 구획 — 표 안 /접기·/끝(행 단위 대화 접기)과는 별개의
+   DOM 레벨 구획이라, 표를 통째로 여러 개 담을 수 있다. 수정창·뷰어 양쪽에서
+   동일하게 열고 닫을 수 있도록 범위를 제한하지 않았다. */
 .editor-toggle { margin: 10px 0; }
 .editor-toggle-header {
   display: flex;
@@ -438,9 +446,8 @@ body.home-bg-active #site-subtitle { display: block; }
 .editor-toggle-chevron { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.15s ease; }
 .editor-toggle.open .editor-toggle-chevron { transform: rotate(90deg); }
 .editor-toggle-title { outline: none; }
-.editor-toggle-body { padding-left: 22px; margin-top: 4px; }
-#editor-content .editor-toggle-body { display: none; }
-#editor-content .editor-toggle.open .editor-toggle-body { display: block; }
+.editor-toggle-body { display: none; padding-left: 22px; margin-top: 4px; }
+.editor-toggle.open .editor-toggle-body { display: block; }
 #editor-content table td:nth-child(2) { min-width: 420px; }
 
 #library-content table {
@@ -565,5 +572,5 @@ body.home-bg-active #site-subtitle { display: block; }
   .has-p, .is-right { flex-wrap: wrap; }
 
   /* 좁은 화면에서 표시되는 부분을 오른쪽으로 좀 더 이동 */
-  body.list-bg-main_story { background-position: 58% center; }
+  body.list-bg-main_story, body.viewer-bg-main_story { background-position: 58% center; }
 }
