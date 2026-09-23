@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=34";
+} from "./firebase-config.js?v=35";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,8 +22,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=34";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=34";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=35";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=35";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -676,6 +676,30 @@ function openPasteModal(targetEl) {
   pasteModal.classList.remove("hidden");
 }
 
+// 기록 에디터에서는 글자 배경색(하이라이트)을 못 넣게 막는다 — 글자 '색'은 그대로 두고
+// background-color/background만 지운다. td나 표 자체의 배경도 걸러지지만, 어차피
+// render-log.js는 칸의 내용(innerHTML)만 복사하고 칸 자체의 style은 가져가지 않아서
+// 실제로 화면에 영향을 주는 건 글자를 감싼 span 등의 배경뿐이다.
+function stripBackgroundColors(root) {
+  root.querySelectorAll("[style]").forEach((el) => {
+    el.style.removeProperty("background-color");
+    el.style.removeProperty("background");
+    if (!el.getAttribute("style")) el.removeAttribute("style");
+  });
+  root.querySelectorAll("[bgcolor]").forEach((el) => el.removeAttribute("bgcolor"));
+}
+
+// 모달을 거치지 않고 Ctrl+V로 직접 붙여넣는 경우도 막는다.
+editorContent.addEventListener("paste", (e) => {
+  const html = e.clipboardData && e.clipboardData.getData("text/html");
+  if (!html) return;
+  e.preventDefault();
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  stripBackgroundColors(temp);
+  document.execCommand("insertHTML", false, temp.innerHTML);
+});
+
 document.getElementById("btn-paste-html").addEventListener("click", () => {
   openPasteModal(editorContent);
 });
@@ -683,7 +707,16 @@ document.getElementById("paste-cancel-btn").addEventListener("click", () => {
   pasteModal.classList.add("hidden");
 });
 document.getElementById("paste-confirm-btn").addEventListener("click", () => {
-  if (pasteTarget) pasteTarget.insertAdjacentHTML("beforeend", pasteTextarea.value);
+  if (pasteTarget) {
+    let html = pasteTextarea.value;
+    if (pasteTarget === editorContent) {
+      const temp = document.createElement("div");
+      temp.innerHTML = html;
+      stripBackgroundColors(temp);
+      html = temp.innerHTML;
+    }
+    pasteTarget.insertAdjacentHTML("beforeend", html);
+  }
   pasteModal.classList.add("hidden");
 });
 
