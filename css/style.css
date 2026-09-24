@@ -220,7 +220,7 @@ button, input, select, textarea {
 body.list-bg-main_story #sidebar-toggle-btn,
 body.viewer-bg-main_story #sidebar-toggle-btn,
 body.list-bg-talk #sidebar-toggle-btn {
-  color: #9EC8E7;
+  color: #16A6E9;
 }
 
 /* 사이드바를 열지 않은 화면 기준 정중앙에 고정 — 사이드바(서랍)는 오버레이라
@@ -744,10 +744,6 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
     max-width: 100%;
     margin: 0;
   }
-
-  /* 좌상단 사이드바 메뉴 아이콘(top:16px, 38px)과 겹쳐서 뒤로가기 아이콘이
-     눌리지 않던 문제 — 뷰어 전체를 좀 더 아래로 민다. */
-  #viewer-breadcrumb { margin-top: 50px; }
 
   .record-list li { padding: 12px; }
 
