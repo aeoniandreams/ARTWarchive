@@ -163,6 +163,12 @@ export function renderLog(root, lib = {}, options = {}) {
         btn.addEventListener("click", () => {
           const isOpen = thisContent.classList.contains("open");
           if (isOpen) {
+            // 지금 실제로 보이는 높이에서 0으로 줄어드는 게 보이도록, 먼저 현재
+            // scrollHeight를 그대로 고정시킨 다음(강제 리플로우로 그 값을
+            // 브라우저가 실제로 반영하게 하고) 0으로 낮춰서 트랜지션을 건다.
+            thisContent.style.maxHeight = thisContent.scrollHeight + "px";
+            void thisContent.offsetHeight;
+            thisContent.style.maxHeight = "0px";
             thisContent.classList.remove("open");
             btn.classList.remove("open");
             thisWrapper.classList.remove("has-open");
@@ -172,7 +178,15 @@ export function renderLog(root, lib = {}, options = {}) {
               thisContent.classList.add("open");
               btn.classList.add("open");
               thisWrapper.classList.add("has-open");
-              setTimeout(() => resizeContentImages(root), 50);
+              thisContent.style.maxHeight = thisContent.scrollHeight + "px";
+              // 이미지가 늦게 로드되거나 리사이즈되면 높이가 바뀌는데, 그때도
+              // max-height를 다시 재서 내용이 잘리지 않게 한다.
+              setTimeout(() => {
+                resizeContentImages(root);
+                if (thisContent.classList.contains("open")) {
+                  thisContent.style.maxHeight = thisContent.scrollHeight + "px";
+                }
+              }, 50);
             }
           }
         });

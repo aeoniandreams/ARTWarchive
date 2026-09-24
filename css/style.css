@@ -657,8 +657,14 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
   transform: rotate(90deg);
 }
 .log-render .s-fold-btn img { display: inline !important; width: auto !important; height: 20% !important; vertical-align: middle !important; opacity: 1 !important; visibility: visible !important; max-width: none !important; }
-.log-render .s-fold-content { display: none; }
-.log-render .s-fold-content.open { display: block; }
+/* display:none/block 대신 max-height를 트랜지션시켜서 펼쳐지는 느낌을 준다.
+   실제 max-height 값(px)은 열고 닫을 때 JS(render-log.js)가 scrollHeight를
+   재서 넣어준다 — 내용 높이가 제각각이라 CSS만으로는 정확히 잴 수 없다. */
+.log-render .s-fold-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
 
 /* ── 모바일 반응형 ── */
 @media (max-width: 768px) {
