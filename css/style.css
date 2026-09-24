@@ -279,7 +279,7 @@ body.home-bg-active #site-subtitle { display: block; }
   cursor: pointer;
   font-weight: 500;
 }
-.cat-header:hover { background: var(--accent-soft); }
+.cat-header:hover { background: rgba(79, 216, 209, 0.15); }
 .cat-icon { width: 22px; height: 22px; object-fit: contain; border-radius: 6px; }
 .icon-main_story, .icon-talk, .icon-diary, .icon-call { position: relative; top: 1px; }
 .cat-label { flex: 1; }
@@ -299,7 +299,7 @@ body.home-bg-active #site-subtitle { display: block; }
   color: var(--text);
   cursor: pointer;
 }
-.subcat-item:hover, .subcat-item.active { color: var(--text); background: var(--accent-soft); }
+.subcat-item:hover, .subcat-item.active { color: var(--text); background: rgba(79, 216, 209, 0.15); }
 
 .sidebar-footer {
   display: flex;
