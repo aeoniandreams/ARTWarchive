@@ -52,9 +52,10 @@ body.list-bg-main_story {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-/* 개별 기록(뷰어) 화면은 리스트보다 흰 레이어를 더 얹어서 한층 흐리게 보이도록 한다. */
+/* 개별 기록(뷰어) 화면도 리스트와 같은 밝기의 배경을 쓴다 (예전엔 더 흐리게 했었는데,
+   대신 기록 내용을 흰 박스로 감싸는 방식으로 바꿨다). */
 body.viewer-bg-main_story {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url("../images/list-bg/main_story.webp");
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/main_story.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -279,7 +280,7 @@ body.home-bg-active #site-subtitle { display: block; }
   cursor: pointer;
   font-weight: 500;
 }
-.cat-header:hover { background: rgba(79, 216, 209, 0.15); }
+.cat-header:hover { background: rgba(79, 216, 209, 0.3); }
 .cat-icon { width: 22px; height: 22px; object-fit: contain; border-radius: 6px; }
 .icon-main_story, .icon-talk, .icon-diary, .icon-call { position: relative; top: 1px; }
 .cat-label { flex: 1; }
@@ -299,7 +300,7 @@ body.home-bg-active #site-subtitle { display: block; }
   color: var(--text);
   cursor: pointer;
 }
-.subcat-item:hover, .subcat-item.active { color: var(--text); background: rgba(79, 216, 209, 0.15); }
+.subcat-item:hover, .subcat-item.active { color: var(--text); background: rgba(79, 216, 209, 0.3); }
 
 .sidebar-footer {
   display: flex;
@@ -383,6 +384,13 @@ body.list-bg-talk #viewer-breadcrumb {
 .breadcrumb a:hover { color: var(--text); }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
 
+/* 기록 내용을 감싸는 흰 박스 — 뒤 배경이 살짝 비치도록 불투명도를 낮췄다. */
+.viewer-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  padding: 28px 32px;
+}
+
 #new-record-btn {
   width: 35px;
   height: 35px;
@@ -418,6 +426,7 @@ body.list-bg-talk #viewer-breadcrumb {
 @media (max-width: 768px) {
   #list-logo, .page-logo { height: 64px; }
   .empty-state { padding-top: 50px; }
+  .viewer-card { padding: 20px; }
 }
 /* 모바일 가로처럼 세로 공간이 짧을 때는 내려간 만큼이 과해 보여서 원래 위치로 되돌린다. */
 @media (max-height: 450px) {
