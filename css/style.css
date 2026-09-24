@@ -326,8 +326,13 @@ body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in
   transition: transform 0.15s ease;
 }
 .cat-chevron.open { transform: rotate(90deg); }
-.subcat-list { display: none; }
-.subcat-list.open { display: block; }
+/* display:none/block 대신 max-height 트랜지션으로 부드럽게 펼치고 접는다.
+   실제 max-height 값은 JS(app.js buildSidebar)가 scrollHeight를 재서 넣어준다. */
+.subcat-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.22s ease;
+}
 .subcat-item {
   padding: 8px 20px 8px 46px;
   font-size: 12.6px;

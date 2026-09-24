@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=87";
+} from "./firebase-config.js?v=88";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=87";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=87";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=88";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=88";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -208,6 +208,19 @@ sidebarLogoutBtn.addEventListener("click", () => {
 });
 
 // ── 사이드바 ──
+// 2차 카테고리 목록(.subcat-list)도 다른 곳들처럼 max-height 트랜지션으로
+// 열고 닫는다 — display:none/block은 트랜지션이 안 걸려서 뚝 나타나 보인다.
+function openSubcatList(el) {
+  el.classList.add("open");
+  el.style.maxHeight = el.scrollHeight + "px";
+}
+function closeSubcatList(el) {
+  el.style.maxHeight = el.scrollHeight + "px";
+  void el.offsetHeight;
+  el.style.maxHeight = "0px";
+  el.classList.remove("open");
+}
+
 function buildSidebar() {
   categoryNav.innerHTML = "";
   CATEGORIES.forEach((cat) => {
@@ -236,10 +249,10 @@ function buildSidebar() {
     header.addEventListener("click", () => {
       const willOpen = !subList.classList.contains("open");
       // 한 번에 하나의 1차 카테고리만 펼쳐지도록, 열기 전에 다른 카테고리는 다 닫는다.
-      categoryNav.querySelectorAll(".subcat-list.open").forEach((el) => el.classList.remove("open"));
+      categoryNav.querySelectorAll(".subcat-list.open").forEach((el) => closeSubcatList(el));
       categoryNav.querySelectorAll(".cat-chevron.open").forEach((el) => el.classList.remove("open"));
       if (willOpen) {
-        subList.classList.add("open");
+        openSubcatList(subList);
         header.querySelector(".cat-chevron").classList.add("open");
       }
     });
