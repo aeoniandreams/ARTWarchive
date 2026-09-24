@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=81";
+} from "./firebase-config.js?v=82";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=81";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=81";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=82";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=82";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -673,7 +673,11 @@ document.getElementById("btn-insert-toggle").addEventListener("click", () => {
 document.getElementById("main-area").addEventListener("click", (e) => {
   const header = e.target.closest(".editor-toggle-header");
   if (!header) return;
-  if (e.target.closest(".editor-toggle-title")) return;
+  // 에디터에서는 제목이 contenteditable이라, 제목을 눌렀을 때 열고 닫히면
+  // 커서 놓기가 불가능해진다. 뷰어에서는 제목이 그냥 텍스트라 눌러서
+  // 열고 닫아도 문제없어서, 뷰어에서만 제목 클릭도 토글로 인정한다.
+  const isInEditor = !!e.target.closest("#editor-content");
+  if (isInEditor && e.target.closest(".editor-toggle-title")) return;
   const toggle = header.closest(".editor-toggle");
   toggle.classList.toggle("open");
   if (toggle.classList.contains("open")) {

@@ -384,6 +384,8 @@ body.home-bg-active #site-subtitle { display: block; }
   color: #333333;
   text-decoration: none;
   margin-right: 2.235em;
+  position: relative;
+  top: 3px;
 }
 .viewer-edit-link:hover { color: var(--text); }
 
@@ -452,6 +454,7 @@ body.list-bg-talk .viewer-card {
   margin-bottom: 16px;
 }
 .list-header-row .breadcrumb { margin-bottom: 0; }
+#list-breadcrumb { color: #666666; }
 #list-logo, .page-logo {
   display: block;
   height: 80px;
