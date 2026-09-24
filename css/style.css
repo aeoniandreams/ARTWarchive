@@ -23,6 +23,17 @@
 
 * { box-sizing: border-box; }
 
+/* 스크롤바를 옅은 선으로, 더 얇게. Firefox는 scrollbar-width/-color로,
+   Chrome/Edge/Safari는 ::-webkit-scrollbar 계열로 따로 지정해야 한다. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
 body {
   margin: 0;
   font-family: "Pretendard JP Variable", "Apple SD Gothic Neo", sans-serif;
