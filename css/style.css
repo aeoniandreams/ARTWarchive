@@ -231,7 +231,13 @@ button, input, select, textarea {
   z-index: 10;
   pointer-events: none;
 }
-body.home-bg-active #site-logo { display: block; }
+/* 홈 화면에 들어올 때마다(다른 화면 갔다 다시 와도) 아래에서 살짝 올라오며
+   흐릿하다가 선명해지는 느낌을 준다. */
+@keyframes home-logo-in {
+  from { opacity: 0; filter: blur(6px); transform: translate(-50%, calc(-50% - 6vh + 16px)); }
+  to { opacity: 1; filter: blur(0); transform: translate(-50%, calc(-50% - 6vh)); }
+}
+body.home-bg-active #site-logo { display: block; animation: home-logo-in 0.6s ease-out; }
 
 #site-subtitle {
   display: none;
@@ -248,7 +254,11 @@ body.home-bg-active #site-logo { display: block; }
   pointer-events: none;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7), 0 0 2px rgba(0, 0, 0, 0.5);
 }
-body.home-bg-active #site-subtitle { display: block; }
+@keyframes home-subtitle-in {
+  from { opacity: 0; filter: blur(6px); transform: translateX(-50%) translateY(16px); }
+  to { opacity: 1; filter: blur(0); transform: translateX(-50%) translateY(0); }
+}
+body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in 0.6s ease-out; }
 
 @media (max-width: 768px) {
   #site-logo { height: 128px; }
@@ -363,7 +373,7 @@ body.home-bg-active #site-subtitle { display: block; }
 .viewer-back-link {
   display: inline-flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   color: #333333;
 }
 .viewer-back-link svg { width: 20px; height: 20px; }
@@ -638,7 +648,7 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
   .log-render { font-size: 13px; }
 }
 
-.log-render .s-container { margin: 2rem 0; font-size: inherit; width: 100%; }
+.log-render .s-container { margin: 0; font-size: inherit; width: 100%; }
 .log-render .s-container > *:last-child { margin-bottom: 0 !important; }
 .log-render .s-row { display: flex; align-items: flex-start; line-height: 1.6; width: 100%; }
 
