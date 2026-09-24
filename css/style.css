@@ -513,7 +513,9 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .record-list li:hover { border-color: var(--accent); }
 .record-list .record-title { font-weight: 600; }
 /* 관리자 모드일 때만 드래그로 순서를 바꿀 수 있어서, 그때만 grab 커서로 안내한다. */
-body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
+@media (min-width: 769px) {
+  body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
+}
 .record-list li.sortable-chosen { cursor: grabbing; }
 .record-list li.sortable-ghost { opacity: 0.4; }
 /* 빈 목록일 때, 위쪽 로고·breadcrumb를 포함한 전체 화면 높이 기준 정중앙에 오게 한다.

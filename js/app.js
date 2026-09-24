@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=102";
+} from "./firebase-config.js?v=103";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=102";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=102";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=103";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=103";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -151,7 +151,7 @@ function applyAdminUI() {
   sidebarAdminBadge.classList.toggle("hidden", !isAdmin);
   document.querySelectorAll("[data-admin-only]").forEach((el) => el.classList.toggle("hidden", !isAdmin));
   document.body.classList.toggle("is-admin", isAdmin);
-  if (listSortableInstance) listSortableInstance.option("disabled", !isAdmin);
+  if (listSortableInstance) listSortableInstance.option("disabled", !isAdmin || !isDesktopViewport());
 }
 
 onAuthStateChanged(adminAuth, (user) => {
@@ -410,9 +410,17 @@ async function renderListView(catId, subId) {
 }
 
 // ── 리스트 드래그 정렬 ──
-// 관리자 모드에서만 드래그로 순서를 바꿀 수 있고, 그 결과(order 필드)는
-// 뷰어를 포함한 모두에게 동일하게 적용된다.
+// 관리자 모드 + 데스크탑(768px 초과)에서만 드래그로 순서를 바꿀 수 있다 — 모바일은
+// 터치로 스크롤하다가 실수로 순서가 바뀌기 쉬워서 아예 막았다. 그 결과(order
+// 필드)는 뷰어를 포함한 모두에게 동일하게 적용된다.
 let listSortableInstance = null;
+
+function isDesktopViewport() {
+  return document.documentElement.clientWidth > 768;
+}
+window.addEventListener("resize", () => {
+  if (listSortableInstance) listSortableInstance.option("disabled", !isAdmin || !isDesktopViewport());
+});
 
 function initListSortable() {
   if (listSortableInstance) {
@@ -423,7 +431,7 @@ function initListSortable() {
   const listEl = document.getElementById("record-list");
   listSortableInstance = Sortable.create(listEl, {
     animation: 150,
-    disabled: !isAdmin,
+    disabled: !isAdmin || !isDesktopViewport(),
     onEnd: async () => {
       const ids = Array.from(listEl.children)
         .map((li) => li.dataset.id)
