@@ -144,7 +144,7 @@ button, input, select, textarea {
   font-weight: 500;
   color: #9930AA;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 3px;
 }
 /* 점 개수(0~3개)가 바뀌어도 "Loading" 글자 위치가 옆으로 흔들리지 않도록
    점이 들어갈 자리를 미리 최대 너비만큼 잡아둔다. */
