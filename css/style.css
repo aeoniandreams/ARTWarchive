@@ -647,7 +647,7 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
   width: 1em;
   height: 1em;
   margin-right: 0.3em;
-  vertical-align: -0.1285em;
+  vertical-align: -0.1485em;
   background-color: currentColor;
   -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='black'%3E%3Cpath%20d='M5%205a2%202%200%200%201%203.008-1.728l11.997%206.998a2%202%200%200%201%20.003%203.458l-12%207A2%202%200%200%201%205%2019z'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='black'%3E%3Cpath%20d='M5%205a2%202%200%200%201%203.008-1.728l11.997%206.998a2%202%200%200%201%20.003%203.458l-12%207A2%202%200%200%201%205%2019z'/%3E%3C/svg%3E") center / contain no-repeat;
