@@ -412,7 +412,7 @@ body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in
   text-decoration: none;
   margin-right: 2.235em;
   position: relative;
-  top: 3px;
+  top: 0.221em;
 }
 .viewer-edit-link:hover { color: var(--text); }
 
@@ -744,6 +744,10 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
     max-width: 100%;
     margin: 0;
   }
+
+  /* 좌상단 사이드바 메뉴 아이콘(top:16px, 38px)과 겹쳐서 뒤로가기 아이콘이
+     눌리지 않던 문제 — 뷰어 전체를 좀 더 아래로 민다. */
+  #viewer-breadcrumb { margin-top: 50px; }
 
   .record-list li { padding: 12px; }
 
