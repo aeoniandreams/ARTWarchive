@@ -463,11 +463,6 @@ body.list-bg-talk .viewer-card {
   #list-logo, .page-logo { height: 64px; }
   .viewer-card { padding: 20px; }
 }
-/* 모바일 가로처럼 세로 공간이 짧을 때는 화면 중앙에 억지로 맞추면 오히려 어색해서 원래대로 되돌린다. */
-@media (max-height: 450px) {
-  .record-list:has(> .empty-state) { min-height: auto; }
-}
-
 .record-list { list-style: none; padding: 0; margin: 0; }
 .record-list li {
   padding: 14px 16px;
@@ -483,11 +478,16 @@ body.list-bg-talk .viewer-card {
 body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
 .record-list li.sortable-chosen { cursor: grabbing; }
 .record-list li.sortable-ghost { opacity: 0.4; }
-/* 빈 목록일 때, 위쪽 로고·breadcrumb를 뺀 나머지 화면 높이의 정중앙에 오게 한다. */
+/* 빈 목록일 때, 위쪽 로고·breadcrumb를 포함한 전체 화면 높이 기준 정중앙에 오게 한다.
+   position: fixed라 문서 흐름(로고·breadcrumb가 차지한 공간)과 무관하게 뷰포트
+   자체의 세로 중앙에 놓인다. */
 .record-list:has(> .empty-state) {
-  min-height: calc(100vh - 200px);
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 .empty-state { color: #333333; opacity: 0.5; font-weight: 500; text-align: center; }
