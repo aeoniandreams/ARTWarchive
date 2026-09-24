@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=95";
+} from "./firebase-config.js?v=96";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=95";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=95";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=96";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=96";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -53,6 +53,14 @@ function openSidebar() {
 function closeSidebar() {
   sidebar.classList.remove("open");
   sidebarBackdrop.classList.remove("open");
+  // 다음에 다시 열었을 때 항상 다 접힌 상태로 보이도록, 닫히는 김에 펼쳐진
+  // 2차 카테고리도 초기화한다. 어차피 서랍째로 화면 밖으로 밀려나가는 중이라
+  // 애니메이션 없이 바로 접어도 눈에 띄지 않는다.
+  categoryNav.querySelectorAll(".subcat-list.open").forEach((el) => {
+    el.classList.remove("open");
+    el.style.maxHeight = "0px";
+  });
+  categoryNav.querySelectorAll(".cat-chevron.open").forEach((el) => el.classList.remove("open"));
 }
 sidebarToggleBtn.addEventListener("click", () => {
   sidebar.classList.contains("open") ? closeSidebar() : openSidebar();
