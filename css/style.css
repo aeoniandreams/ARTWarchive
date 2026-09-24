@@ -368,7 +368,7 @@ body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in
 .breadcrumb a:hover { color: var(--text); }
 /* 뒤로가기 버튼(아이콘)을 나머지 breadcrumb 내용 위 줄에 따로 놓는다.
    다음 요소(.viewer-breadcrumb-path)가 block이라 자연히 줄바꿈된다. */
-#viewer-breadcrumb { margin-top: 10px; color: #666666; }
+#viewer-breadcrumb { margin-top: 20px; color: #666666; }
 #viewer-breadcrumb a { color: #666666; }
 .viewer-back-link {
   display: inline-flex;
