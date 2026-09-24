@@ -141,8 +141,9 @@ button, input, select, textarea {
 .loading-dots-text {
   margin: 0;
   font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
+  font-weight: 500;
+  color: #16A6E9;
+  text-transform: uppercase;
 }
 /* 점 개수(0~3개)가 바뀌어도 "Loading" 글자 위치가 옆으로 흔들리지 않도록
    점이 들어갈 자리를 미리 최대 너비만큼 잡아둔다. */
