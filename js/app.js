@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=60";
+} from "./firebase-config.js?v=61";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=60";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=60";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=61";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=61";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -431,14 +431,19 @@ const viewerNextBtn = document.getElementById("viewer-next-btn");
 // left/right를 매번 맞춘다. 모바일(max-width:768px)에서는 CSS가 static으로
 // 바꿔서 박스 밑에 나란히 놓으므로 이 계산이 필요 없다.
 function positionViewerNavButtons() {
-  if (window.innerWidth <= 768) return;
+  // window.innerWidth는 세로 스크롤바 두께까지 포함하는데, 카드의 실제 위치
+  // (getBoundingClientRect)는 스크롤바를 뺀 문서 영역 기준이라 그 차이만큼
+  // 오른쪽 버튼만 카드에 더 붙어 보였다. document.documentElement.clientWidth는
+  // 스크롤바를 뺀 값이라 카드 위치와 같은 기준으로 계산된다.
+  const viewportWidth = document.documentElement.clientWidth;
+  if (viewportWidth <= 768) return;
   const card = document.querySelector(".viewer-card");
   if (!card) return;
   const rect = card.getBoundingClientRect();
   const gap = 16;
   const btnWidth = 44;
   viewerPrevBtn.style.left = `${Math.max(8, rect.left - btnWidth - gap)}px`;
-  viewerNextBtn.style.right = `${Math.max(8, window.innerWidth - rect.right - btnWidth - gap)}px`;
+  viewerNextBtn.style.right = `${Math.max(8, viewportWidth - rect.right - btnWidth - gap)}px`;
 }
 window.addEventListener("resize", positionViewerNavButtons);
 
