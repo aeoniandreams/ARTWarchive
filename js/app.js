@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=64";
+} from "./firebase-config.js?v=65";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=64";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=64";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=65";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=65";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -479,6 +479,9 @@ async function renderViewerView(recordId) {
   viewerContent.innerHTML = data.tableHtml || "";
   // 토글 제목 등 수정창에서만 필요했던 contenteditable 흔적은 읽기 전용 화면에서 지운다.
   viewerContent.querySelectorAll("[contenteditable]").forEach((el) => el.removeAttribute("contenteditable"));
+  // 에디터에서는 토글을 삽입하면 기본이 열림 상태라 그 상태 그대로 저장돼 있는데,
+  // 뷰어에서는 매번 새로 열 때마다(뒤로가기 후 다시 들어와도) 닫힌 상태로 시작하게 한다.
+  viewerContent.querySelectorAll(".editor-toggle.open").forEach((el) => el.classList.remove("open"));
   // 프로필 사진은 톡 보관함 기록에서만 보여준다.
   renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk" });
 
