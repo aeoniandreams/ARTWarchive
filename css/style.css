@@ -494,6 +494,7 @@ body.list-bg-talk .viewer-card {
 @media (max-width: 768px) {
   #list-logo, .page-logo { height: 64px; }
   .viewer-card { padding: 25px 20px; }
+  .viewer-edit-link { top: 0em; }
 }
 .record-list { list-style: none; padding: 0; margin: 0; }
 .record-list li {
