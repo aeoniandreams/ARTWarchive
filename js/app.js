@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=59";
+} from "./firebase-config.js?v=60";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=59";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=59";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=60";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=60";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -313,6 +313,35 @@ function emptyStateHtml(catId) {
 // breadcrumb에서 카테고리 > 하위 카테고리 사이 구분자로 쓰는 chevron-right (lucide).
 const BREADCRUMB_CHEVRON = '<svg class="breadcrumb-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>';
 
+// 커스텀 순서(order)가 있으면 그걸 우선으로 정렬하고, 없는 기록들은 원래 쿼리
+// 순서(최신순)를 그대로 유지한 채 뒤로 보낸다. Array.sort는 안정 정렬이라 order가
+// 같은(혹은 둘 다 없는) 항목끼리는 원래 순서가 그대로 유지된다. 리스트 화면과
+// 뷰어의 이전/다음 글 이동이 항상 같은 기준을 쓰도록 여기 한 곳에만 둔다.
+function sortRecordsByOrder(records) {
+  records.sort((a, b) => {
+    const ao = typeof a.order === "number" ? a.order : null;
+    const bo = typeof b.order === "number" ? b.order : null;
+    if (ao !== null && bo !== null) return ao - bo;
+    if (ao !== null) return -1;
+    if (bo !== null) return 1;
+    return 0;
+  });
+  return records;
+}
+
+// 특정 카테고리/서브카테고리의 기록을, 리스트 화면과 동일한 정렬 기준으로 가져온다.
+async function fetchSortedRecords(catId, subId) {
+  const q = query(
+    collection(db, "records"),
+    where("category", "==", catId),
+    where("subcategory", "==", subId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  const records = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+  return sortRecordsByOrder(records);
+}
+
 // ── 리스트 화면 ──
 async function renderListView(catId, subId) {
   const cat = findCategory(catId);
@@ -331,39 +360,19 @@ async function renderListView(catId, subId) {
   const listEl = document.getElementById("record-list");
   listEl.innerHTML = "<li class='empty-state'>불러오는 중...</li>";
 
-  const q = query(
-    collection(db, "records"),
-    where("category", "==", catId),
-    where("subcategory", "==", subId),
-    orderBy("createdAt", "desc")
-  );
-
-  let snap;
+  let records;
   try {
-    snap = await getDocs(q);
+    records = await fetchSortedRecords(catId, subId);
   } catch (e) {
     console.error("리스트 조회 실패:", e.code, e.message);
     listEl.innerHTML = `<li class='empty-state'>목록을 불러오지 못했습니다: ${e.code || e.message}<br>(Firestore에 복합 색인이 필요할 수 있어요 — 콘솔 오류 메시지의 링크를 확인해주세요)</li>`;
     return;
   }
 
-  if (snap.empty) {
+  if (records.length === 0) {
     listEl.innerHTML = emptyStateHtml(catId);
     return;
   }
-
-  // 커스텀 순서(order)가 있으면 그걸 우선으로 정렬하고, 없는 기록들은 원래
-  // 쿼리 순서(최신순)를 그대로 유지한 채 뒤로 보낸다. Array.sort는 안정 정렬이라
-  // order가 같은(혹은 둘 다 없는) 항목끼리는 원래 순서가 그대로 유지된다.
-  const records = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-  records.sort((a, b) => {
-    const ao = typeof a.order === "number" ? a.order : null;
-    const bo = typeof b.order === "number" ? b.order : null;
-    if (ao !== null && bo !== null) return ao - bo;
-    if (ao !== null) return -1;
-    if (bo !== null) return 1;
-    return 0;
-  });
 
   listEl.innerHTML = "";
   records.forEach((data) => {
@@ -413,11 +422,33 @@ function initListSortable() {
 }
 
 // ── 뷰어 화면 ──
+const viewerPrevBtn = document.getElementById("viewer-prev-btn");
+const viewerNextBtn = document.getElementById("viewer-next-btn");
+
+// 데스크탑에서 이전/다음 글 버튼이 항상 흰 박스(.viewer-card) 바로 양옆, 화면
+// 세로 중앙에 오도록 위치를 잡는다. position: fixed라 스크롤해도 안 움직이고,
+// 박스의 실제 렌더링 위치(사이드바 유무, 화면 너비에 따라 달라짐)는 JS로 재서
+// left/right를 매번 맞춘다. 모바일(max-width:768px)에서는 CSS가 static으로
+// 바꿔서 박스 밑에 나란히 놓으므로 이 계산이 필요 없다.
+function positionViewerNavButtons() {
+  if (window.innerWidth <= 768) return;
+  const card = document.querySelector(".viewer-card");
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  const gap = 16;
+  const btnWidth = 44;
+  viewerPrevBtn.style.left = `${Math.max(8, rect.left - btnWidth - gap)}px`;
+  viewerNextBtn.style.right = `${Math.max(8, window.innerWidth - rect.right - btnWidth - gap)}px`;
+}
+window.addEventListener("resize", positionViewerNavButtons);
+
 async function renderViewerView(recordId) {
   const viewerContent = document.getElementById("viewer-content");
   const viewerTitle = document.getElementById("viewer-title");
   const viewerBreadcrumb = document.getElementById("viewer-breadcrumb");
   viewerContent.innerHTML = "불러오는 중...";
+  viewerPrevBtn.classList.add("hidden");
+  viewerNextBtn.classList.add("hidden");
 
   const snap = await getDoc(doc(db, "records", recordId));
   if (!snap.exists()) {
@@ -443,6 +474,20 @@ async function renderViewerView(recordId) {
   viewerContent.querySelectorAll("[contenteditable]").forEach((el) => el.removeAttribute("contenteditable"));
   // 프로필 사진은 톡 보관함 기록에서만 보여준다.
   renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk" });
+
+  // 이전/다음 글: 리스트 화면과 동일한 정렬 기준으로 같은 카테고리/서브카테고리
+  // 목록을 다시 가져와서, 지금 보고 있는 기록의 앞뒤를 찾는다. 리스트에서
+  // 드래그로 순서를 바꿨다면 그 순서가 여기에도 그대로 반영된다.
+  const siblings = await fetchSortedRecords(data.category, data.subcategory);
+  const index = siblings.findIndex((r) => r.id === recordId);
+  const prev = index > 0 ? siblings[index - 1] : null;
+  const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : null;
+
+  viewerPrevBtn.classList.toggle("hidden", !prev);
+  viewerNextBtn.classList.toggle("hidden", !next);
+  viewerPrevBtn.onclick = prev ? () => { location.hash = `#/view/${prev.id}`; } : null;
+  viewerNextBtn.onclick = next ? () => { location.hash = `#/view/${next.id}`; } : null;
+  positionViewerNavButtons();
 }
 
 // ── 실행취소/다시실행 (Ctrl+Z / Ctrl+Y·Ctrl+Shift+Z) ──

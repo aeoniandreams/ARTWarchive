@@ -354,6 +354,32 @@ body.home-bg-active #site-subtitle { display: block; }
   margin-top: 16px;
 }
 
+/* 데스크탑: 화면 세로 중앙에 고정, JS가 .viewer-card 위치를 재서 left/right를 잡아준다.
+   모바일: 아래 media query에서 박스 밑에 나란히 놓는 형태로 바뀐다. */
+.viewer-nav-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+}
+.viewer-nav-btn svg { width: 20px; height: 20px; color: #333333; transition: color 0.15s ease; }
+.viewer-nav-btn:hover svg { color: #7C4BFF; }
+
+@media (max-width: 768px) {
+  .viewer-nav { display: flex; justify-content: center; gap: 16px; margin-top: 20px; }
+  .viewer-nav-btn { position: static; transform: none; }
+}
+
 #new-record-btn {
   width: 35px;
   height: 35px;
