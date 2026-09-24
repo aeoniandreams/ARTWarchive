@@ -342,13 +342,6 @@ body.home-bg-active #site-subtitle { display: block; }
 .breadcrumb { color: #333333; margin-bottom: 16px; font-size: 0.9rem; font-weight: 500; }
 .breadcrumb-chevron { width: 14px; height: 14px; vertical-align: -2px; margin: 0 2px; }
 
-/* 스크롤해도 상단에 고정 — 좌측 상단 메뉴 아이콘(38px, top:16px)과 안 겹치게 그 아래로 둔다.
-   박스 느낌(배경/테두리) 없이 텍스트만 떠 있는 형태. */
-#viewer-breadcrumb {
-  position: sticky;
-  top: 60px;
-  z-index: 15;
-}
 .breadcrumb a { color: #333333; }
 .breadcrumb a:hover { color: var(--text); }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
