@@ -6,7 +6,7 @@
 <title>ARTWarchive</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="stylesheet" href="https://unpkg.com/pretendard-jp@1.3.9/dist/web/variable/pretendardvariable-jp-dynamic-subset.css" />
-<link rel="stylesheet" href="css/style.css?v=75" />
+<link rel="stylesheet" href="css/style.css?v=76" />
 <script>
   // 로딩 화면을 최소 1초는 보여주기 위한 기준 시각. firebase-config.js는 ES
   // 모듈이라 import가 끝나야 실행되는데, 그 안에서 시각을 재면 이미 import
@@ -159,7 +159,10 @@
     <!-- 뷰어 화면 -->
     <section id="viewer-view" class="hidden">
       <div class="breadcrumb" id="viewer-breadcrumb"></div>
-      <h2 id="viewer-title"></h2>
+      <div class="viewer-title-row">
+        <h2 id="viewer-title"></h2>
+        <a href="#" id="viewer-edit-link" class="viewer-edit-link hidden" data-admin-only>수정</a>
+      </div>
       <div class="viewer-card">
         <div id="viewer-content" class="log-render"></div>
       </div>
@@ -220,6 +223,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script type="module" src="js/app.js?v=75"></script>
+<script type="module" src="js/app.js?v=76"></script>
 </body>
 </html>

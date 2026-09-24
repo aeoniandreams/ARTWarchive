@@ -356,14 +356,33 @@ body.home-bg-active #site-subtitle { display: block; }
 
 .breadcrumb a { color: #333333; }
 .breadcrumb a:hover { color: var(--text); }
+/* 뒤로가기 화살표(←) 글자 자체는 굵기로만 선 두께를 조절할 수 있다. */
+.viewer-back-link { font-weight: 700; }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
+
+/* 제목과 "수정" 링크를 한 줄에, 수정은 내용 박스 오른쪽 끝에 맞춰 정렬한다. */
+.viewer-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.viewer-title-row h2 { margin: 0; }
+.viewer-edit-link {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333333;
+  text-decoration: none;
+}
+.viewer-edit-link:hover { color: var(--text); }
 
 /* 기록 내용을 감싸는 흰 박스 — 뒤 배경이 살짝 비치도록 불투명도를 낮췄다. */
 .viewer-card {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 16px;
   padding: 28px 32px;
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 /* 데스크탑: 화면 세로 중앙에 고정, JS가 .viewer-card 위치를 재서 left/right를 잡아준다.

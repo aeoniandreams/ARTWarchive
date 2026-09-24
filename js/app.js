@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=75";
+} from "./firebase-config.js?v=76";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=75";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=75";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=76";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=76";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -453,6 +453,7 @@ async function renderViewerView(recordId) {
   const viewerContent = document.getElementById("viewer-content");
   const viewerTitle = document.getElementById("viewer-title");
   const viewerBreadcrumb = document.getElementById("viewer-breadcrumb");
+  const viewerEditLink = document.getElementById("viewer-edit-link");
   viewerContent.innerHTML = "불러오는 중...";
   viewerPrevBtn.classList.add("hidden");
   viewerNextBtn.classList.add("hidden");
@@ -473,7 +474,8 @@ async function renderViewerView(recordId) {
     document.body.classList.add(`list-bg-${data.category}`);
   }
 
-  viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" aria-label="목록으로">&larr;</a> &nbsp;·&nbsp; ${cat?.label ?? data.category}${BREADCRUMB_CHEVRON}${sub?.label ?? data.subcategory} &nbsp;·&nbsp; <a href="#/edit/${recordId}" data-admin-only class="hidden">수정</a>`;
+  viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" class="viewer-back-link" aria-label="목록으로">&larr;</a> &nbsp;·&nbsp; ${cat?.label ?? data.category}${BREADCRUMB_CHEVRON}${sub?.label ?? data.subcategory}`;
+  viewerEditLink.href = `#/edit/${recordId}`;
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
