@@ -501,9 +501,10 @@ body.list-bg-talk .viewer-card {
   border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 8px;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.6);
   cursor: pointer;
 }
+body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); }
 .record-list li:hover { border-color: var(--accent); }
 .record-list .record-title { font-weight: 600; }
 /* 관리자 모드일 때만 드래그로 순서를 바꿀 수 있어서, 그때만 grab 커서로 안내한다. */
