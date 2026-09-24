@@ -374,6 +374,7 @@ body.home-bg-active #site-subtitle { display: block; }
   font-weight: 600;
   color: #333333;
   text-decoration: none;
+  margin-right: 0.735em;
 }
 .viewer-edit-link:hover { color: var(--text); }
 
@@ -382,7 +383,7 @@ body.home-bg-active #site-subtitle { display: block; }
   background: rgba(255, 255, 255, 0.8);
   border-radius: 16px;
   padding: 28px 32px;
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 /* 데스크탑: 화면 세로 중앙에 고정, JS가 .viewer-card 위치를 재서 left/right를 잡아준다.
