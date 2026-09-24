@@ -603,8 +603,21 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
 .log-render .s-fold-btn:hover { color: var(--fold-btn-active-color); }
 .log-render .s-fold-btns.has-open .s-fold-btn:not(.open):hover { color: inherit; opacity: 0.6; }
 .log-render .s-fold-btn.open { color: var(--fold-btn-active-color); }
-.log-render .s-fold-btn::before { content: "▶ "; font-size: 0.75em; }
-.log-render .s-fold-btn.open::before { content: "▼ "; font-size: 0.75em; }
+.log-render .s-fold-btn::before {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.3em;
+  vertical-align: -0.15em;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m6%2017%205-5-5-5'/%3E%3Cpath%20d='m13%2017%205-5-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m6%2017%205-5-5-5'/%3E%3Cpath%20d='m13%2017%205-5-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.log-render .s-fold-btn.open::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m7%206%205%205%205-5'/%3E%3Cpath%20d='m7%2013%205%205%205-5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m7%206%205%205%205-5'/%3E%3Cpath%20d='m7%2013%205%205%205-5'/%3E%3C/svg%3E");
+}
 .log-render .s-fold-btn img { display: inline !important; width: auto !important; height: 20% !important; vertical-align: middle !important; opacity: 1 !important; visibility: visible !important; max-width: none !important; }
 .log-render .s-fold-content { display: none; }
 .log-render .s-fold-content.open { display: block; }
