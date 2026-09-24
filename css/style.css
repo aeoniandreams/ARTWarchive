@@ -216,6 +216,12 @@ button, input, select, textarea {
 }
 #sidebar-toggle-btn svg { width: 20px; height: 20px; }
 #sidebar-toggle-btn:hover { background: rgba(255, 255, 255, 0.15); }
+/* 메인 스토리·톡 보관함의 리스트/기록(뷰어) 화면에서는 배경과 더 잘 어울리는 색으로. */
+body.list-bg-main_story #sidebar-toggle-btn,
+body.viewer-bg-main_story #sidebar-toggle-btn,
+body.list-bg-talk #sidebar-toggle-btn {
+  color: #9EC8E7;
+}
 
 /* 사이드바를 열지 않은 화면 기준 정중앙에 고정 — 사이드바(서랍)는 오버레이라
    레이아웃을 안 밀어내므로, 사이드바를 열어도 이 위치는 그대로 유지된다. */
@@ -266,13 +272,19 @@ body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in
 }
 
 /* 딤 없이, 바깥을 클릭하면 닫히는 용도로만 쓰는 투명 레이어 */
+/* display:none/block 대신 opacity로 여닫아야 트랜지션이 걸린다(사이드바 자체는
+   이미 transform 트랜지션이 있었지만, 배경이 아무 반응 없이 뚝 나타나서
+   전체적으로는 애니메이션이 없는 것처럼 느껴졌다). */
 #sidebar-backdrop {
-  display: none;
   position: fixed;
   inset: 0;
   z-index: 40;
+  background: rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
 }
-#sidebar-backdrop.open { display: block; }
+#sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
 
 #sidebar {
   position: fixed;
@@ -632,7 +644,7 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
   font-size: 0.85rem;
   text-align: left;
 }
-#library-nav-btn:hover { background: var(--accent-soft); }
+#library-nav-btn:hover { background: rgba(124, 75, 255, 0.1); }
 
 /* ─────────────────────────────────────────────────────────── */
 /* 대화 로그 렌더링 (기존 티스토리 코드 이식, .log-render 안에서만 동작) */
