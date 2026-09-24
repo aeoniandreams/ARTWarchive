@@ -4,7 +4,7 @@
   --border: #e5e0d8;
   --text: #2b2b2b;
   --text-dim: #7a7a7a;
-  --accent: #c9977b;
+  --accent: #7c4bff;
   --accent-soft: #f2e4da;
   --sidebar-w: 240px;
 
@@ -356,8 +356,14 @@ body.home-bg-active #site-subtitle { display: block; }
 
 .breadcrumb a { color: #333333; }
 .breadcrumb a:hover { color: var(--text); }
-/* 뒤로가기 화살표(←) 글자 자체는 굵기로만 선 두께를 조절할 수 있다. */
-.viewer-back-link { font-weight: 700; }
+/* 뒤로가기 버튼(아이콘)을 나머지 breadcrumb 내용 위 줄에 따로 놓는다.
+   다음 요소(.viewer-breadcrumb-path)가 block이라 자연히 줄바꿈된다. */
+.viewer-back-link {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.viewer-back-link svg { width: 20px; height: 20px; }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
 
 /* 제목과 "수정" 링크를 한 줄에, 수정은 내용 박스 오른쪽 끝에 맞춰 정렬한다. */
