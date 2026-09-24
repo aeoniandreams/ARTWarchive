@@ -668,6 +668,9 @@ body.is-admin .record-list li:not(.empty-state) { cursor: grab; }
   .log-render { font-size: 13px; }
 }
 
+/* 빈 <p><br></p>(토글 삽입할 때 앞뒤로 자동으로 붙는 것 등)이 브라우저 기본
+   문단 마진(위아래 1em)을 그대로 가져가서, 토글 위아래 간격이 유독 커 보였다. */
+.log-render p { margin: 0; }
 .log-render .s-container { margin: 0; font-size: inherit; width: 100%; }
 .log-render .s-container > *:last-child { margin-bottom: 0 !important; }
 .log-render .s-row { display: flex; align-items: flex-start; line-height: 1.6; width: 100%; }
