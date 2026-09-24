@@ -363,7 +363,8 @@ body.home-bg-active #site-subtitle { display: block; }
 .viewer-back-link {
   display: inline-flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
+  color: #333333;
 }
 .viewer-back-link svg { width: 20px; height: 20px; }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
@@ -382,7 +383,7 @@ body.home-bg-active #site-subtitle { display: block; }
   font-weight: 600;
   color: #333333;
   text-decoration: none;
-  margin-right: 0.735em;
+  margin-right: 2.235em;
 }
 .viewer-edit-link:hover { color: var(--text); }
 
@@ -397,7 +398,7 @@ body.home-bg-active #site-subtitle { display: block; }
 body.list-bg-call .viewer-card,
 body.list-bg-diary .viewer-card,
 body.list-bg-talk .viewer-card {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.65);
 }
 
 /* 데스크탑: 화면 세로 중앙에 고정, JS가 .viewer-card 위치를 재서 left/right를 잡아준다.
