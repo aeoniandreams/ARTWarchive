@@ -396,6 +396,9 @@ body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in
   color: #333333;
 }
 .viewer-back-link svg { width: 20px; height: 20px; }
+/* 라이브러리 화면에서는 아래에 이어지는 breadcrumb 텍스트 줄이 없어서, 이
+   아이콘 자체의 margin-bottom은 필요 없다 (바깥 .breadcrumb의 margin-bottom만 쓴다). */
+#library-view .breadcrumb .viewer-back-link { margin-bottom: 0; }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
 
 /* 제목과 "수정" 링크를 한 줄에, 수정은 내용 박스 오른쪽 끝에 맞춰 정렬한다. */
@@ -412,7 +415,7 @@ body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in
   font-weight: 600;
   color: #333333;
   text-decoration: none;
-  margin-right: 2.235em;
+  margin-right: 1.735em;
   position: relative;
   top: 0.221em;
 }
