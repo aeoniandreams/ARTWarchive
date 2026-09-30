@@ -415,17 +415,29 @@ body.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
   gap: 12px;
 }
 .viewer-title-row h2 { margin: 0; }
-.viewer-edit-link {
+.viewer-title-actions {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
   flex-shrink: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #333333;
-  text-decoration: none;
   margin-right: 1.735em;
   position: relative;
   top: 0.221em;
 }
+.viewer-edit-link, .viewer-delete-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.viewer-edit-link { color: #333333; }
 .viewer-edit-link:hover { color: var(--text); }
+.viewer-delete-link { color: #c0392b; }
+.viewer-delete-link:hover { color: #a52f22; }
 
 /* 기록 내용을 감싸는 흰 박스 — 뒤 배경이 살짝 비치도록 불투명도를 낮췄다. */
 .viewer-card {
@@ -504,8 +516,8 @@ body.list-bg-talk .viewer-card {
   #list-logo, .page-logo { height: 64px; }
   .viewer-card { padding: 25px 20px; }
   #viewer-breadcrumb { margin-top: 0; }
-  /* 관리자 모드여도 모바일에서는 기록 수정 버튼을 숨긴다. */
-  .viewer-edit-link { display: none; }
+  /* 관리자 모드여도 모바일에서는 기록 수정·삭제 버튼을 숨긴다. */
+  .viewer-title-actions { display: none; }
 }
 .record-list { list-style: none; padding: 0; margin: 0; }
 .record-list li {
@@ -568,6 +580,13 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   border-bottom: none;
   border-radius: 8px 8px 0 0;
   background: var(--panel);
+}
+/* 수정창 툴바는 스크롤해도 화면 위에 붙어있게 — 좌상단 메뉴 아이콘(top:16px,
+   38px)과 안 겹치게 그 아래로 둔다. */
+#editor-toolbar {
+  position: sticky;
+  top: 60px;
+  z-index: 20;
 }
 .editor-toolbar button {
   padding: 6px 10px;
@@ -777,6 +796,9 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   font-size: inherit; font-weight: bold; color: inherit;
   font-family: inherit; text-align: left;
 }
+/* 선택지가 연달아 여럿이 아니라 하나뿐이면, 폭을 다 채우지 않고 가운데로. */
+.log-render .s-fold-btns:has(> .s-fold-btn:only-child) { justify-content: center; }
+.log-render .s-fold-btn:only-child { flex: none; text-align: center; }
 .log-render .s-fold-btn:hover { color: var(--fold-btn-active-color); }
 .log-render .s-fold-btns.has-open .s-fold-btn:not(.open):hover { color: inherit; opacity: 0.6; }
 .log-render .s-fold-btn.open { color: var(--fold-btn-active-color); }

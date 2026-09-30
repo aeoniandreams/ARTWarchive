@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=130";
+} from "./firebase-config.js?v=131";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -22,9 +22,10 @@ import {
   orderBy,
   serverTimestamp,
   writeBatch,
+  deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=130";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=130";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=131";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=131";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -501,6 +502,7 @@ async function renderViewerView(recordId) {
   const viewerTitle = document.getElementById("viewer-title");
   const viewerBreadcrumb = document.getElementById("viewer-breadcrumb");
   const viewerEditLink = document.getElementById("viewer-edit-link");
+  const viewerDeleteBtn = document.getElementById("viewer-delete-btn");
   viewerContent.innerHTML = "불러오는 중...";
   viewerPrevBtn.classList.add("hidden");
   viewerNextBtn.classList.add("hidden");
@@ -523,6 +525,16 @@ async function renderViewerView(recordId) {
 
   viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a><div class="viewer-breadcrumb-path">${cat?.label ?? data.category}${BREADCRUMB_CHEVRON}${sub?.label ?? data.subcategory}</div>`;
   viewerEditLink.href = `#/edit/${recordId}`;
+  viewerDeleteBtn.onclick = async () => {
+    if (!confirm(`"${data.title || "(제목 없음)"}" 기록을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
+    try {
+      await deleteDoc(doc(adminDb, "records", recordId));
+      location.hash = `#/list/${data.category}/${data.subcategory}`;
+    } catch (e) {
+      console.error("삭제 실패:", e.code, e.message);
+      alert("삭제에 실패했습니다: " + (e.code || e.message));
+    }
+  };
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
   viewerContent.innerHTML = data.tableHtml || "";
