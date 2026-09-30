@@ -746,7 +746,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 
 .log-render .c-talk figure { margin: 10px 0 !important; }
 .log-render .c-talk figure img { display: block !important; opacity: 1 !important; visibility: visible !important; }
-.log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; }
+.log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; margin-bottom: 8px; }
 /* 이모티콘은 본문 이미지와 달리 글줄 사이에 작게 끼워 넣는 용도라 block을 다시 뒤집는다. */
 .log-render .c-talk img.log-emoticon,
 #editor-content img.log-emoticon {
