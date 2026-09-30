@@ -719,7 +719,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
    앞이나 마지막 줄 뒤가 아니라 줄과 줄 "사이"에만 간격을 준다. */
 .log-render .c-talk p + p,
 .log-render .c-talk div + div {
-  margin-top: 6px;
+  margin-top: 3px;
 }
 .log-render .s-container { margin: 0; font-size: inherit; width: 100%; }
 .log-render .s-container > *:last-child { margin-bottom: 0 !important; }
