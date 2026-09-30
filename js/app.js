@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=138";
+} from "./firebase-config.js?v=139";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=138";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=138";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=139";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=139";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -888,6 +888,17 @@ document.getElementById("btn-add-row").addEventListener("click", () => {
     insertAfter.insertAdjacentElement("afterend", tr);
     insertAfter = tr;
   }
+});
+
+// 커서가 놓인 바로 그 행만 삭제한다. 실행취소(Ctrl+Z)로 되돌릴 수 있어서
+// 확인창 없이 바로 지운다.
+document.getElementById("btn-delete-row").addEventListener("click", () => {
+  const tr = getCursorRow();
+  if (!tr) {
+    alert("커서를 삭제할 행(표 안의 칸)에 놓아주세요.");
+    return;
+  }
+  tr.remove();
 });
 
 // 접기 / 접기 끝 / 표 유지: 새 행을 만들지 않고, 커서가 있는 행의 첫 칸(이름 칸)에 문구를 추가
