@@ -245,7 +245,8 @@ body.list-bg-talk #sidebar-toggle-btn {
   from { opacity: 0; filter: blur(6px); transform: translate(-50%, calc(-50% - 6vh + 7px)); }
   to { opacity: 1; filter: blur(0); transform: translate(-50%, calc(-50% - 6vh)); }
 }
-body.home-bg-active #site-logo { display: block; animation: home-logo-in 0.6s ease-out; }
+body.home-bg-active #site-logo { display: block; }
+body.home-bg-active #site-logo.play-in { animation: home-logo-in 0.6s ease-out; }
 
 #site-subtitle {
   display: none;
@@ -266,7 +267,8 @@ body.home-bg-active #site-logo { display: block; animation: home-logo-in 0.6s ea
   from { opacity: 0; filter: blur(6px); transform: translateX(-50%) translateY(7px); }
   to { opacity: 1; filter: blur(0); transform: translateX(-50%) translateY(0); }
 }
-body.home-bg-active #site-subtitle { display: block; animation: home-subtitle-in 0.6s ease-out; }
+body.home-bg-active #site-subtitle { display: block; }
+body.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ease-out; }
 
 @media (max-width: 768px) {
   #site-logo { height: 128px; }

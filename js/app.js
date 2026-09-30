@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=106";
+} from "./firebase-config.js?v=107";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=106";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=106";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=107";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=107";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -282,13 +282,29 @@ const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk", "
 const VIEWER_BG_CLASS_MAP = { main_story: "viewer-bg-main_story" };
 const ALL_BG_CLASSES = [...LIST_BG_CLASSES, ...Object.values(VIEWER_BG_CLASS_MAP)];
 
+const siteLogo = document.getElementById("site-logo");
+const siteSubtitle = document.getElementById("site-subtitle");
+
 function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
   views[name].classList.remove("hidden");
-  document.body.classList.toggle("home-bg-active", name === "home");
+  const enteringHome = name === "home";
+  document.body.classList.toggle("home-bg-active", enteringHome);
   document.body.classList.toggle("library-bg-active", name === "library");
   if (name !== "list" && name !== "viewer") {
     document.body.classList.remove(...ALL_BG_CLASSES);
+  }
+  if (enteringHome) {
+    // display:none → block과 애니메이션 시작이 같은 스타일 계산에서 한꺼번에
+    // 일어나면(특히 로그인 직후처럼 여러 화면 전환이 한 프레임 안에 몰릴 때)
+    // 애니메이션이 처음부터 재생되지 않고 끝난 상태로 바로 보일 수 있다.
+    // display:block을 먼저 확정시키는 리플로우를 강제한 다음에 애니메이션을
+    // 트리거하는 클래스를 따로 붙여서 항상 처음부터 재생되게 한다.
+    siteLogo.classList.remove("play-in");
+    siteSubtitle.classList.remove("play-in");
+    void siteLogo.offsetHeight;
+    siteLogo.classList.add("play-in");
+    siteSubtitle.classList.add("play-in");
   }
 }
 
