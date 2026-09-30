@@ -418,7 +418,7 @@ body.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 .viewer-title-actions {
   display: inline-flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 24px;
   flex-shrink: 0;
   margin-right: 1.735em;
   position: relative;
