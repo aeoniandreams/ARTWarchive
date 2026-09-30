@@ -518,6 +518,7 @@ body.list-bg-talk .viewer-card {
   #viewer-breadcrumb { margin-top: 0; }
   /* 관리자 모드여도 모바일에서는 기록 수정·삭제 버튼을 숨긴다. */
   .viewer-title-actions { display: none; }
+  .editor-bottom-bar-inner { padding: 12px 16px; }
 }
 .record-list { list-style: none; padding: 0; margin: 0; }
 .record-list li {
@@ -705,8 +706,37 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   margin: 0 auto;
 }
 
-#save-record-btn, #save-library-btn {
+#save-library-btn {
   margin-top: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+/* 기록 저장 버튼은 본문 끝이 아니라 화면 하단에 고정된 바에, 오른쪽 정렬로 둔다.
+   #editor-content가 그만큼 가려지지 않도록 아래 여백을 미리 확보해둔다. */
+#editor-content { margin-bottom: 70px; }
+#editor-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.97);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+}
+.editor-bottom-bar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 12px 40px;
+  display: flex;
+  justify-content: flex-end;
+}
+#save-record-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;

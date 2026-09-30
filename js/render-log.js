@@ -18,6 +18,11 @@ const decodeHtml = (html) => {
 const getColor = (cell) => {
   const span = cell.querySelector('span[style*="color"]');
   if (span) return span.style.color;
+  // execCommand("foreColor", ...)는 <span style="color:...">가 아니라
+  // <font color="..."> 형태로 결과를 만든다(직접 테스트해서 확인함) — 그동안
+  // 이 경우를 못 찾아서 이름 색이 저장 후 반영이 안 됐다.
+  const font = cell.querySelector("font[color]");
+  if (font) return font.getAttribute("color");
   if (cell.style && cell.style.color) return cell.style.color;
   return "";
 };
