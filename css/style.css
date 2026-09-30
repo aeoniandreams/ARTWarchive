@@ -404,7 +404,7 @@ body.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 /* 에디터 breadcrumb은 아이콘과 문구가 한 줄에 나란히 오는 구조라 margin-bottom이
    필요 없다. 문구("기록 수정"/"새 기록 추가")는 커진 아이콘에 맞춰 살짝 키웠다. */
 #editor-breadcrumb .viewer-back-link { margin-bottom: 0; vertical-align: middle; }
-.editor-breadcrumb-label { font-size: 1rem; }
+.editor-breadcrumb-label { font-size: 1rem; position: relative; top: 3px; }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
 
 /* 제목과 "수정" 링크를 한 줄에, 수정은 내용 박스 오른쪽 끝에 맞춰 정렬한다. */
@@ -750,16 +750,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 
 .log-render .c-talk figure { margin: 10px 0 !important; }
 .log-render .c-talk figure img { display: block !important; opacity: 1 !important; visibility: visible !important; }
-.log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; margin-bottom: 8px; }
-/* 이모티콘은 본문 이미지와 달리 글줄 사이에 작게 끼워 넣는 용도라 block을 다시 뒤집는다. */
-.log-render .c-talk img.log-emoticon,
-#editor-content img.log-emoticon {
-  display: inline !important;
-  height: 1.6em !important;
-  width: auto !important;
-  vertical-align: middle !important;
-  margin: 0 1px !important;
-}
+.log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; margin-bottom: 14px !important; }
 
 .log-render .s-fold-btns { display: flex; width: 100%; margin: 6px 0 var(--fold-btn-bottom-gap); gap: 1em; }
 .log-render .s-fold-btn {
@@ -786,6 +777,18 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   transform: rotate(90deg);
 }
 .log-render .s-fold-btn img { display: inline !important; width: auto !important; height: 20% !important; vertical-align: middle !important; opacity: 1 !important; visibility: visible !important; max-width: none !important; }
+/* 이모티콘은 어느 맥락(대화 칸, 선택지 라벨 등)에 들어가든 글줄 크기로 작게
+   고정한다. 위 .s-fold-btn img 규칙(height:20%, max-width:none)을 그대로 두면
+   선택지 라벨에 넣은 이모티콘이 원본 크기 그대로 튀어나와 내용 박스를 넘어갔다. */
+.log-render img.log-emoticon,
+#editor-content img.log-emoticon {
+  display: inline !important;
+  height: 1.6em !important;
+  width: auto !important;
+  max-width: none !important;
+  vertical-align: middle !important;
+  margin: 0 1px !important;
+}
 /* display:none/block 대신 max-height를 트랜지션시켜서 펼쳐지는 느낌을 준다.
    실제 max-height 값(px)은 열고 닫을 때 JS(render-log.js)가 scrollHeight를
    재서 넣어준다 — 내용 높이가 제각각이라 CSS만으로는 정확히 잴 수 없다. */
