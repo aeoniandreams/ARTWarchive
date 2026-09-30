@@ -754,7 +754,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .log-render .is-right .c-talk img { margin-left: auto !important; margin-right: 0 !important; }
 .log-render .is-right .c-talk figure { margin-left: auto !important; margin-right: 0 !important; }
 
-.log-render .c-name { font-weight: bold; margin-bottom: 3px; color: inherit; }
+.log-render .c-name { font-weight: bold; margin-bottom: 8px; color: inherit; }
 .log-render .c-talk { color: inherit; word-break: break-all; width: 100%; }
 
 .log-render .c-talk figure { margin: 10px 0 !important; }
