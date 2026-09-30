@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=109";
+} from "./firebase-config.js?v=110";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=109";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=109";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=110";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=110";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -349,6 +349,8 @@ function emptyStateHtml(catId) {
 
 // breadcrumb에서 카테고리 > 하위 카테고리 사이 구분자로 쓰는 chevron-right (lucide).
 const BREADCRUMB_CHEVRON = '<svg class="breadcrumb-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>';
+// 뷰어·라이브러리·에디터 breadcrumb에서 공통으로 쓰는 뒤로가기 아이콘 (lucide arrow-left).
+const ARROW_LEFT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>';
 
 // 커스텀 순서(order)가 있으면 그걸 우선으로 정렬하고, 없는 기록들은 원래 쿼리
 // 순서(최신순)를 그대로 유지한 채 뒤로 보낸다. Array.sort는 안정 정렬이라 order가
@@ -519,7 +521,7 @@ async function renderViewerView(recordId) {
     document.body.classList.add(`list-bg-${data.category}`);
   }
 
-  viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" class="viewer-back-link" aria-label="목록으로"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg></a><div class="viewer-breadcrumb-path">${cat?.label ?? data.category}${BREADCRUMB_CHEVRON}${sub?.label ?? data.subcategory}</div>`;
+  viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a><div class="viewer-breadcrumb-path">${cat?.label ?? data.category}${BREADCRUMB_CHEVRON}${sub?.label ?? data.subcategory}</div>`;
   viewerEditLink.href = `#/edit/${recordId}`;
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
@@ -663,7 +665,7 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
   editorContent.innerHTML = "";
 
   if (recordId) {
-    editorBreadcrumb.innerHTML = `<a href="#/view/${recordId}" aria-label="기록으로">&larr;</a> &nbsp;·&nbsp; 기록 수정`;
+    editorBreadcrumb.innerHTML = `<a href="#/view/${recordId}" class="viewer-back-link" aria-label="기록으로">${ARROW_LEFT_ICON}</a> &nbsp;·&nbsp; <span class="editor-breadcrumb-label">기록 수정</span>`;
     const snap = await getDoc(doc(db, "records", recordId));
     if (snap.exists()) {
       const data = snap.data();
@@ -673,7 +675,7 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
       editorContent.innerHTML = data.tableHtml || "";
     }
   } else {
-    editorBreadcrumb.innerHTML = `<a href="#/list/${categoryId}/${subcategoryId}" aria-label="목록으로">&larr;</a> &nbsp;·&nbsp; 새 기록 추가`;
+    editorBreadcrumb.innerHTML = `<a href="#/list/${categoryId}/${subcategoryId}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a> &nbsp;·&nbsp; <span class="editor-breadcrumb-label">새 기록 추가</span>`;
     recordCategorySelect.value = categoryId;
     fillSubcategorySelect(categoryId, subcategoryId);
   }

@@ -401,6 +401,10 @@ body.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 /* 라이브러리 화면에서는 아래에 이어지는 breadcrumb 텍스트 줄이 없어서, 이
    아이콘 자체의 margin-bottom은 필요 없다 (바깥 .breadcrumb의 margin-bottom만 쓴다). */
 #library-view .breadcrumb .viewer-back-link { margin-bottom: 0; }
+/* 에디터 breadcrumb은 아이콘과 문구가 한 줄에 나란히 오는 구조라 margin-bottom이
+   필요 없다. 문구("기록 수정"/"새 기록 추가")는 커진 아이콘에 맞춰 살짝 키웠다. */
+#editor-breadcrumb .viewer-back-link { margin-bottom: 0; vertical-align: middle; }
+.editor-breadcrumb-label { font-size: 1rem; }
 .page-desc { color: var(--text-dim); font-size: 0.85rem; margin: -4px 0 16px; }
 
 /* 제목과 "수정" 링크를 한 줄에, 수정은 내용 박스 오른쪽 끝에 맞춰 정렬한다. */
