@@ -301,7 +301,14 @@ export function renderLog(root, lib = {}, options = {}) {
     el.innerHTML = "";
     groups.forEach((group) => {
       const p = document.createElement("p");
-      group.forEach((node) => p.appendChild(node));
+      // 엔터를 두 번(빈 줄) 눌러서 그룹이 비어있으면, 내용 없는 <p>는 줄 높이가
+      // 0이라 위아래 마진이 서로 겹쳐 없어져버린다(margin collapsing). <br>을
+      // 넣어 실제 한 줄만큼 높이를 갖게 해서 빈 줄이 진짜로 보이게 한다.
+      if (group.length === 0) {
+        p.appendChild(document.createElement("br"));
+      } else {
+        group.forEach((node) => p.appendChild(node));
+      }
       el.appendChild(p);
     });
   });
