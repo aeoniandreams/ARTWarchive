@@ -65,7 +65,7 @@ function applyFoldBtnImgSize(img) {
   if (!btn) return;
   if (!img.naturalWidth || !img.naturalHeight) return;
   const bw = btn.offsetWidth;
-  const target = bw * 0.35;
+  const target = bw * 0.55;
   const isLandscape = img.naturalWidth >= img.naturalHeight;
   if (isLandscape) {
     img.style.setProperty("height", target + "px", "important");
