@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=131";
+} from "./firebase-config.js?v=132";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=131";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=131";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=132";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=132";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -702,9 +702,44 @@ document.querySelectorAll("#editor-toolbar button[data-cmd]").forEach((btn) => {
   });
 });
 
-document.getElementById("color-picker").addEventListener("input", (e) => {
-  ensureEditorFocus();
-  document.execCommand("foreColor", false, e.target.value);
+// ── 글자색 (그리드 선택) ──
+// 꼭 이 순서대로 넣어달라고 한 색 목록.
+const TEXT_COLORS = ["#f89009", "#ee2323", "#9d9d9d", "#ff8100", "#00D000", "#00efff", "#c38a8b", "#ff59b5", "#2d383a"];
+
+const colorPickerBtn = document.getElementById("btn-color-picker");
+const colorPickerGrid = document.getElementById("color-picker-grid");
+let colorPickerSavedRange = null;
+
+colorPickerGrid.innerHTML = TEXT_COLORS.map(
+  (color) => `<button type="button" class="color-swatch" style="background-color:${color}" data-color="${color}" aria-label="${color}"></button>`
+).join("");
+
+colorPickerBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const sel = window.getSelection();
+  colorPickerSavedRange =
+    sel.rangeCount > 0 && editorContent.contains(sel.getRangeAt(0).startContainer)
+      ? sel.getRangeAt(0).cloneRange()
+      : null;
+  colorPickerGrid.classList.toggle("hidden");
+});
+
+colorPickerGrid.addEventListener("click", (e) => {
+  const swatch = e.target.closest(".color-swatch");
+  if (!swatch) return;
+  if (colorPickerSavedRange) {
+    restoreRangeAndFocus(colorPickerSavedRange, editorContent);
+  } else {
+    ensureEditorFocus();
+  }
+  document.execCommand("foreColor", false, swatch.dataset.color);
+  colorPickerGrid.classList.add("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!colorPickerGrid.classList.contains("hidden") && !e.target.closest("#btn-color-picker") && !e.target.closest("#color-picker-grid")) {
+    colorPickerGrid.classList.add("hidden");
+  }
 });
 
 // 대화 표 삽입
@@ -994,7 +1029,7 @@ emoticonPicker.addEventListener("click", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  if (!emoticonPicker.classList.contains("hidden") && !e.target.closest(".emoticon-picker-wrap")) {
+  if (!emoticonPicker.classList.contains("hidden") && !e.target.closest("#btn-insert-emoticon") && !e.target.closest("#emoticon-picker")) {
     emoticonPicker.classList.add("hidden");
   }
 });

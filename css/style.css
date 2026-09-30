@@ -627,6 +627,15 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   padding: 3px;
 }
 .emoticon-picker img:hover { background: rgba(124, 75, 255, 0.15); }
+.color-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  padding: 0;
+  cursor: pointer;
+}
+.color-swatch:hover { border-color: rgba(124, 75, 255, 0.6); }
 
 #editor-content, #library-content {
   min-height: 400px;
