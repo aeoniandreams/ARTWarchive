@@ -585,8 +585,9 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
    38px)과 안 겹치게 그 아래로 둔다. */
 #editor-toolbar {
   position: sticky;
-  top: 60px;
+  top: 0;
   z-index: 20;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 .editor-toolbar button {
   padding: 6px 10px;
