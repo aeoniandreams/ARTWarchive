@@ -723,6 +723,10 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .log-render .c-talk p + p {
   margin-top: 5px;
 }
+/* 화면이 넓으면 같은 5px도 상대적으로 덜 도드라져 보여서, 데스크탑에서만 살짝 더 준다. */
+@media (min-width: 769px) {
+  .log-render .c-talk p + p { margin-top: 8px; }
+}
 .log-render .s-container { margin: 0; font-size: inherit; width: 100%; }
 .log-render .s-container > *:last-child { margin-bottom: 0 !important; }
 .log-render .s-row { display: flex; align-items: flex-start; line-height: 1.6; width: 100%; }
