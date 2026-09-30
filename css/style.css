@@ -801,9 +801,12 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 
 .log-render .s-fold-btns { display: flex; width: 100%; margin: 6px 0 var(--fold-btn-bottom-gap); gap: 1em; }
 .log-render .s-fold-btn {
-  flex: 1; cursor: pointer; background: none; border: none; padding: 0;
+  flex: 1; cursor: pointer; background: none; border: none; padding: 5px;
   font-size: inherit; font-weight: bold; color: inherit;
   font-family: inherit; text-align: left;
+}
+@media (min-width: 769px) {
+  .log-render .s-fold-btn { padding: 9px; }
 }
 /* 선택지가 연달아 여럿이 아니라 하나뿐이면, 폭을 다 채우지 않고 가운데로. */
 .log-render .s-fold-btns:has(> .s-fold-btn:only-child) { justify-content: center; }
