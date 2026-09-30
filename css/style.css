@@ -811,7 +811,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 }
 /* 선택지가 연달아 여럿이 아니라 하나뿐이면, 폭을 다 채우지 않고 가운데로. */
 .log-render .s-fold-btns:has(> .s-fold-btn:only-child) { justify-content: center; }
-.log-render .s-fold-btn:only-child { flex: none; text-align: center; }
+.log-render .s-fold-btn:only-child { flex: 0 1 33%; text-align: center; }
 .log-render .s-fold-btn:hover { color: var(--fold-btn-active-color); }
 .log-render .s-fold-btns.has-open .s-fold-btn:not(.open):hover { color: inherit; opacity: 0.6; }
 .log-render .s-fold-btn.open { color: var(--fold-btn-active-color); }
