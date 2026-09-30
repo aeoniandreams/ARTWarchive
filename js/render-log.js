@@ -56,6 +56,27 @@ function applyImgSize(img, root) {
   }
 }
 
+// 선택지(.s-fold-btn) 라벨에 넣은 이미지는 본문 이미지처럼 컨테이너 전체가
+// 아니라, 그 선택지 버튼 자신이 차지하는 너비를 기준으로 크기를 잡는다 —
+// 버튼들이 flex로 폭을 나눠 가지므로, 버튼 하나가 좁으면 이미지도 그만큼
+// 작아지고 넓으면 커진다.
+function applyFoldBtnImgSize(img) {
+  const btn = img.closest(".s-fold-btn");
+  if (!btn) return;
+  if (!img.naturalWidth || !img.naturalHeight) return;
+  const bw = btn.offsetWidth;
+  const target = bw * 0.35;
+  const isLandscape = img.naturalWidth >= img.naturalHeight;
+  if (isLandscape) {
+    img.style.setProperty("height", target + "px", "important");
+    img.style.setProperty("width", "auto", "important");
+  } else {
+    img.style.setProperty("width", target + "px", "important");
+    img.style.setProperty("height", "auto", "important");
+  }
+  img.style.setProperty("max-width", "none", "important");
+}
+
 export function resizeContentImages(root) {
   root.querySelectorAll(".c-talk img").forEach((img) => {
     if (img.closest(".p-box")) return;
@@ -64,6 +85,13 @@ export function resizeContentImages(root) {
       applyImgSize(img, root);
     } else {
       img.addEventListener("load", () => applyImgSize(img, root));
+    }
+  });
+  root.querySelectorAll(".s-fold-btn img").forEach((img) => {
+    if (img.complete && img.naturalWidth) {
+      applyFoldBtnImgSize(img);
+    } else {
+      img.addEventListener("load", () => applyFoldBtnImgSize(img));
     }
   });
 }
