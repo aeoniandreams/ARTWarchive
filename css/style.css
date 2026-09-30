@@ -589,15 +589,15 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   padding: 8px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
+  gap: 3px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  max-width: 260px;
-  max-height: 220px;
+  max-width: 300px;
+  max-height: 240px;
   overflow-y: auto;
 }
 .emoticon-picker img {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   cursor: pointer;
   border-radius: 6px;
