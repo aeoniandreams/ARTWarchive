@@ -25,6 +25,9 @@ const getColor = (cell) => {
 function applyImgSize(img, root) {
   if (img.closest(".p-box")) return;
   if (img.closest(".s-fold-btn")) return;
+  // 이모티콘은 본문 이미지와 달리 항상 작은 고정 크기(CSS의 .log-emoticon 규칙)로
+  // 보여야 해서, 컨테이너 너비의 35%로 맞추는 이 리사이즈 로직에서 제외한다.
+  if (img.classList.contains("log-emoticon")) return;
   const container = img.closest(".s-container");
   if (!container) return;
   if (!img.naturalWidth || !img.naturalHeight) return;
