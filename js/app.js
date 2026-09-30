@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=105";
+} from "./firebase-config.js?v=106";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=105";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=105";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=106";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=106";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -929,7 +929,7 @@ document.getElementById("paste-confirm-btn").addEventListener("click", () => {
 
 // ── 이모티콘 삽입 ──
 // 파일명만 여기 채워 넣으면 된다 (images/emoticons/ 안에 실제 파일이 있어야 함).
-const EMOTICON_FILES = [];
+const EMOTICON_FILES = Array.from({ length: 14 }, (_, i) => `${i + 1}.jpg`);
 
 const emoticonBtn = document.getElementById("btn-insert-emoticon");
 const emoticonPicker = document.getElementById("emoticon-picker");
