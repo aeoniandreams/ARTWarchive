@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=104";
+} from "./firebase-config.js?v=105";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,8 +23,8 @@ import {
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=104";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=104";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=105";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=105";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -925,6 +925,48 @@ document.getElementById("paste-confirm-btn").addEventListener("click", () => {
     document.execCommand("insertHTML", false, html);
   }
   pasteModal.classList.add("hidden");
+});
+
+// ── 이모티콘 삽입 ──
+// 파일명만 여기 채워 넣으면 된다 (images/emoticons/ 안에 실제 파일이 있어야 함).
+const EMOTICON_FILES = [];
+
+const emoticonBtn = document.getElementById("btn-insert-emoticon");
+const emoticonPicker = document.getElementById("emoticon-picker");
+let emoticonSavedRange = null;
+
+emoticonPicker.innerHTML = EMOTICON_FILES.map(
+  (file) => `<img src="images/emoticons/${file}" alt="" data-file="${file}" />`
+).join("");
+
+emoticonBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  // 팝업이 뜨면서 포커스/선택 영역이 바뀌기 전에, 지금 에디터 안 커서 위치를
+  // 저장해둔다 (HTML 붙여넣기 모달과 같은 방식).
+  const sel = window.getSelection();
+  emoticonSavedRange =
+    sel.rangeCount > 0 && editorContent.contains(sel.getRangeAt(0).startContainer)
+      ? sel.getRangeAt(0).cloneRange()
+      : null;
+  emoticonPicker.classList.toggle("hidden");
+});
+
+emoticonPicker.addEventListener("click", (e) => {
+  const img = e.target.closest("img");
+  if (!img) return;
+  if (emoticonSavedRange) {
+    restoreRangeAndFocus(emoticonSavedRange, editorContent);
+  } else {
+    ensureEditorFocus();
+  }
+  document.execCommand("insertHTML", false, `<img class="log-emoticon" src="${img.getAttribute("src")}" alt="" />`);
+  emoticonPicker.classList.add("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!emoticonPicker.classList.contains("hidden") && !e.target.closest(".emoticon-picker-wrap")) {
+    emoticonPicker.classList.add("hidden");
+  }
 });
 
 // 저장

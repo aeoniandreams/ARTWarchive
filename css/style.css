@@ -574,6 +574,35 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .editor-toolbar button:hover { background: var(--accent-soft); }
 .editor-toolbar input[type="color"] { width: 32px; padding: 0; border: 1px solid var(--border); border-radius: 5px; }
 
+/* 이모티콘 버튼 밑에 뜨는 작은 선택 창 — 버튼 기준으로 바로 아래, 왼쪽 정렬. */
+.emoticon-picker-wrap { position: relative; display: inline-flex; }
+.emoticon-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  max-width: 260px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.emoticon-picker img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 3px;
+}
+.emoticon-picker img:hover { background: rgba(124, 75, 255, 0.15); }
+
 #editor-content, #library-content {
   min-height: 400px;
   padding: 16px;
@@ -716,6 +745,15 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .log-render .c-talk figure { margin: 10px 0 !important; }
 .log-render .c-talk figure img { display: block !important; opacity: 1 !important; visibility: visible !important; }
 .log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; }
+/* 이모티콘은 본문 이미지와 달리 글줄 사이에 작게 끼워 넣는 용도라 block을 다시 뒤집는다. */
+.log-render .c-talk img.log-emoticon,
+#editor-content img.log-emoticon {
+  display: inline !important;
+  height: 1.6em !important;
+  width: auto !important;
+  vertical-align: middle !important;
+  margin: 0 1px !important;
+}
 
 .log-render .s-fold-btns { display: flex; width: 100%; margin: 6px 0 var(--fold-btn-bottom-gap); gap: 1em; }
 .log-render .s-fold-btn {
