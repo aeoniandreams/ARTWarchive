@@ -780,10 +780,20 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 /* 이모티콘은 어느 맥락(대화 칸, 선택지 라벨 등)에 들어가든 글줄 크기로 작게
    고정한다. 위 .s-fold-btn img 규칙(height:20%, max-width:none)을 그대로 두면
    선택지 라벨에 넣은 이모티콘이 원본 크기 그대로 튀어나와 내용 박스를 넘어갔다. */
-.log-render img.log-emoticon,
-#editor-content img.log-emoticon {
+.log-render img.log-emoticon {
   display: inline !important;
   height: 1.6em !important;
+  width: auto !important;
+  max-width: none !important;
+  vertical-align: middle !important;
+  margin: 0 1px !important;
+}
+/* 수정창 안에서는 저장된 뒤(뷰어)보다 조금 더 크게 보여준다 — 그리드에서 고른
+   크기에 가깝게, 편집할 때 알아보기 쉽도록. 저장 후 실제 보여지는 크기(1.6em)에는
+   영향 없다. */
+#editor-content img.log-emoticon {
+  display: inline !important;
+  height: 32px !important;
   width: auto !important;
   max-width: none !important;
   vertical-align: middle !important;
