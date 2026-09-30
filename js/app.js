@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=136";
+} from "./firebase-config.js?v=137";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=136";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=136";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=137";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=137";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -710,9 +710,12 @@ const colorPickerBtn = document.getElementById("btn-color-picker");
 const colorPickerGrid = document.getElementById("color-picker-grid");
 let colorPickerSavedRange = null;
 
-colorPickerGrid.innerHTML = TEXT_COLORS.map(
-  (color) => `<button type="button" class="color-swatch" style="background-color:${color}" data-color="${color}" aria-label="${color}"></button>`
-).join("");
+// 첫 3개는 첫 줄, 나머지 6개는 둘째 줄에 오도록 두 줄로 나눠서 넣는다.
+const colorRow = (colors) =>
+  `<div class="color-row">${colors
+    .map((color) => `<button type="button" class="color-swatch" style="background-color:${color}" data-color="${color}" aria-label="${color}"></button>`)
+    .join("")}</div>`;
+colorPickerGrid.innerHTML = colorRow(TEXT_COLORS.slice(0, 3)) + colorRow(TEXT_COLORS.slice(3));
 
 colorPickerBtn.addEventListener("click", (e) => {
   e.stopPropagation();

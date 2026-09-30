@@ -628,15 +628,19 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   padding: 3px;
 }
 .emoticon-picker img:hover { background: rgba(124, 75, 255, 0.15); }
+/* 이모티콘 그리드와 크기(44px)·간격(3px)을 맞추되, 3개+6개 두 줄로 고정해야
+   해서 grid가 아니라 줄마다 별도 flex 행으로 쌓는다. */
+#color-picker-grid { display: flex; flex-direction: column; gap: 3px; }
+.color-row { display: flex; gap: 3px; }
 .color-swatch {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  border: none;
   padding: 0;
   cursor: pointer;
 }
-.color-swatch:hover { border-color: rgba(124, 75, 255, 0.6); }
+.color-swatch:hover { outline: 2px solid rgba(124, 75, 255, 0.6); outline-offset: -2px; }
 
 #editor-content, #library-content {
   min-height: 400px;
