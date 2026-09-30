@@ -253,5 +253,29 @@ export function renderLog(root, lib = {}, options = {}) {
     target.style.display = "none";
   });
 
+  // 표 한 칸 안에서 엔터로 줄바꿈하면 <p>/<div>가 아니라 <br> 하나로 저장되는데,
+  // <br>은 display/line-height를 아무리 줘도 브라우저가 무시해서 CSS만으로는
+  // 줄 사이 간격을 늘릴 수 없다(실제로 여러 방법을 테스트해서 확인함). 그래서
+  // <br> 기준으로 내용을 잘라 각각 <p>로 감싸고, .c-talk p + p 규칙이 그 사이에만
+  // margin을 주게 한다 — 화면 너비에 따라 저절로 꺾이는 자동 줄바꿈은 그대로 <p>
+  // 하나 안에 있어서 영향받지 않는다.
+  root.querySelectorAll(".c-talk").forEach((el) => {
+    if (!el.querySelector("br")) return;
+    const groups = [[]];
+    Array.from(el.childNodes).forEach((node) => {
+      if (node.nodeName === "BR") {
+        groups.push([]);
+      } else {
+        groups[groups.length - 1].push(node);
+      }
+    });
+    el.innerHTML = "";
+    groups.forEach((group) => {
+      const p = document.createElement("p");
+      group.forEach((node) => p.appendChild(node));
+      el.appendChild(p);
+    });
+  });
+
   resizeContentImages(root);
 }

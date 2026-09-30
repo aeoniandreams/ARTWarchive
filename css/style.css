@@ -714,11 +714,13 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 /* 빈 <p><br></p>(토글 삽입할 때 앞뒤로 자동으로 붙는 것 등)이 브라우저 기본
    문단 마진(위아래 1em)을 그대로 가져가서, 토글 위아래 간격이 유독 커 보였다. */
 .log-render p { margin: 0; }
-/* 표 한 칸 안에서 엔터로 줄바꿈한 여러 줄(각 줄이 <p> 또는 <div>로 감싸짐)은
-   위 규칙 때문에 마진이 0이라 다닥다닥 붙어 보였다. 대화 칸 안에서, 첫 줄
-   앞이나 마지막 줄 뒤가 아니라 줄과 줄 "사이"에만 간격을 준다. */
-.log-render .c-talk p + p,
-.log-render .c-talk div + div {
+/* 표 한 칸 안에서 엔터로 줄바꿈하면 <br> 하나로만 저장되는데, <br>은 CSS로
+   margin/line-height를 줘도 브라우저가 무시해서 간격을 늘릴 방법이 없다(직접
+   테스트해서 확인함). 그래서 render-log.js가 렌더링 시점에 <br> 기준으로
+   내용을 잘라 각각 <p>로 감싸주고, 여기서 그 사이에만 간격을 준다 — 화면
+   너비에 따라 저절로 꺾이는 자동 줄바꿈은 <p> 하나 안에 그대로 있어서
+   영향받지 않는다. */
+.log-render .c-talk p + p {
   margin-top: 7px;
 }
 .log-render .s-container { margin: 0; font-size: inherit; width: 100%; }
