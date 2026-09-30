@@ -750,7 +750,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 
 .log-render .c-talk figure { margin: 10px 0 !important; }
 .log-render .c-talk figure img { display: block !important; opacity: 1 !important; visibility: visible !important; }
-.log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; margin-bottom: 14px !important; }
+.log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; margin-bottom: 20px !important; }
 
 .log-render .s-fold-btns { display: flex; width: 100%; margin: 6px 0 var(--fold-btn-bottom-gap); gap: 1em; }
 .log-render .s-fold-btn {
@@ -786,7 +786,8 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   width: auto !important;
   max-width: none !important;
   vertical-align: middle !important;
-  margin: 0 1px !important;
+  margin-left: 1px !important;
+  margin-right: 1px !important;
 }
 /* 수정창 안에서는 저장된 뒤(뷰어)보다 조금 더 크게 보여준다 — 그리드에서 고른
    크기에 가깝게, 편집할 때 알아보기 쉽도록. 저장 후 실제 보여지는 크기(1.6em)에는
