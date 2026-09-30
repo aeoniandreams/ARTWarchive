@@ -721,7 +721,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
    너비에 따라 저절로 꺾이는 자동 줄바꿈은 <p> 하나 안에 그대로 있어서
    영향받지 않는다. */
 .log-render .c-talk p + p {
-  margin-top: 7px;
+  margin-top: 5px;
 }
 .log-render .s-container { margin: 0; font-size: inherit; width: 100%; }
 .log-render .s-container > *:last-child { margin-bottom: 0 !important; }
