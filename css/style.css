@@ -727,6 +727,12 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 @media (min-width: 769px) {
   .log-render .c-talk p + p { margin-top: 8px; }
 }
+/* 엔터를 두 번 눌러서 생긴, 내용 없는 빈 줄(<p><br></p>) 자신의 margin-top만
+   따로 줄인다 — 그 줄 바로 위/아래의 내용 있는 줄 사이 간격(위 규칙들)은
+   그대로 두고, 빈 줄 앞의 간격만 작게. */
+.log-render .c-talk p + p:has(> br:only-child) {
+  margin-top: 2px;
+}
 .log-render .s-container { margin: 0; font-size: inherit; width: 100%; }
 .log-render .s-container > *:last-child { margin-bottom: 0 !important; }
 .log-render .s-row { display: flex; align-items: flex-start; line-height: 1.6; width: 100%; }
