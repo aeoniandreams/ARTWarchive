@@ -5,7 +5,6 @@
   --text: #2b2b2b;
   --text-dim: #7a7a7a;
   --accent: #7c4bff;
-  --accent-soft: #f2e4da;
   --sidebar-w: 240px;
 
   /* 대화로그 렌더링 변수 (기존 티스토리 코드 그대로) */
@@ -673,7 +672,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .help-popover p { margin: 0 0 8px; }
 .help-popover p:last-child { margin-bottom: 0; }
 .help-popover code {
-  background: var(--accent-soft);
+  background: rgba(124, 75, 255, 0.12);
   padding: 1px 4px;
   border-radius: 4px;
   font-size: 0.8em;
@@ -709,7 +708,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   cursor: pointer;
   font-size: 0.85rem;
 }
-.editor-toolbar button:hover { background: var(--accent-soft); }
+.editor-toolbar button:hover { background: rgba(124, 75, 255, 0.12); }
 .editor-toolbar button svg { width: 18px; height: 18px; }
 .editor-toolbar input[type="color"] { width: 32px; padding: 0; border: 1px solid var(--border); border-radius: 5px; }
 
