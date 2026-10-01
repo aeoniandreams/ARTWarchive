@@ -513,15 +513,6 @@ html.list-bg-talk .viewer-card {
 }
 .list-header-row .breadcrumb { margin-bottom: 0; }
 #list-breadcrumb { color: #666666; }
-.list-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-#list-subcat-filter {
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--text);
-  max-width: 120px;
-}
 #list-logo, .page-logo {
   display: block;
   height: 80px;
