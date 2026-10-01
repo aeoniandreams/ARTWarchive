@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=159";
+} from "./firebase-config.js?v=160";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=159";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=159";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=160";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=160";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -634,6 +634,36 @@ function positionViewerNavButtons() {
 }
 window.addEventListener("resize", positionViewerNavButtons);
 
+// 톡 보관함 기록 제목은 "[말머리] 채팅방 이름 - 제목" 형식이다. "]" 다음부터
+// 첫 "-" 전까지가 채팅방 이름.
+function extractChatRoomName(title) {
+  if (!title) return null;
+  const bracketEnd = title.indexOf("]");
+  if (bracketEnd === -1) return null;
+  const dashIdx = title.indexOf("-", bracketEnd);
+  if (dashIdx === -1) return null;
+  const name = title.slice(bracketEnd + 1, dashIdx).trim();
+  return name || null;
+}
+
+// 톡 보관함 기록은 제목에서 읽은 채팅방 이름으로 chatRooms에 등록된 참여자를
+// 찾아 쓴다. 매칭되는 채팅방이 없으면(아직 등록 전이거나 톡 보관함이 아니면)
+// 예전 방식대로 기록에 직접 저장된 participants로 대신한다.
+async function resolveViewerParticipants(data) {
+  if (data.category === "talk") {
+    const roomName = extractChatRoomName(data.title);
+    if (roomName) {
+      try {
+        const snap = await getDocs(query(collection(db, "chatRooms"), where("name", "==", roomName)));
+        if (!snap.empty) return snap.docs[0].data().participants || [];
+      } catch (e) {
+        console.error("채팅방 조회 실패:", e.code, e.message);
+      }
+    }
+  }
+  return Array.isArray(data.participants) ? data.participants : [];
+}
+
 async function renderViewerView(recordId) {
   const viewerContent = document.getElementById("viewer-content");
   const viewerTitle = document.getElementById("viewer-title");
@@ -675,12 +705,14 @@ async function renderViewerView(recordId) {
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
   const viewerParticipants = document.getElementById("viewer-participants");
-  const participantKeys = Array.isArray(data.participants) ? data.participants : [];
-  viewerParticipants.innerHTML = participantKeys
-    .map((key) => libraryData[key])
-    .filter(Boolean)
-    .map((entry) => `<img src="${entry.src}" alt="" />`)
-    .join("");
+  viewerParticipants.innerHTML = "";
+  resolveViewerParticipants(data).then((participantKeys) => {
+    viewerParticipants.innerHTML = participantKeys
+      .map((key) => libraryData[key])
+      .filter(Boolean)
+      .map((entry) => `<img src="${entry.src}" alt="" />`)
+      .join("");
+  });
   viewerContent.innerHTML = data.tableHtml || "";
   // 토글 제목 등 수정창에서만 필요했던 contenteditable 흔적은 읽기 전용 화면에서 지운다.
   viewerContent.querySelectorAll("[contenteditable]").forEach((el) => el.removeAttribute("contenteditable"));
