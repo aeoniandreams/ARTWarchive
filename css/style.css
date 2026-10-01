@@ -906,20 +906,6 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   cursor: pointer;
 }
 
-#library-nav-btn {
-  display: block;
-  width: calc(100% - 40px);
-  margin: 18px 20px 16px;
-  padding: 8px 10px;
-  border: none;
-  border-radius: 6px;
-  background: none;
-  cursor: pointer;
-  font-size: 0.85rem;
-  text-align: left;
-}
-#library-nav-btn:hover { background: rgba(124, 75, 255, 0.1); }
-
 /* ─────────────────────────────────────────────────────────── */
 /* 대화 로그 렌더링 (기존 티스토리 코드 이식, .log-render 안에서만 동작) */
 /* ─────────────────────────────────────────────────────────── */
