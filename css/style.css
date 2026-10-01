@@ -775,7 +775,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   right: 0;
   bottom: 0;
   z-index: 20;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/loading-bg.webp");
+  background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url("../images/loading-bg.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
