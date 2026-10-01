@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=158";
+} from "./firebase-config.js?v=159";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=158";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=158";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=159";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=159";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -74,6 +74,7 @@ const views = {
   editor: document.getElementById("editor-view"),
   viewer: document.getElementById("viewer-view"),
   library: document.getElementById("library-view"),
+  chatrooms: document.getElementById("chatrooms-view"),
 };
 
 // ── 캐릭터 라이브러리 (전역, 모든 기록에 공통 적용) ──
@@ -230,52 +231,87 @@ function closeSubcatList(el) {
   el.classList.remove("open");
 }
 
+// 1차 카테고리 하나(아이콘+라벨+펼침 화살표)와 그 안의 2차 카테고리 목록을
+// 만든다. CATEGORIES 기반의 일반 카테고리와, 아래의 관리자 전용 "설정"
+// 카테고리가 이 함수를 같이 쓴다.
+function buildCatGroup({ iconHtml, label, items, adminOnly }) {
+  const group = document.createElement("div");
+  group.className = adminOnly ? "cat-group hidden" : "cat-group";
+  if (adminOnly) group.setAttribute("data-admin-only", "");
+
+  const header = document.createElement("div");
+  header.className = "cat-header";
+  header.innerHTML = `${iconHtml}<span class="cat-label">${label}</span><svg class="cat-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>`;
+
+  const subList = document.createElement("div");
+  subList.className = "subcat-list";
+  items.forEach(({ id, label: itemLabel, onClick }) => {
+    const item = document.createElement("div");
+    item.className = "subcat-item";
+    item.textContent = itemLabel;
+    if (id) item.id = id;
+    item.addEventListener("click", onClick);
+    subList.appendChild(item);
+  });
+
+  header.addEventListener("click", () => {
+    const willOpen = !subList.classList.contains("open");
+    // 한 번에 하나의 1차 카테고리만 펼쳐지도록, 열기 전에 다른 카테고리는 다 닫는다.
+    categoryNav.querySelectorAll(".subcat-list.open").forEach((el) => closeSubcatList(el));
+    categoryNav.querySelectorAll(".cat-chevron.open").forEach((el) => el.classList.remove("open"));
+    if (willOpen) {
+      openSubcatList(subList);
+      header.querySelector(".cat-chevron").classList.add("open");
+    }
+  });
+
+  group.appendChild(header);
+  group.appendChild(subList);
+  categoryNav.appendChild(group);
+}
+
 function buildSidebar() {
   categoryNav.innerHTML = "";
   CATEGORIES.forEach((cat) => {
-    const group = document.createElement("div");
-    group.className = "cat-group";
-
-    const header = document.createElement("div");
-    header.className = "cat-header";
-    header.innerHTML = `<img class="cat-icon icon-${cat.id}" src="${cat.icon}" alt="" /><span class="cat-label">${cat.label}</span><svg class="cat-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>`;
-
-    const subList = document.createElement("div");
-    subList.className = "subcat-list";
-    cat.subcategories.forEach((sub) => {
-      const item = document.createElement("div");
-      item.className = "subcat-item";
-      item.textContent = sub.label;
-      item.dataset.cat = cat.id;
-      item.dataset.sub = sub.id;
-      item.addEventListener("click", () => {
-        location.hash = `#/list/${cat.id}/${sub.id}`;
-        closeSidebar();
-      });
-      subList.appendChild(item);
+    buildCatGroup({
+      iconHtml: `<img class="cat-icon icon-${cat.id}" src="${cat.icon}" alt="" />`,
+      label: cat.label,
+      items: cat.subcategories.map((sub) => ({
+        label: sub.label,
+        onClick: () => {
+          location.hash = `#/list/${cat.id}/${sub.id}`;
+          closeSidebar();
+        },
+      })),
     });
+  });
 
-    header.addEventListener("click", () => {
-      const willOpen = !subList.classList.contains("open");
-      // 한 번에 하나의 1차 카테고리만 펼쳐지도록, 열기 전에 다른 카테고리는 다 닫는다.
-      categoryNav.querySelectorAll(".subcat-list.open").forEach((el) => closeSubcatList(el));
-      categoryNav.querySelectorAll(".cat-chevron.open").forEach((el) => el.classList.remove("open"));
-      if (willOpen) {
-        openSubcatList(subList);
-        header.querySelector(".cat-chevron").classList.add("open");
-      }
-    });
-
-    group.appendChild(header);
-    group.appendChild(subList);
-    categoryNav.appendChild(group);
+  // 설정(관리자 전용): 라이브러리 관리 · 채팅방 참여자 관리
+  buildCatGroup({
+    iconHtml:
+      '<svg class="cat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
+    label: "설정",
+    adminOnly: true,
+    items: [
+      {
+        id: "library-nav-btn",
+        label: "라이브러리 관리",
+        onClick: () => {
+          location.hash = "#/library";
+          closeSidebar();
+        },
+      },
+      {
+        id: "chatrooms-nav-btn",
+        label: "채팅방 참여자 관리",
+        onClick: () => {
+          location.hash = "#/chatrooms";
+          closeSidebar();
+        },
+      },
+    ],
   });
 }
-
-document.getElementById('library-nav-btn').addEventListener('click', () => {
-  location.hash = '#/library';
-  closeSidebar();
-});
 
 // ── 라우팅 ──
 const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk", "list-bg-diary"];
@@ -347,6 +383,9 @@ function router() {
   } else if (route === "library") {
     showView("library");
     renderLibraryView();
+  } else if (route === "chatrooms") {
+    showView("chatrooms");
+    renderChatRoomsView();
   } else {
     showView("home");
   }
@@ -776,14 +815,9 @@ function updateCharacterFieldVisibility() {
   recordCharacterWrap.classList.toggle("hidden", !show);
 }
 
-function updateParticipantsVisibility() {
-  document.getElementById("record-participants-wrap").classList.toggle("hidden", recordCategoryDropdown.value !== "talk");
-}
-
 recordCategoryDropdown.onChange(() => {
   fillSubcategorySelect(recordCategoryDropdown.value);
   updateCharacterFieldVisibility();
-  updateParticipantsVisibility();
 });
 recordSubcategoryDropdown.onChange(updateCharacterFieldVisibility);
 
@@ -793,7 +827,6 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
   editingRecordId = recordId || null;
   recordTitleInput.value = "";
   editorContent.innerHTML = "";
-  setSelectedParticipants([]);
 
   if (recordId) {
     editorBreadcrumb.innerHTML = `<a href="#/view/${recordId}" class="viewer-back-link" aria-label="기록으로">${ARROW_LEFT_ICON}</a> &nbsp;·&nbsp; <span class="editor-breadcrumb-label">기록 수정</span>`;
@@ -804,7 +837,6 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
       recordCategoryDropdown.value = data.category;
       fillSubcategorySelect(data.category, data.subcategory);
       recordCharacterDropdown.value = data.character || CHARACTERS[0].id;
-      setSelectedParticipants(Array.isArray(data.participants) ? data.participants : []);
       editorContent.innerHTML = data.tableHtml || "";
     }
   } else {
@@ -814,77 +846,8 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
     recordCharacterDropdown.value = CHARACTERS[0].id;
   }
   updateCharacterFieldVisibility();
-  updateParticipantsVisibility();
   editorUndo.reset();
 }
-
-// ── 참여자 선택 (톡 보관함에서만, 복수 선택) ──
-// 캐릭터 라이브러리 표(libraryData)에 있는 사진들을 원형 그리드로 보여주고,
-// 고른 사람들의 "이름|색" 키를 기록에 participants로 저장한다.
-const participantsBtn = document.getElementById("record-participants-btn");
-const participantsIcon = document.getElementById("record-participants-icon");
-const participantsPreview = document.getElementById("record-participants-preview");
-const participantsMenu = document.getElementById("record-participants-menu");
-let selectedParticipantKeys = [];
-
-function renderParticipantsPreview() {
-  if (selectedParticipantKeys.length === 0) {
-    participantsIcon.classList.remove("hidden");
-    participantsPreview.classList.add("hidden");
-    participantsPreview.innerHTML = "";
-  } else {
-    participantsIcon.classList.add("hidden");
-    participantsPreview.classList.remove("hidden");
-    participantsPreview.innerHTML = selectedParticipantKeys
-      .map((key) => libraryData[key])
-      .filter(Boolean)
-      .map((entry) => `<img src="${entry.src}" alt="" />`)
-      .join("");
-  }
-}
-
-function renderParticipantsMenu() {
-  participantsMenu.innerHTML = Object.entries(libraryData)
-    .map(([key, entry]) => {
-      const name = key.split("|")[0];
-      const selected = selectedParticipantKeys.includes(key);
-      return `<button type="button" class="avatar-option${selected ? " selected" : ""}" data-key="${key}" title="${name}"><img src="${entry.src}" alt="${name}" /></button>`;
-    })
-    .join("");
-}
-
-// 라이브러리에서 지워진 캐릭터의 키는 걸러내고 선택 상태를 적용한다.
-function setSelectedParticipants(keys) {
-  selectedParticipantKeys = keys.filter((k) => libraryData[k]);
-  renderParticipantsPreview();
-  renderParticipantsMenu();
-}
-
-participantsBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  renderParticipantsMenu();
-  participantsMenu.classList.toggle("hidden");
-});
-
-participantsMenu.addEventListener("click", (e) => {
-  const opt = e.target.closest(".avatar-option");
-  if (!opt) return;
-  const key = opt.dataset.key;
-  const idx = selectedParticipantKeys.indexOf(key);
-  if (idx === -1) {
-    selectedParticipantKeys.push(key);
-  } else {
-    selectedParticipantKeys.splice(idx, 1);
-  }
-  opt.classList.toggle("selected");
-  renderParticipantsPreview();
-});
-
-document.addEventListener("click", (e) => {
-  if (!participantsMenu.classList.contains("hidden") && !e.target.closest("#record-participants-wrap")) {
-    participantsMenu.classList.add("hidden");
-  }
-});
 
 // 서식 버튼 (굵게/기울임)
 document.querySelectorAll("#editor-toolbar button[data-cmd]").forEach((btn) => {
@@ -1244,7 +1207,6 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
   const category = recordCategoryDropdown.value;
   const subcategory = recordSubcategoryDropdown.value;
   const character = category === "talk" && subcategory !== "season" ? recordCharacterDropdown.value : null;
-  const participants = category === "talk" ? selectedParticipantKeys : [];
   const title = recordTitleInput.value.trim();
   const tableHtml = editorContent.innerHTML;
 
@@ -1260,7 +1222,6 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
         category,
         subcategory,
         character,
-        participants,
         tableHtml,
         updatedAt: serverTimestamp(),
       });
@@ -1271,7 +1232,6 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
         category,
         subcategory,
         character,
-        participants,
         tableHtml,
         authorUid: adminAuth.currentUser.uid,
         createdAt: serverTimestamp(),
@@ -1353,6 +1313,146 @@ document.getElementById("save-library-btn").addEventListener("click", async () =
     alert("저장되었습니다.");
   } catch (e) {
     console.error("라이브러리 저장 실패:", e.code, e.message);
+    alert("저장에 실패했습니다: " + (e.code || e.message));
+  }
+});
+
+// ── 채팅방 참여자 관리 ──
+// 톡 보관함 기록의 제목(예: [말머리] 채팅방 이름 - 제목)에서 채팅방 이름을
+// 읽어 참여자 프사를 뷰어에 자동으로 띄우기 위한 사전 설정. chatRooms
+// 컬렉션에 채팅방 이름과 참여자(캐릭터 라이브러리 "이름|색" 키 배열)를
+// 등록해둔다.
+async function renderChatRoomsView() {
+  document.getElementById("chatrooms-breadcrumb").innerHTML = `설정${BREADCRUMB_CHEVRON}채팅방 참여자 관리`;
+  document.getElementById("new-chatroom-btn").onclick = () => openChatroomModal();
+
+  const listEl = document.getElementById("chatroom-list");
+  listEl.innerHTML = "<li class='empty-state'>불러오는 중...</li>";
+
+  let rooms;
+  try {
+    const snap = await getDocs(query(collection(db, "chatRooms"), orderBy("name")));
+    rooms = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error("채팅방 목록 조회 실패:", e.code, e.message);
+    listEl.innerHTML = `<li class='empty-state'>목록을 불러오지 못했습니다: ${e.code || e.message}</li>`;
+    return;
+  }
+
+  if (rooms.length === 0) {
+    listEl.innerHTML = `<li class="empty-state">아직 등록된 채팅방이 없습니다.</li>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<div class="record-title">${room.name}</div>`;
+    listEl.appendChild(li);
+  });
+}
+
+// ── 채팅방 추가 모달 ──
+const chatroomModal = document.getElementById("chatroom-modal");
+const chatroomNameInput = document.getElementById("chatroom-name-input");
+const chatroomValidationMsg = document.getElementById("chatroom-validation-msg");
+const chatroomParticipantsBtn = document.getElementById("chatroom-participants-btn");
+const chatroomParticipantsIcon = document.getElementById("chatroom-participants-icon");
+const chatroomParticipantsPreview = document.getElementById("chatroom-participants-preview");
+const chatroomParticipantsMenu = document.getElementById("chatroom-participants-menu");
+let chatroomSelectedKeys = [];
+
+function renderChatroomParticipantsPreview() {
+  if (chatroomSelectedKeys.length === 0) {
+    chatroomParticipantsIcon.classList.remove("hidden");
+    chatroomParticipantsPreview.classList.add("hidden");
+    chatroomParticipantsPreview.innerHTML = "";
+  } else {
+    chatroomParticipantsIcon.classList.add("hidden");
+    chatroomParticipantsPreview.classList.remove("hidden");
+    chatroomParticipantsPreview.innerHTML = chatroomSelectedKeys
+      .map((key) => libraryData[key])
+      .filter(Boolean)
+      .map((entry) => `<img src="${entry.src}" alt="" />`)
+      .join("");
+  }
+}
+
+function renderChatroomParticipantsMenu() {
+  chatroomParticipantsMenu.innerHTML = Object.entries(libraryData)
+    .map(([key, entry]) => {
+      const name = key.split("|")[0];
+      const selected = chatroomSelectedKeys.includes(key);
+      return `<button type="button" class="avatar-option${selected ? " selected" : ""}" data-key="${key}" title="${name}"><img src="${entry.src}" alt="${name}" /></button>`;
+    })
+    .join("");
+}
+
+function openChatroomModal() {
+  chatroomNameInput.value = "";
+  chatroomSelectedKeys = [];
+  chatroomValidationMsg.textContent = "";
+  renderChatroomParticipantsPreview();
+  renderChatroomParticipantsMenu();
+  chatroomParticipantsMenu.classList.add("hidden");
+  chatroomModal.classList.remove("hidden");
+}
+
+function closeChatroomModal() {
+  chatroomModal.classList.add("hidden");
+  chatroomParticipantsMenu.classList.add("hidden");
+}
+
+chatroomParticipantsBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  renderChatroomParticipantsMenu();
+  chatroomParticipantsMenu.classList.toggle("hidden");
+});
+
+chatroomParticipantsMenu.addEventListener("click", (e) => {
+  const opt = e.target.closest(".avatar-option");
+  if (!opt) return;
+  const key = opt.dataset.key;
+  const idx = chatroomSelectedKeys.indexOf(key);
+  if (idx === -1) {
+    chatroomSelectedKeys.push(key);
+  } else {
+    chatroomSelectedKeys.splice(idx, 1);
+  }
+  opt.classList.toggle("selected");
+  renderChatroomParticipantsPreview();
+});
+
+document.addEventListener("click", (e) => {
+  if (
+    !chatroomParticipantsMenu.classList.contains("hidden") &&
+    !e.target.closest("#chatroom-participants-btn") &&
+    !e.target.closest("#chatroom-participants-menu")
+  ) {
+    chatroomParticipantsMenu.classList.add("hidden");
+  }
+});
+
+document.getElementById("chatroom-cancel-btn").addEventListener("click", closeChatroomModal);
+
+document.getElementById("chatroom-save-btn").addEventListener("click", async () => {
+  const name = chatroomNameInput.value.trim();
+  if (!name || chatroomSelectedKeys.length === 0) {
+    chatroomValidationMsg.textContent = "설정하지 않은 사항이 있어요";
+    return;
+  }
+  chatroomValidationMsg.textContent = "";
+  try {
+    await addDoc(collection(adminDb, "chatRooms"), {
+      name,
+      participants: chatroomSelectedKeys,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    closeChatroomModal();
+    renderChatRoomsView();
+  } catch (e) {
+    console.error("채팅방 저장 실패:", e.code, e.message);
     alert("저장에 실패했습니다: " + (e.code || e.message));
   }
 });
