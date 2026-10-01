@@ -601,14 +601,18 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .chatroom-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 .chatroom-grid li { margin-bottom: 0; display: flex; flex-direction: column; gap: 10px; }
 .chatroom-card-name { font-weight: 600; }
-.chatroom-card-avatars { display: flex; gap: 4px; flex-wrap: wrap; }
+/* 최대 7명까지도 카드 폭 안에 들어가도록, 겹쳐 쌓는 레이아웃. */
+.chatroom-card-avatars { display: flex; }
 .chatroom-card-avatars img {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #ffffff;
+  border: 2px solid #ffffff;
+  margin-left: -12px;
+  flex-shrink: 0;
 }
+.chatroom-card-avatars img:first-child { margin-left: 0; }
 /* 관리자 모드일 때만 드래그로 순서를 바꿀 수 있어서, 그때만 grab 커서로 안내한다. */
 @media (min-width: 769px) {
   body.is-admin .record-list li:not(.empty-state) { cursor: grab; }

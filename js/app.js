@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=162";
+} from "./firebase-config.js?v=164";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=162";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=162";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=164";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=164";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -128,6 +128,11 @@ onAuthStateChanged(auth, async (user) => {
     loginScreen.classList.add("hidden");
     appShell.classList.remove("hidden");
     buildSidebar();
+    // adminAuth의 onAuthStateChanged가 이 콜백보다 먼저 끝나버리면, 그때는
+    // 아직 설정 카테고리(동적으로 생성됨)가 DOM에 없어서 admin-only 토글이
+    // 먹히지 않는다. buildSidebar 직후 한 번 더 돌려서, 이미 로그인된
+    // 관리자 세션이면 방금 만든 설정 카테고리도 바로 보이게 한다.
+    applyAdminUI();
     await loadLibrary();
     // 이전 세션에서 리스트/에디터 등에 있다가 새로고침했거나, 로그아웃 후
     // 다시 로그인했을 때 그 화면이 남아있지 않도록 항상 홈부터 보여준다.
