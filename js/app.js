@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=152";
+} from "./firebase-config.js?v=153";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=152";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=152";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=153";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=153";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -399,6 +399,24 @@ async function fetchSortedRecords(catId, subId) {
   return sortRecordsByOrder(records);
 }
 
+// 리스트 화면의 인물 필터 드롭다운 (네이티브 select 대신 사이트 스타일에
+// 맞춘 버튼+팝오버). 열고 닫는 동작은 한 번만 등록해두고, renderListView가
+// 호출될 때마다 메뉴 내용과 선택 콜백만 새로 채운다.
+const listCharacterFilterWrap = document.getElementById("list-character-filter-wrap");
+const listCharacterFilterBtn = document.getElementById("list-character-filter-btn");
+const listCharacterFilterLabel = document.getElementById("list-character-filter-label");
+const listCharacterFilterMenu = document.getElementById("list-character-filter-menu");
+
+listCharacterFilterBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  listCharacterFilterMenu.classList.toggle("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!listCharacterFilterMenu.classList.contains("hidden") && !e.target.closest("#list-character-filter-wrap")) {
+    listCharacterFilterMenu.classList.add("hidden");
+  }
+});
+
 // ── 리스트 화면 ──
 async function renderListView(catId, subId) {
   const cat = findCategory(catId);
@@ -445,19 +463,28 @@ async function renderListView(catId, subId) {
   }
 
   // 톡 보관함(시즌별 기록 제외)에서만, 인물별로 걸러 보는 드롭다운을 보여준다.
-  const listCharacterFilter = document.getElementById("list-character-filter");
+  listCharacterFilterMenu.classList.add("hidden");
   if (catId === "talk" && subId !== "season") {
-    listCharacterFilter.innerHTML =
-      `<option value="">전체</option>` + CHARACTERS.map((ch) => `<option value="${ch.id}">${ch.label}</option>`).join("");
-    listCharacterFilter.value = "";
-    listCharacterFilter.classList.remove("hidden");
-    listCharacterFilter.onchange = () => {
-      const val = listCharacterFilter.value;
-      renderRecords(val ? records.filter((r) => r.character === val) : records);
-    };
+    const items = [{ id: "", label: "전체" }, ...CHARACTERS];
+    listCharacterFilterLabel.textContent = "전체";
+    listCharacterFilterMenu.innerHTML = items
+      .map(
+        (it, i) =>
+          `<button type="button" class="dropdown-menu-item${i === 0 ? " active" : ""}" data-value="${it.id}">${it.label}</button>`
+      )
+      .join("");
+    listCharacterFilterMenu.querySelectorAll(".dropdown-menu-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const val = btn.dataset.value;
+        listCharacterFilterLabel.textContent = btn.textContent;
+        listCharacterFilterMenu.querySelectorAll(".dropdown-menu-item").forEach((b) => b.classList.toggle("active", b === btn));
+        listCharacterFilterMenu.classList.add("hidden");
+        renderRecords(val ? records.filter((r) => r.character === val) : records);
+      });
+    });
+    listCharacterFilterWrap.classList.remove("hidden");
   } else {
-    listCharacterFilter.classList.add("hidden");
-    listCharacterFilter.onchange = null;
+    listCharacterFilterWrap.classList.add("hidden");
   }
 
   renderRecords(records);
