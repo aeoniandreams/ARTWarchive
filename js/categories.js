@@ -45,6 +45,10 @@ export const CATEGORIES = [
   },
 ];
 
+// 톡 보관함(시즌별 기록 제외)에서 글을 인물별로 걸러 보는 드롭다운과,
+// 수정창에서 그 인물을 지정하는 드롭다운이 함께 쓰는 목록.
+export const CHARACTERS = makeSix();
+
 export function findCategory(categoryId) {
   return CATEGORIES.find((c) => c.id === categoryId);
 }

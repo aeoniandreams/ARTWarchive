@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=151";
+} from "./firebase-config.js?v=152";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=151";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=151";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=152";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=152";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -426,23 +426,41 @@ async function renderListView(catId, subId) {
     return;
   }
 
-  if (records.length === 0) {
-    listEl.innerHTML = emptyStateHtml(catId);
-    return;
+  function renderRecords(list) {
+    if (list.length === 0) {
+      listEl.innerHTML = emptyStateHtml(catId);
+      return;
+    }
+    listEl.innerHTML = "";
+    list.forEach((data) => {
+      const li = document.createElement("li");
+      li.dataset.id = data.id;
+      li.innerHTML = `<div class="record-title">${data.title || "(제목 없음)"}</div>`;
+      li.addEventListener("click", () => {
+        location.hash = `#/view/${data.id}`;
+      });
+      listEl.appendChild(li);
+    });
+    initListSortable();
   }
 
-  listEl.innerHTML = "";
-  records.forEach((data) => {
-    const li = document.createElement("li");
-    li.dataset.id = data.id;
-    li.innerHTML = `<div class="record-title">${data.title || "(제목 없음)"}</div>`;
-    li.addEventListener("click", () => {
-      location.hash = `#/view/${data.id}`;
-    });
-    listEl.appendChild(li);
-  });
+  // 톡 보관함(시즌별 기록 제외)에서만, 인물별로 걸러 보는 드롭다운을 보여준다.
+  const listCharacterFilter = document.getElementById("list-character-filter");
+  if (catId === "talk" && subId !== "season") {
+    listCharacterFilter.innerHTML =
+      `<option value="">전체</option>` + CHARACTERS.map((ch) => `<option value="${ch.id}">${ch.label}</option>`).join("");
+    listCharacterFilter.value = "";
+    listCharacterFilter.classList.remove("hidden");
+    listCharacterFilter.onchange = () => {
+      const val = listCharacterFilter.value;
+      renderRecords(val ? records.filter((r) => r.character === val) : records);
+    };
+  } else {
+    listCharacterFilter.classList.add("hidden");
+    listCharacterFilter.onchange = null;
+  }
 
-  initListSortable();
+  renderRecords(records);
 }
 
 // ── 리스트 드래그 정렬 ──
@@ -657,6 +675,7 @@ function setupUndoRedo(el) {
 const recordTitleInput = document.getElementById("record-title");
 const recordCategorySelect = document.getElementById("record-category");
 const recordSubcategorySelect = document.getElementById("record-subcategory");
+const recordCharacterSelect = document.getElementById("record-character");
 const editorContent = document.getElementById("editor-content");
 const editorBreadcrumb = document.getElementById("editor-breadcrumb");
 const editorUndo = setupUndoRedo(editorContent);
@@ -667,6 +686,14 @@ CATEGORIES.forEach((cat) => {
   opt.value = cat.id;
   opt.textContent = cat.label;
   recordCategorySelect.appendChild(opt);
+});
+
+// 인물 select 채우기 (톡 보관함, 시즌별 기록 제외에서만 보임)
+CHARACTERS.forEach((ch) => {
+  const opt = document.createElement("option");
+  opt.value = ch.id;
+  opt.textContent = ch.label;
+  recordCharacterSelect.appendChild(opt);
 });
 
 function fillSubcategorySelect(catId, selectedSubId) {
@@ -682,9 +709,16 @@ function fillSubcategorySelect(catId, selectedSubId) {
   });
 }
 
+function updateCharacterFieldVisibility() {
+  const show = recordCategorySelect.value === "talk" && recordSubcategorySelect.value !== "season";
+  recordCharacterSelect.classList.toggle("hidden", !show);
+}
+
 recordCategorySelect.addEventListener("change", () => {
   fillSubcategorySelect(recordCategorySelect.value);
+  updateCharacterFieldVisibility();
 });
+recordSubcategorySelect.addEventListener("change", updateCharacterFieldVisibility);
 
 let editingRecordId = null;
 
@@ -701,13 +735,16 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
       recordTitleInput.value = data.title || "";
       recordCategorySelect.value = data.category;
       fillSubcategorySelect(data.category, data.subcategory);
+      recordCharacterSelect.value = data.character || CHARACTERS[0].id;
       editorContent.innerHTML = data.tableHtml || "";
     }
   } else {
     editorBreadcrumb.innerHTML = `<a href="#/list/${categoryId}/${subcategoryId}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a> &nbsp;·&nbsp; <span class="editor-breadcrumb-label">새 기록 추가</span>`;
     recordCategorySelect.value = categoryId;
     fillSubcategorySelect(categoryId, subcategoryId);
+    recordCharacterSelect.value = CHARACTERS[0].id;
   }
+  updateCharacterFieldVisibility();
   editorUndo.reset();
 }
 
@@ -1068,6 +1105,7 @@ document.addEventListener("click", (e) => {
 document.getElementById("save-record-btn").addEventListener("click", async () => {
   const category = recordCategorySelect.value;
   const subcategory = recordSubcategorySelect.value;
+  const character = category === "talk" && subcategory !== "season" ? recordCharacterSelect.value : null;
   const title = recordTitleInput.value.trim();
   const tableHtml = editorContent.innerHTML;
 
@@ -1082,6 +1120,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
         title,
         category,
         subcategory,
+        character,
         tableHtml,
         updatedAt: serverTimestamp(),
       });
@@ -1091,6 +1130,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
         title,
         category,
         subcategory,
+        character,
         tableHtml,
         authorUid: adminAuth.currentUser.uid,
         createdAt: serverTimestamp(),
