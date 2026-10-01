@@ -35,6 +35,60 @@
 *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 *::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
+/* 트랙을 transparent로 둬도 Chrome/Edge는 그 자리를 페이지 배경이 아니라
+   자체 기본값(흰색)으로 채운다. 화면 전체 스크롤바(html)의 트랙에도 각
+   화면 배경과 동일한 이미지를 그대로 깔아서 흰 줄로 도드라지지 않게 한다. */
+html.home-bg-active::-webkit-scrollbar-track {
+  background-image: url("../images/home-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+html.list-bg-main_story::-webkit-scrollbar-track,
+html.viewer-bg-main_story::-webkit-scrollbar-track {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/main_story.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+html.list-bg-call::-webkit-scrollbar-track {
+  background-image: url("../images/list-bg/call.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+html.list-bg-diary::-webkit-scrollbar-track {
+  background-image: url("../images/list-bg/diary.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+html.list-bg-talk::-webkit-scrollbar-track {
+  background-image: url("../images/list-bg/talk.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+html.library-bg-active::-webkit-scrollbar-track {
+  background-image: url("../images/loading-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+html.editor-bg-active::-webkit-scrollbar-track {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/loading-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 body {
   margin: 0;
   font-family: "Pretendard JP Variable", "Apple SD Gothic Neo", sans-serif;
