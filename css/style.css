@@ -422,15 +422,15 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
   gap: 12px;
 }
 .viewer-title-row h2 { margin: 0; }
-/* 데스크탑: 제목 옆에, 모바일: 제목 아래 줄에 참여자 프사가 보이게 한다. */
-.viewer-title-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.viewer-participants { display: flex; gap: 4px; flex-shrink: 0; }
+/* 모바일·데스크탑 공통으로 제목 위에 참여자 프사가 보이게 한다. */
+.viewer-title-main { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.viewer-participants { display: flex; gap: 4px; flex-shrink: 0; order: -1; }
 .viewer-participants img {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid var(--border);
+  border: 1px solid #ffffff;
 }
 .viewer-title-actions {
   display: inline-flex;
@@ -584,7 +584,6 @@ html.list-bg-talk .viewer-card {
   /* 관리자 모드여도 모바일에서는 기록 수정·삭제 버튼을 숨긴다. */
   .viewer-title-actions { display: none; }
   .editor-bottom-bar-inner { padding: 12px 16px; }
-  .viewer-title-main { flex-direction: column; align-items: flex-start; gap: 6px; }
 }
 .record-list { list-style: none; padding: 0; margin: 0; }
 .record-list li {
