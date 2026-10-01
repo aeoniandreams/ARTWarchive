@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=141";
+} from "./firebase-config.js?v=142";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=141";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=141";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=142";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=142";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -901,18 +901,17 @@ document.getElementById("btn-delete-row").addEventListener("click", () => {
   tr.remove();
 });
 
-// 접기 / 접기 끝 / 표 유지: 새 행을 만들지 않고, 커서가 있는 행의 첫 칸(이름 칸)에 문구를 추가
-document.querySelectorAll("#editor-toolbar button[data-quick]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const tr = getCursorRow();
-    if (!tr) {
-      alert("커서를 표 안의 칸에 놓아주세요.");
-      return;
-    }
-    const firstTd = tr.querySelector("td");
-    if (!firstTd) return;
-    firstTd.textContent = firstTd.textContent.trim() + btn.dataset.quick;
-  });
+// 카테고리 줄 오른쪽의 도움말(접기/표 유지 문법 설명) 팝오버
+const editorHelpBtn = document.getElementById("btn-editor-help");
+const editorHelpPopover = document.getElementById("editor-help-popover");
+editorHelpBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  editorHelpPopover.classList.toggle("hidden");
+});
+document.addEventListener("click", (e) => {
+  if (!editorHelpPopover.classList.contains("hidden") && !e.target.closest("#btn-editor-help") && !e.target.closest("#editor-help-popover")) {
+    editorHelpPopover.classList.add("hidden");
+  }
 });
 
 // HTML 붙여넣기 (기존 티스토리 표 HTML을 그대로 붙여넣는 기능)
