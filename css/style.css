@@ -95,9 +95,16 @@ body.list-bg-talk {
   background-attachment: fixed;
 }
 /* 라이브러리 관리 화면은 로딩 화면과 같은 배경 이미지를 쓴다. */
-body.library-bg-active,
-body.editor-bg-active {
+body.library-bg-active {
   background-image: url("../images/loading-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+/* 수정창 배경은 같은 이미지에 메인 스토리 리스트 화면과 동일한 흰 레이어를 얹어 톤을 낮춘다. */
+body.editor-bg-active {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/loading-bg.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -573,7 +580,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 }
 /* 카테고리 드롭다운 줄의 오른쪽 끝에 도움말 아이콘을 붙인다. */
 .field-row-category { display: flex; align-items: center; gap: 8px; }
-.help-popover-wrap { position: relative; margin-left: auto; }
+.help-popover-wrap { position: relative; margin-left: auto; margin-right: 6px; }
 #btn-editor-help {
   display: flex;
   align-items: center;
@@ -694,6 +701,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   max-width: 100%;
   overflow-x: auto;
 }
+#editor-content { background: rgba(255, 255, 255, 0.6); }
 #library-content { min-height: 160px; }
 #editor-content img, #library-content img { max-width: 100%; height: auto; }
 #editor-content table, #library-content table { border-collapse: collapse; margin: 10px 0; }
