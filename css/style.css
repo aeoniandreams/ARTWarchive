@@ -34,10 +34,6 @@
 *::-webkit-scrollbar-corner { background: transparent; }
 *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 *::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-/* 메인 스토리 리스트 화면에서는 스크롤바 색도 선택지 선택 시 쓰는 색(틸)으로. */
-html.list-bg-main_story ::-webkit-scrollbar-thumb { background: var(--fold-btn-active-color); }
-html.list-bg-main_story ::-webkit-scrollbar-thumb:hover { background: var(--fold-btn-active-color); }
-html.list-bg-main_story { scrollbar-color: var(--fold-btn-active-color) transparent; }
 
 body {
   margin: 0;
@@ -543,7 +539,6 @@ html.list-bg-talk .viewer-card {
 }
 html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); }
 .record-list li:hover { border-color: var(--accent); }
-html.list-bg-main_story .record-list li:hover { border-color: var(--fold-btn-active-color); }
 .record-list .record-title { font-weight: 600; }
 /* 관리자 모드일 때만 드래그로 순서를 바꿀 수 있어서, 그때만 grab 커서로 안내한다. */
 @media (min-width: 769px) {
