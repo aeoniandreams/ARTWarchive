@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=146";
+} from "./firebase-config.js?v=147";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=146";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=146";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=147";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=147";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -290,11 +290,11 @@ function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
   views[name].classList.remove("hidden");
   const enteringHome = name === "home";
-  document.body.classList.toggle("home-bg-active", enteringHome);
-  document.body.classList.toggle("library-bg-active", name === "library");
-  document.body.classList.toggle("editor-bg-active", name === "editor");
+  document.documentElement.classList.toggle("home-bg-active", enteringHome);
+  document.documentElement.classList.toggle("library-bg-active", name === "library");
+  document.documentElement.classList.toggle("editor-bg-active", name === "editor");
   if (name !== "list" && name !== "viewer") {
-    document.body.classList.remove(...ALL_BG_CLASSES);
+    document.documentElement.classList.remove(...ALL_BG_CLASSES);
   }
   if (enteringHome) {
     // display:none → block과 애니메이션 시작이 같은 스타일 계산에서 한꺼번에
@@ -389,9 +389,9 @@ async function renderListView(catId, subId) {
   const sub = findSubcategory(catId, subId);
   document.getElementById("list-breadcrumb").innerHTML = `${cat?.label ?? catId}${BREADCRUMB_CHEVRON}${sub?.label ?? subId}`;
 
-  document.body.classList.remove(...ALL_BG_CLASSES);
+  document.documentElement.classList.remove(...ALL_BG_CLASSES);
   if (LIST_BG_CLASSES.includes(`list-bg-${catId}`)) {
-    document.body.classList.add(`list-bg-${catId}`);
+    document.documentElement.classList.add(`list-bg-${catId}`);
   }
 
   document.getElementById("new-record-btn").onclick = () => {
@@ -517,11 +517,11 @@ async function renderViewerView(recordId) {
   const cat = findCategory(data.category);
   const sub = findSubcategory(data.category, data.subcategory);
 
-  document.body.classList.remove(...ALL_BG_CLASSES);
+  document.documentElement.classList.remove(...ALL_BG_CLASSES);
   if (VIEWER_BG_CLASS_MAP[data.category]) {
-    document.body.classList.add(VIEWER_BG_CLASS_MAP[data.category]);
+    document.documentElement.classList.add(VIEWER_BG_CLASS_MAP[data.category]);
   } else if (LIST_BG_CLASSES.includes(`list-bg-${data.category}`)) {
-    document.body.classList.add(`list-bg-${data.category}`);
+    document.documentElement.classList.add(`list-bg-${data.category}`);
   }
 
   viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a><div class="viewer-breadcrumb-path">${cat?.label ?? data.category}${BREADCRUMB_CHEVRON}${sub?.label ?? data.subcategory}</div>`;

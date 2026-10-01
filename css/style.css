@@ -46,7 +46,7 @@ body {
 /* 홈 화면일 때만: 배경 이미지가 사이드바 영역까지 포함해서 화면 전체를 덮음.
    화면 비율이 달라도(모바일 등) cover로 잘리면서 채워지고, fixed라 스크롤해도
    따라오지 않는다. */
-body.home-bg-active {
+html.home-bg-active {
   background-image: url("../images/home-bg.webp");
   background-size: cover;
   background-position: center;
@@ -57,7 +57,7 @@ body.home-bg-active {
 /* 카테고리별 리스트 화면 배경. 메인 스토리는 흰 레이어를 얹어 투명도를
    낮춘 느낌을 낸다 (배경 이미지 자체엔 opacity를 못 쓰니 흰 그라디언트를
    겹쳐서 흉내). 나머지 둘은 원본 그대로. */
-body.list-bg-main_story {
+html.list-bg-main_story {
   background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/main_story.webp");
   background-size: cover;
   background-position: center;
@@ -66,28 +66,28 @@ body.list-bg-main_story {
 }
 /* 개별 기록(뷰어) 화면도 리스트와 같은 밝기의 배경을 쓴다 (예전엔 더 흐리게 했었는데,
    대신 기록 내용을 흰 박스로 감싸는 방식으로 바꿨다). */
-body.viewer-bg-main_story {
+html.viewer-bg-main_story {
   background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/main_story.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-body.list-bg-call {
+html.list-bg-call {
   background-image: url("../images/list-bg/call.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-body.list-bg-diary {
+html.list-bg-diary {
   background-image: url("../images/list-bg/diary.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-body.list-bg-talk {
+html.list-bg-talk {
   background-image: url("../images/list-bg/talk.jpg");
   background-size: cover;
   background-position: center;
@@ -95,7 +95,7 @@ body.list-bg-talk {
   background-attachment: fixed;
 }
 /* 라이브러리 관리 화면은 로딩 화면과 같은 배경 이미지를 쓴다. */
-body.library-bg-active {
+html.library-bg-active {
   background-image: url("../images/loading-bg.webp");
   background-size: cover;
   background-position: center;
@@ -103,7 +103,7 @@ body.library-bg-active {
   background-attachment: fixed;
 }
 /* 수정창 배경은 같은 이미지에 메인 스토리 리스트 화면과 동일한 흰 레이어를 얹어 톤을 낮춘다. */
-body.editor-bg-active {
+html.editor-bg-active {
   background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/loading-bg.webp");
   background-size: cover;
   background-position: center;
@@ -227,15 +227,15 @@ button, input, select, textarea {
 #sidebar-toggle-btn svg { width: 20px; height: 20px; }
 #sidebar-toggle-btn:hover { background: rgba(255, 255, 255, 0.15); }
 /* 메인 스토리·톡 보관함의 리스트/기록(뷰어) 화면에서는 배경과 더 잘 어울리는 색으로. */
-body.list-bg-main_story #sidebar-toggle-btn,
-body.viewer-bg-main_story #sidebar-toggle-btn,
-body.list-bg-talk #sidebar-toggle-btn {
+html.list-bg-main_story #sidebar-toggle-btn,
+html.viewer-bg-main_story #sidebar-toggle-btn,
+html.list-bg-talk #sidebar-toggle-btn {
   color: #778FC2;
 }
 
 /* 사이드바를 열지 않은 화면 기준 정중앙에 고정 — 사이드바(서랍)는 오버레이라
    레이아웃을 안 밀어내므로, 사이드바를 열어도 이 위치는 그대로 유지된다. */
-/* 홈 화면일 때만 보임 (body.home-bg-active는 홈 화면에서만 붙는 클래스) */
+/* 홈 화면일 때만 보임 (html.home-bg-active는 홈 화면에서만 붙는 클래스) */
 #site-logo {
   display: none;
   position: fixed;
@@ -253,8 +253,8 @@ body.list-bg-talk #sidebar-toggle-btn {
   from { opacity: 0; filter: blur(6px); transform: translate(-50%, calc(-50% - 6vh + 7px)); }
   to { opacity: 1; filter: blur(0); transform: translate(-50%, calc(-50% - 6vh)); }
 }
-body.home-bg-active #site-logo { display: block; }
-body.home-bg-active #site-logo.play-in { animation: home-logo-in 0.6s ease-out; }
+html.home-bg-active #site-logo { display: block; }
+html.home-bg-active #site-logo.play-in { animation: home-logo-in 0.6s ease-out; }
 
 #site-subtitle {
   display: none;
@@ -275,8 +275,8 @@ body.home-bg-active #site-logo.play-in { animation: home-logo-in 0.6s ease-out; 
   from { opacity: 0; filter: blur(6px); transform: translateX(-50%) translateY(7px); }
   to { opacity: 1; filter: blur(0); transform: translateX(-50%) translateY(0); }
 }
-body.home-bg-active #site-subtitle { display: block; }
-body.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ease-out; }
+html.home-bg-active #site-subtitle { display: block; }
+html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ease-out; }
 
 @media (max-width: 768px) {
   #site-logo { height: 128px; }
@@ -455,9 +455,9 @@ body.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
   margin-top: 20px;
 }
 /* 메인 스토리를 제외한 카테고리는 내용 박스 불투명도를 조금 더 낮춘다. */
-body.list-bg-call .viewer-card,
-body.list-bg-diary .viewer-card,
-body.list-bg-talk .viewer-card {
+html.list-bg-call .viewer-card,
+html.list-bg-diary .viewer-card,
+html.list-bg-talk .viewer-card {
   background: rgba(255, 255, 255, 0.65);
 }
 
@@ -537,7 +537,7 @@ body.list-bg-talk .viewer-card {
   background: rgba(255, 255, 255, 0.6);
   cursor: pointer;
 }
-body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); }
+html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); }
 .record-list li:hover { border-color: var(--accent); }
 .record-list .record-title { font-weight: 600; }
 /* 관리자 모드일 때만 드래그로 순서를 바꿀 수 있어서, 그때만 grab 커서로 안내한다. */
@@ -965,5 +965,5 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   .has-p, .is-right { flex-wrap: wrap; }
 
   /* 좁은 화면에서 표시되는 부분을 오른쪽으로 좀 더 이동 */
-  body.list-bg-main_story, body.viewer-bg-main_story { background-position: 58% center; }
+  html.list-bg-main_story, html.viewer-bg-main_story { background-position: 58% center; }
 }
