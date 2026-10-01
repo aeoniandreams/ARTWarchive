@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=164";
+} from "./firebase-config.js?v=165";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=164";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=164";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=165";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=165";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -642,13 +642,7 @@ window.addEventListener("resize", positionViewerNavButtons);
 // 톡 보관함 기록 제목은 "[말머리] 채팅방 이름 - 제목" 형식이다. "]" 다음부터
 // 첫 "-" 전까지가 채팅방 이름.
 function extractChatRoomName(title) {
-  if (!title) return null;
-  const bracketEnd = title.indexOf("]");
-  if (bracketEnd === -1) return null;
-  const dashIdx = title.indexOf("-", bracketEnd);
-  if (dashIdx === -1) return null;
-  const name = title.slice(bracketEnd + 1, dashIdx).trim();
-  return name || null;
+  return parseTalkTitle(title).chatroom || null;
 }
 
 // 톡 보관함 기록은 제목에서 읽은 채팅방 이름으로 chatRooms에 등록된 참여자를
@@ -818,7 +812,12 @@ function setupUndoRedo(el) {
 }
 
 // ── 에디터 화면 ──
+const recordTitleRow = document.getElementById("record-title-row");
 const recordTitleInput = document.getElementById("record-title");
+const recordTalkTitleRow = document.getElementById("record-talk-title-row");
+const recordPrefixInput = document.getElementById("record-prefix-input");
+const recordSubtitleInput = document.getElementById("record-subtitle-input");
+const recordChatroomDropdown = createDropdown(document.getElementById("record-chatroom-wrap"));
 const recordCategoryDropdown = createDropdown(document.getElementById("record-category-wrap"));
 const recordSubcategoryDropdown = createDropdown(document.getElementById("record-subcategory-wrap"));
 const recordCharacterWrap = document.getElementById("record-character-wrap");
@@ -826,6 +825,44 @@ const recordCharacterDropdown = createDropdown(recordCharacterWrap);
 const editorContent = document.getElementById("editor-content");
 const editorBreadcrumb = document.getElementById("editor-breadcrumb");
 const editorUndo = setupUndoRedo(editorContent);
+
+// "[말머리] 채팅방 이름 - 제목" 형식의 제목을 세 조각으로 쪼개거나 다시 합친다.
+// 뷰어의 extractChatRoomName도 이 파서를 함께 쓴다.
+function parseTalkTitle(title) {
+  if (!title) return { prefix: "", chatroom: "", subtitle: "" };
+  const bracketStart = title.indexOf("[");
+  const bracketEnd = title.indexOf("]");
+  if (bracketStart === -1 || bracketEnd === -1 || bracketEnd < bracketStart) {
+    return { prefix: "", chatroom: "", subtitle: title.trim() };
+  }
+  const prefix = title.slice(bracketStart + 1, bracketEnd).trim();
+  const rest = title.slice(bracketEnd + 1);
+  const dashIdx = rest.indexOf("-");
+  if (dashIdx === -1) return { prefix, chatroom: rest.trim(), subtitle: "" };
+  return { prefix, chatroom: rest.slice(0, dashIdx).trim(), subtitle: rest.slice(dashIdx + 1).trim() };
+}
+function composeTalkTitle(prefix, chatroom, subtitle) {
+  return `[${prefix}] ${chatroom} - ${subtitle}`;
+}
+
+function updateTitleRowVisibility() {
+  const isTalk = recordCategoryDropdown.value === "talk";
+  recordTitleRow.classList.toggle("hidden", isTalk);
+  recordTalkTitleRow.classList.toggle("hidden", !isTalk);
+}
+
+// 채팅방 참여자 관리에 등록된 채팅방 이름들로 드롭다운을 채운다.
+async function loadChatroomOptions(selectedName = "") {
+  let rooms = [];
+  try {
+    const snap = await getDocs(query(collection(db, "chatRooms"), orderBy("createdAt")));
+    rooms = snap.docs.map((d) => d.data().name);
+  } catch (e) {
+    console.error("채팅방 목록 조회 실패:", e.code, e.message);
+  }
+  const items = [{ value: "", label: "채팅방 선택" }, ...rooms.map((name) => ({ value: name, label: name }))];
+  recordChatroomDropdown.setOptions(items, selectedName);
+}
 
 recordCategoryDropdown.setOptions(
   CATEGORIES.map((cat) => ({ value: cat.id, label: cat.label })),
@@ -855,6 +892,8 @@ function updateCharacterFieldVisibility() {
 recordCategoryDropdown.onChange(() => {
   fillSubcategorySelect(recordCategoryDropdown.value);
   updateCharacterFieldVisibility();
+  updateTitleRowVisibility();
+  if (recordCategoryDropdown.value === "talk") loadChatroomOptions();
 });
 recordSubcategoryDropdown.onChange(updateCharacterFieldVisibility);
 
@@ -863,6 +902,8 @@ let editingRecordId = null;
 async function renderEditorView({ categoryId, subcategoryId, recordId }) {
   editingRecordId = recordId || null;
   recordTitleInput.value = "";
+  recordPrefixInput.value = "";
+  recordSubtitleInput.value = "";
   editorContent.innerHTML = "";
 
   if (recordId) {
@@ -870,10 +911,17 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
     const snap = await getDoc(doc(db, "records", recordId));
     if (snap.exists()) {
       const data = snap.data();
-      recordTitleInput.value = data.title || "";
       recordCategoryDropdown.value = data.category;
       fillSubcategorySelect(data.category, data.subcategory);
       recordCharacterDropdown.value = data.character || CHARACTERS[0].id;
+      if (data.category === "talk") {
+        const parsed = parseTalkTitle(data.title);
+        recordPrefixInput.value = parsed.prefix;
+        recordSubtitleInput.value = parsed.subtitle;
+        await loadChatroomOptions(parsed.chatroom);
+      } else {
+        recordTitleInput.value = data.title || "";
+      }
       editorContent.innerHTML = data.tableHtml || "";
     }
   } else {
@@ -881,8 +929,10 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
     recordCategoryDropdown.value = categoryId;
     fillSubcategorySelect(categoryId, subcategoryId);
     recordCharacterDropdown.value = CHARACTERS[0].id;
+    if (categoryId === "talk") await loadChatroomOptions();
   }
   updateCharacterFieldVisibility();
+  updateTitleRowVisibility();
   editorUndo.reset();
 }
 
@@ -1244,12 +1294,24 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
   const category = recordCategoryDropdown.value;
   const subcategory = recordSubcategoryDropdown.value;
   const character = category === "talk" && subcategory !== "season" ? recordCharacterDropdown.value : null;
-  const title = recordTitleInput.value.trim();
   const tableHtml = editorContent.innerHTML;
 
-  if (!title) {
-    alert("제목을 입력해주세요.");
-    return;
+  let title;
+  if (category === "talk") {
+    const prefix = recordPrefixInput.value.trim();
+    const chatroom = recordChatroomDropdown.value;
+    const subtitle = recordSubtitleInput.value.trim();
+    if (!prefix || !chatroom || !subtitle) {
+      alert("말머리, 채팅방, 제목을 모두 입력해주세요.");
+      return;
+    }
+    title = composeTalkTitle(prefix, chatroom, subtitle);
+  } else {
+    title = recordTitleInput.value.trim();
+    if (!title) {
+      alert("제목을 입력해주세요.");
+      return;
+    }
   }
 
   try {

@@ -693,6 +693,13 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   font-size: 0.8em;
 }
 #record-title { width: 100%; }
+/* 톡 보관함 전용 제목 구성: 말머리 + 채팅방 선택 + 제목, 저장 시
+   "[말머리] 채팅방 이름 - 제목"으로 합쳐진다. */
+.field-row-talk-title { display: flex; gap: 8px; }
+#record-prefix-input { width: 100px; flex-shrink: 0; }
+#record-chatroom-wrap { flex-shrink: 0; }
+#record-chatroom-wrap .dropdown-btn { min-width: 140px; }
+#record-subtitle-input { flex: 1; min-width: 0; }
 
 .editor-toolbar {
   display: flex;
