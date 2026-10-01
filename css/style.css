@@ -701,6 +701,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 .editor-toolbar button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 6px 10px;
   border: 1px solid var(--border);
   border-radius: 5px;
@@ -709,6 +712,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   font-size: 0.85rem;
 }
 .editor-toolbar button:hover { background: var(--accent-soft); }
+.editor-toolbar button svg { width: 18px; height: 18px; }
 .editor-toolbar input[type="color"] { width: 32px; padding: 0; border: 1px solid var(--border); border-radius: 5px; }
 
 /* 이모티콘 버튼 밑에 뜨는 작은 선택 창 — 버튼 기준으로 바로 아래, 왼쪽 정렬. */
