@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=153";
+} from "./firebase-config.js?v=154";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=153";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=153";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=154";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=154";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -399,23 +399,72 @@ async function fetchSortedRecords(catId, subId) {
   return sortRecordsByOrder(records);
 }
 
-// 리스트 화면의 인물 필터 드롭다운 (네이티브 select 대신 사이트 스타일에
-// 맞춘 버튼+팝오버). 열고 닫는 동작은 한 번만 등록해두고, renderListView가
-// 호출될 때마다 메뉴 내용과 선택 콜백만 새로 채운다.
-const listCharacterFilterWrap = document.getElementById("list-character-filter-wrap");
-const listCharacterFilterBtn = document.getElementById("list-character-filter-btn");
-const listCharacterFilterLabel = document.getElementById("list-character-filter-label");
-const listCharacterFilterMenu = document.getElementById("list-character-filter-menu");
+// 네이티브 select 대신 사이트 스타일에 맞춘 드롭다운(버튼 + 선택지 팝오버).
+// wrap 엘리먼트 하나를 받아서 .dropdown-btn/.dropdown-btn-label/.dropdown-menu
+// 자식을 찾아 연결한다. select의 .value/change 이벤트와 비슷하게 쓰라고
+// value getter/setter와 onChange를 제공한다.
+function createDropdown(wrap) {
+  const btn = wrap.querySelector(".dropdown-btn");
+  const labelEl = wrap.querySelector(".dropdown-btn-label");
+  const menuEl = wrap.querySelector(".dropdown-menu");
+  let value = "";
+  let currentItems = [];
+  // renderListView처럼 매번 다시 호출되는 곳에서도 onChange가 계속 쌓이지
+  // 않도록(오래된 records를 참조하는 콜백이 중복 실행되지 않도록), 핸들러는
+  // 배열이 아니라 하나만 유지하고 onChange를 다시 부르면 덮어쓴다.
+  let changeHandler = null;
 
-listCharacterFilterBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  listCharacterFilterMenu.classList.toggle("hidden");
-});
-document.addEventListener("click", (e) => {
-  if (!listCharacterFilterMenu.classList.contains("hidden") && !e.target.closest("#list-character-filter-wrap")) {
-    listCharacterFilterMenu.classList.add("hidden");
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menuEl.classList.toggle("hidden");
+  });
+  document.addEventListener("click", (e) => {
+    if (!menuEl.classList.contains("hidden") && !wrap.contains(e.target)) {
+      menuEl.classList.add("hidden");
+    }
+  });
+
+  function applySelection(v) {
+    value = v;
+    const sel = currentItems.find((it) => it.value === v);
+    labelEl.textContent = sel ? sel.label : "";
+    menuEl.querySelectorAll(".dropdown-menu-item").forEach((b) => {
+      b.classList.toggle("active", b.dataset.value === v);
+    });
   }
-});
+
+  function setOptions(items, selectedValue) {
+    currentItems = items;
+    menuEl.innerHTML = items
+      .map((it) => `<button type="button" class="dropdown-menu-item" data-value="${it.value}">${it.label}</button>`)
+      .join("");
+    menuEl.querySelectorAll(".dropdown-menu-item").forEach((itemBtn) => {
+      itemBtn.addEventListener("click", () => {
+        applySelection(itemBtn.dataset.value);
+        menuEl.classList.add("hidden");
+        if (changeHandler) changeHandler(value);
+      });
+    });
+    applySelection(items.some((it) => it.value === selectedValue) ? selectedValue : items[0]?.value ?? "");
+  }
+
+  return {
+    setOptions,
+    get value() {
+      return value;
+    },
+    set value(v) {
+      applySelection(v);
+    },
+    onChange(fn) {
+      changeHandler = fn;
+    },
+  };
+}
+
+// 리스트 화면의 인물 필터 드롭다운 (톡 보관함, 시즌별 기록 제외에서만 표시).
+const listCharacterFilterWrap = document.getElementById("list-character-filter-wrap");
+const listCharacterFilterDropdown = createDropdown(listCharacterFilterWrap);
 
 // ── 리스트 화면 ──
 async function renderListView(catId, subId) {
@@ -463,24 +512,11 @@ async function renderListView(catId, subId) {
   }
 
   // 톡 보관함(시즌별 기록 제외)에서만, 인물별로 걸러 보는 드롭다운을 보여준다.
-  listCharacterFilterMenu.classList.add("hidden");
   if (catId === "talk" && subId !== "season") {
-    const items = [{ id: "", label: "전체" }, ...CHARACTERS];
-    listCharacterFilterLabel.textContent = "전체";
-    listCharacterFilterMenu.innerHTML = items
-      .map(
-        (it, i) =>
-          `<button type="button" class="dropdown-menu-item${i === 0 ? " active" : ""}" data-value="${it.id}">${it.label}</button>`
-      )
-      .join("");
-    listCharacterFilterMenu.querySelectorAll(".dropdown-menu-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const val = btn.dataset.value;
-        listCharacterFilterLabel.textContent = btn.textContent;
-        listCharacterFilterMenu.querySelectorAll(".dropdown-menu-item").forEach((b) => b.classList.toggle("active", b === btn));
-        listCharacterFilterMenu.classList.add("hidden");
-        renderRecords(val ? records.filter((r) => r.character === val) : records);
-      });
+    const items = [{ value: "", label: "전체" }, ...CHARACTERS.map((ch) => ({ value: ch.id, label: ch.label }))];
+    listCharacterFilterDropdown.setOptions(items, "");
+    listCharacterFilterDropdown.onChange((val) => {
+      renderRecords(val ? records.filter((r) => r.character === val) : records);
     });
     listCharacterFilterWrap.classList.remove("hidden");
   } else {
@@ -599,6 +635,13 @@ async function renderViewerView(recordId) {
   };
   applyAdminUI();
   viewerTitle.textContent = data.title || "(제목 없음)";
+  const viewerParticipants = document.getElementById("viewer-participants");
+  const participantKeys = Array.isArray(data.participants) ? data.participants : [];
+  viewerParticipants.innerHTML = participantKeys
+    .map((key) => libraryData[key])
+    .filter(Boolean)
+    .map((entry) => `<img src="${entry.src}" alt="" />`)
+    .join("");
   viewerContent.innerHTML = data.tableHtml || "";
   // 토글 제목 등 수정창에서만 필요했던 contenteditable 흔적은 읽기 전용 화면에서 지운다.
   viewerContent.querySelectorAll("[contenteditable]").forEach((el) => el.removeAttribute("contenteditable"));
@@ -700,52 +743,49 @@ function setupUndoRedo(el) {
 
 // ── 에디터 화면 ──
 const recordTitleInput = document.getElementById("record-title");
-const recordCategorySelect = document.getElementById("record-category");
-const recordSubcategorySelect = document.getElementById("record-subcategory");
-const recordCharacterSelect = document.getElementById("record-character");
+const recordCategoryDropdown = createDropdown(document.getElementById("record-category-wrap"));
+const recordSubcategoryDropdown = createDropdown(document.getElementById("record-subcategory-wrap"));
+const recordCharacterWrap = document.getElementById("record-character-wrap");
+const recordCharacterDropdown = createDropdown(recordCharacterWrap);
 const editorContent = document.getElementById("editor-content");
 const editorBreadcrumb = document.getElementById("editor-breadcrumb");
 const editorUndo = setupUndoRedo(editorContent);
 
-// 카테고리 select 채우기
-CATEGORIES.forEach((cat) => {
-  const opt = document.createElement("option");
-  opt.value = cat.id;
-  opt.textContent = cat.label;
-  recordCategorySelect.appendChild(opt);
-});
+recordCategoryDropdown.setOptions(
+  CATEGORIES.map((cat) => ({ value: cat.id, label: cat.label })),
+  CATEGORIES[0].id
+);
 
-// 인물 select 채우기 (톡 보관함, 시즌별 기록 제외에서만 보임)
-CHARACTERS.forEach((ch) => {
-  const opt = document.createElement("option");
-  opt.value = ch.id;
-  opt.textContent = ch.label;
-  recordCharacterSelect.appendChild(opt);
-});
+// 인물 드롭다운 항목은 고정이라 한 번만 채우고, 보이고/숨기는 것만 매번 다시 계산한다.
+recordCharacterDropdown.setOptions(
+  CHARACTERS.map((ch) => ({ value: ch.id, label: ch.label })),
+  CHARACTERS[0].id
+);
 
 function fillSubcategorySelect(catId, selectedSubId) {
-  recordSubcategorySelect.innerHTML = "";
   const cat = findCategory(catId);
   if (!cat) return;
-  cat.subcategories.forEach((sub) => {
-    const opt = document.createElement("option");
-    opt.value = sub.id;
-    opt.textContent = sub.label;
-    if (sub.id === selectedSubId) opt.selected = true;
-    recordSubcategorySelect.appendChild(opt);
-  });
+  recordSubcategoryDropdown.setOptions(
+    cat.subcategories.map((sub) => ({ value: sub.id, label: sub.label })),
+    selectedSubId
+  );
 }
 
 function updateCharacterFieldVisibility() {
-  const show = recordCategorySelect.value === "talk" && recordSubcategorySelect.value !== "season";
-  recordCharacterSelect.classList.toggle("hidden", !show);
+  const show = recordCategoryDropdown.value === "talk" && recordSubcategoryDropdown.value !== "season";
+  recordCharacterWrap.classList.toggle("hidden", !show);
 }
 
-recordCategorySelect.addEventListener("change", () => {
-  fillSubcategorySelect(recordCategorySelect.value);
+function updateParticipantsVisibility() {
+  document.getElementById("record-participants-wrap").classList.toggle("hidden", recordCategoryDropdown.value !== "talk");
+}
+
+recordCategoryDropdown.onChange(() => {
+  fillSubcategorySelect(recordCategoryDropdown.value);
   updateCharacterFieldVisibility();
+  updateParticipantsVisibility();
 });
-recordSubcategorySelect.addEventListener("change", updateCharacterFieldVisibility);
+recordSubcategoryDropdown.onChange(updateCharacterFieldVisibility);
 
 let editingRecordId = null;
 
@@ -753,6 +793,7 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
   editingRecordId = recordId || null;
   recordTitleInput.value = "";
   editorContent.innerHTML = "";
+  setSelectedParticipants([]);
 
   if (recordId) {
     editorBreadcrumb.innerHTML = `<a href="#/view/${recordId}" class="viewer-back-link" aria-label="기록으로">${ARROW_LEFT_ICON}</a> &nbsp;·&nbsp; <span class="editor-breadcrumb-label">기록 수정</span>`;
@@ -760,20 +801,90 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
     if (snap.exists()) {
       const data = snap.data();
       recordTitleInput.value = data.title || "";
-      recordCategorySelect.value = data.category;
+      recordCategoryDropdown.value = data.category;
       fillSubcategorySelect(data.category, data.subcategory);
-      recordCharacterSelect.value = data.character || CHARACTERS[0].id;
+      recordCharacterDropdown.value = data.character || CHARACTERS[0].id;
+      setSelectedParticipants(Array.isArray(data.participants) ? data.participants : []);
       editorContent.innerHTML = data.tableHtml || "";
     }
   } else {
     editorBreadcrumb.innerHTML = `<a href="#/list/${categoryId}/${subcategoryId}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a> &nbsp;·&nbsp; <span class="editor-breadcrumb-label">새 기록 추가</span>`;
-    recordCategorySelect.value = categoryId;
+    recordCategoryDropdown.value = categoryId;
     fillSubcategorySelect(categoryId, subcategoryId);
-    recordCharacterSelect.value = CHARACTERS[0].id;
+    recordCharacterDropdown.value = CHARACTERS[0].id;
   }
   updateCharacterFieldVisibility();
+  updateParticipantsVisibility();
   editorUndo.reset();
 }
+
+// ── 참여자 선택 (톡 보관함에서만, 복수 선택) ──
+// 캐릭터 라이브러리 표(libraryData)에 있는 사진들을 원형 그리드로 보여주고,
+// 고른 사람들의 "이름|색" 키를 기록에 participants로 저장한다.
+const participantsBtn = document.getElementById("record-participants-btn");
+const participantsIcon = document.getElementById("record-participants-icon");
+const participantsPreview = document.getElementById("record-participants-preview");
+const participantsMenu = document.getElementById("record-participants-menu");
+let selectedParticipantKeys = [];
+
+function renderParticipantsPreview() {
+  if (selectedParticipantKeys.length === 0) {
+    participantsIcon.classList.remove("hidden");
+    participantsPreview.classList.add("hidden");
+    participantsPreview.innerHTML = "";
+  } else {
+    participantsIcon.classList.add("hidden");
+    participantsPreview.classList.remove("hidden");
+    participantsPreview.innerHTML = selectedParticipantKeys
+      .map((key) => libraryData[key])
+      .filter(Boolean)
+      .map((entry) => `<img src="${entry.src}" alt="" />`)
+      .join("");
+  }
+}
+
+function renderParticipantsMenu() {
+  participantsMenu.innerHTML = Object.entries(libraryData)
+    .map(([key, entry]) => {
+      const name = key.split("|")[0];
+      const selected = selectedParticipantKeys.includes(key);
+      return `<button type="button" class="avatar-option${selected ? " selected" : ""}" data-key="${key}" title="${name}"><img src="${entry.src}" alt="${name}" /></button>`;
+    })
+    .join("");
+}
+
+// 라이브러리에서 지워진 캐릭터의 키는 걸러내고 선택 상태를 적용한다.
+function setSelectedParticipants(keys) {
+  selectedParticipantKeys = keys.filter((k) => libraryData[k]);
+  renderParticipantsPreview();
+  renderParticipantsMenu();
+}
+
+participantsBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  renderParticipantsMenu();
+  participantsMenu.classList.toggle("hidden");
+});
+
+participantsMenu.addEventListener("click", (e) => {
+  const opt = e.target.closest(".avatar-option");
+  if (!opt) return;
+  const key = opt.dataset.key;
+  const idx = selectedParticipantKeys.indexOf(key);
+  if (idx === -1) {
+    selectedParticipantKeys.push(key);
+  } else {
+    selectedParticipantKeys.splice(idx, 1);
+  }
+  opt.classList.toggle("selected");
+  renderParticipantsPreview();
+});
+
+document.addEventListener("click", (e) => {
+  if (!participantsMenu.classList.contains("hidden") && !e.target.closest("#record-participants-wrap")) {
+    participantsMenu.classList.add("hidden");
+  }
+});
 
 // 서식 버튼 (굵게/기울임)
 document.querySelectorAll("#editor-toolbar button[data-cmd]").forEach((btn) => {
@@ -1130,9 +1241,10 @@ document.addEventListener("click", (e) => {
 
 // 저장
 document.getElementById("save-record-btn").addEventListener("click", async () => {
-  const category = recordCategorySelect.value;
-  const subcategory = recordSubcategorySelect.value;
-  const character = category === "talk" && subcategory !== "season" ? recordCharacterSelect.value : null;
+  const category = recordCategoryDropdown.value;
+  const subcategory = recordSubcategoryDropdown.value;
+  const character = category === "talk" && subcategory !== "season" ? recordCharacterDropdown.value : null;
+  const participants = category === "talk" ? selectedParticipantKeys : [];
   const title = recordTitleInput.value.trim();
   const tableHtml = editorContent.innerHTML;
 
@@ -1148,6 +1260,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
         category,
         subcategory,
         character,
+        participants,
         tableHtml,
         updatedAt: serverTimestamp(),
       });
@@ -1158,6 +1271,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
         category,
         subcategory,
         character,
+        participants,
         tableHtml,
         authorUid: adminAuth.currentUser.uid,
         createdAt: serverTimestamp(),
