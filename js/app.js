@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=151";
+} from "./firebase-config.js?v=152";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=151";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=151";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=152";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=152";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -413,6 +413,19 @@ async function renderListView(catId, subId) {
   document.getElementById("new-record-btn").onclick = () => {
     location.hash = `#/new/${catId}/${subId}`;
   };
+
+  const listSubcatFilter = document.getElementById("list-subcat-filter");
+  if (catId === "call" || catId === "diary") {
+    listSubcatFilter.innerHTML = cat.subcategories.map((s) => `<option value="${s.id}">${s.label}</option>`).join("");
+    listSubcatFilter.value = subId;
+    listSubcatFilter.classList.remove("hidden");
+    listSubcatFilter.onchange = () => {
+      location.hash = `#/list/${catId}/${listSubcatFilter.value}`;
+    };
+  } else {
+    listSubcatFilter.classList.add("hidden");
+    listSubcatFilter.onchange = null;
+  }
 
   const listEl = document.getElementById("record-list");
   listEl.innerHTML = "<li class='empty-state'>불러오는 중...</li>";
