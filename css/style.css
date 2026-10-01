@@ -418,7 +418,7 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 /* 제목과 "수정" 링크를 한 줄에, 수정은 내용 박스 오른쪽 끝에 맞춰 정렬한다. */
 .viewer-title-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
@@ -427,20 +427,18 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 .viewer-title-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .viewer-participants { display: flex; gap: 4px; flex-shrink: 0; }
 .viewer-participants img {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid var(--border);
 }
 .viewer-title-actions {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 24px;
   flex-shrink: 0;
   margin-right: 1.735em;
-  position: relative;
-  top: 0.221em;
 }
 .viewer-edit-link, .viewer-delete-link {
   font-size: 0.85rem;
@@ -751,9 +749,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   gap: 2px;
   padding: 6px 10px;
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.6);
-  color: var(--text-dim);
+  color: var(--text);
   cursor: pointer;
 }
 #record-participants-btn:hover { background: rgba(255, 255, 255, 0.8); }
