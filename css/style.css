@@ -616,13 +616,13 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   grid-template-columns: repeat(6, 1fr);
   gap: 3px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  max-width: 300px;
+  max-width: 400px;
   max-height: 240px;
   overflow-y: auto;
 }
 .emoticon-picker img {
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   cursor: pointer;
   border-radius: 6px;
@@ -882,7 +882,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
    영향 없다. */
 #editor-content img.log-emoticon {
   display: inline !important;
-  height: 32px !important;
+  height: 42px !important;
   width: auto !important;
   max-width: none !important;
   vertical-align: middle !important;
