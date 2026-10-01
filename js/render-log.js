@@ -7,13 +7,7 @@
 //     하나만 저장해두고 매 기록 렌더링 시 그 라이브러리를 넘겨받아 사용.
 //     -> 기록 안의 표는 이제 전부 "대화 표"로 취급 (예전처럼 첫 번째 표를
 //        라이브러리로 특별 취급하지 않음).
-// 나머지 파싱 규칙(/나레이션, /코드, /접기, /끝, >이름, /표)은 원본 그대로.
-
-const decodeHtml = (html) => {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
-};
+// 나머지 파싱 규칙(/나레이션, /접기, /끝, >이름, /표)은 원본 그대로.
 
 const getColor = (cell) => {
   const span = cell.querySelector('span[style*="color"]');
@@ -251,10 +245,7 @@ export function renderLog(root, lib = {}, options = {}) {
 
       const row = document.createElement("div");
 
-      if (name === "/코드") {
-        row.className = "s-row is-code";
-        row.innerHTML = decodeHtml(content);
-      } else if (name === "" || name === "/나레이션") {
+      if (name === "" || name === "/나레이션") {
         row.className = "s-row is-narration";
         if (textAlign) row.style.textAlign = textAlign;
         row.innerHTML = `<div class="c-talk">${content}</div>`;

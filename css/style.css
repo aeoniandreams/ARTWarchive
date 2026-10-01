@@ -95,7 +95,8 @@ body.list-bg-talk {
   background-attachment: fixed;
 }
 /* 라이브러리 관리 화면은 로딩 화면과 같은 배경 이미지를 쓴다. */
-body.library-bg-active {
+body.library-bg-active,
+body.editor-bg-active {
   background-image: url("../images/loading-bg.webp");
   background-size: cover;
   background-position: center;
@@ -689,7 +690,7 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 0 0 8px 8px;
-  background: white;
+  background: rgba(255, 255, 255, 0.92);
   max-width: 100%;
   overflow-x: auto;
 }
@@ -857,8 +858,6 @@ body.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 }
 .log-render .is-narration + .is-narration { margin-top: calc(var(--nar-to-next-margin) * -1 + var(--nar-to-nar-margin)); }
 .log-render .is-narration .c-talk { color: inherit; text-align: inherit; }
-
-.log-render .is-code { margin-bottom: var(--row-margin); display: block; width: 100%; }
 
 .log-render .is-right { justify-content: flex-end; gap: var(--p-gap); margin-bottom: var(--row-margin); }
 .log-render .is-right .t-area { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; }

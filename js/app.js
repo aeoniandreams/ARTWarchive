@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=142";
+} from "./firebase-config.js?v=143";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=142";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=142";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=143";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=143";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -292,6 +292,7 @@ function showView(name) {
   const enteringHome = name === "home";
   document.body.classList.toggle("home-bg-active", enteringHome);
   document.body.classList.toggle("library-bg-active", name === "library");
+  document.body.classList.toggle("editor-bg-active", name === "editor");
   if (name !== "list" && name !== "viewer") {
     document.body.classList.remove(...ALL_BG_CLASSES);
   }
