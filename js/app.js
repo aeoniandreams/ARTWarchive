@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=147";
+} from "./firebase-config.js?v=148";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=147";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=147";
+import { CATEGORIES, findCategory, findSubcategory } from "./categories.js?v=148";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=148";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -283,6 +283,22 @@ const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk", "
 const VIEWER_BG_CLASS_MAP = { main_story: "viewer-bg-main_story" };
 const ALL_BG_CLASSES = [...LIST_BG_CLASSES, ...Object.values(VIEWER_BG_CLASS_MAP)];
 
+// 배경 클래스는 body(실제로 보이는 영역)와 html(세로 스크롤바가 차지하는
+// 거터 영역까지 포함한 캔버스 전체) 양쪽에 동시에 붙여야, 스크롤바 트랙
+// 자리만 따로 흰 배경으로 남는 일이 없다.
+function toggleBgClass(name, on) {
+  document.body.classList.toggle(name, on);
+  document.documentElement.classList.toggle(name, on);
+}
+function addBgClass(name) {
+  document.body.classList.add(name);
+  document.documentElement.classList.add(name);
+}
+function removeAllBgClasses() {
+  document.body.classList.remove(...ALL_BG_CLASSES);
+  document.documentElement.classList.remove(...ALL_BG_CLASSES);
+}
+
 const siteLogo = document.getElementById("site-logo");
 const siteSubtitle = document.getElementById("site-subtitle");
 
@@ -290,11 +306,11 @@ function showView(name) {
   Object.values(views).forEach((v) => v.classList.add("hidden"));
   views[name].classList.remove("hidden");
   const enteringHome = name === "home";
-  document.documentElement.classList.toggle("home-bg-active", enteringHome);
-  document.documentElement.classList.toggle("library-bg-active", name === "library");
-  document.documentElement.classList.toggle("editor-bg-active", name === "editor");
+  toggleBgClass("home-bg-active", enteringHome);
+  toggleBgClass("library-bg-active", name === "library");
+  toggleBgClass("editor-bg-active", name === "editor");
   if (name !== "list" && name !== "viewer") {
-    document.documentElement.classList.remove(...ALL_BG_CLASSES);
+    removeAllBgClasses();
   }
   if (enteringHome) {
     // display:none → block과 애니메이션 시작이 같은 스타일 계산에서 한꺼번에
@@ -389,9 +405,9 @@ async function renderListView(catId, subId) {
   const sub = findSubcategory(catId, subId);
   document.getElementById("list-breadcrumb").innerHTML = `${cat?.label ?? catId}${BREADCRUMB_CHEVRON}${sub?.label ?? subId}`;
 
-  document.documentElement.classList.remove(...ALL_BG_CLASSES);
+  removeAllBgClasses();
   if (LIST_BG_CLASSES.includes(`list-bg-${catId}`)) {
-    document.documentElement.classList.add(`list-bg-${catId}`);
+    addBgClass(`list-bg-${catId}`);
   }
 
   document.getElementById("new-record-btn").onclick = () => {
@@ -517,11 +533,11 @@ async function renderViewerView(recordId) {
   const cat = findCategory(data.category);
   const sub = findSubcategory(data.category, data.subcategory);
 
-  document.documentElement.classList.remove(...ALL_BG_CLASSES);
+  removeAllBgClasses();
   if (VIEWER_BG_CLASS_MAP[data.category]) {
-    document.documentElement.classList.add(VIEWER_BG_CLASS_MAP[data.category]);
+    addBgClass(VIEWER_BG_CLASS_MAP[data.category]);
   } else if (LIST_BG_CLASSES.includes(`list-bg-${data.category}`)) {
-    document.documentElement.classList.add(`list-bg-${data.category}`);
+    addBgClass(`list-bg-${data.category}`);
   }
 
   viewerBreadcrumb.innerHTML = `<a href="#/list/${data.category}/${data.subcategory}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a><div class="viewer-breadcrumb-path">${cat?.label ?? data.category}${BREADCRUMB_CHEVRON}${sub?.label ?? data.subcategory}</div>`;
