@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=161";
+} from "./firebase-config.js?v=162";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=161";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=161";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=162";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=162";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -343,7 +343,7 @@ function showView(name) {
   views[name].classList.remove("hidden");
   const enteringHome = name === "home";
   toggleBgClass("home-bg-active", enteringHome);
-  toggleBgClass("library-bg-active", name === "library");
+  toggleBgClass("library-bg-active", name === "library" || name === "chatrooms");
   toggleBgClass("editor-bg-active", name === "editor");
   if (name !== "list" && name !== "viewer") {
     removeAllBgClasses();
@@ -1363,7 +1363,7 @@ async function renderChatRoomsView() {
 
   let rooms;
   try {
-    const snap = await getDocs(query(collection(db, "chatRooms"), orderBy("name")));
+    const snap = await getDocs(query(collection(db, "chatRooms"), orderBy("createdAt")));
     rooms = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   } catch (e) {
     console.error("채팅방 목록 조회 실패:", e.code, e.message);
@@ -1379,7 +1379,13 @@ async function renderChatRoomsView() {
   listEl.innerHTML = "";
   rooms.forEach((room) => {
     const li = document.createElement("li");
-    li.innerHTML = `<div class="record-title">${room.name}</div>`;
+    li.className = "chatroom-card";
+    const avatarsHtml = (room.participants || [])
+      .map((key) => libraryData[key])
+      .filter(Boolean)
+      .map((entry) => `<img src="${entry.src}" alt="" />`)
+      .join("");
+    li.innerHTML = `<div class="chatroom-card-name">${room.name}</div><div class="chatroom-card-avatars">${avatarsHtml}</div>`;
     listEl.appendChild(li);
   });
 }
