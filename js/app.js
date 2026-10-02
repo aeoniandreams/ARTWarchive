@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=169";
+} from "./firebase-config.js?v=170";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=169";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=169";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=170";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=170";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 기록, 스토리키 기록)는 인물 6명이 기본값.
@@ -590,15 +590,21 @@ async function renderListView(catId, subId) {
   }
 
   // 톡 보관함(시즌별 기록 제외)에서만, 하위 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다.
-  // 직접 고르기 전까지는 전체 목록을 바로 보여주지 않고 선택을 안내한다.
+  // 일별 기록만 예전처럼 "전체"가 기본 선택된 채 바로 전체 목록을 보여주고,
+  // 나머지는 직접 고르기 전까지 선택을 안내한다.
   if (catId === "talk" && subId !== "season") {
     const items = [{ value: "", label: "전체" }, ...getTalkFilterOptions(subId)];
-    listCharacterFilterDropdown.setOptions(items, "__pending__", "");
     listCharacterFilterDropdown.onChange((val) => {
       renderRecords(val ? records.filter((r) => r.character === val) : records);
     });
     listCharacterFilterWrap.classList.remove("hidden");
-    listEl.innerHTML = talkPendingSelectionHtml();
+    if (subId === "daily") {
+      listCharacterFilterDropdown.setOptions(items, "");
+      renderRecords(records);
+    } else {
+      listCharacterFilterDropdown.setOptions(items, "__pending__", "");
+      listEl.innerHTML = talkPendingSelectionHtml();
+    }
   } else {
     listCharacterFilterWrap.classList.add("hidden");
     renderRecords(records);
