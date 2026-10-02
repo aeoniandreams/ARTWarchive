@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=166";
+} from "./firebase-config.js?v=167";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=166";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=166";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=167";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=167";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -1454,10 +1454,12 @@ async function renderChatRoomsView() {
       .join("");
     li.innerHTML = `
       <div class="chatroom-card-name">${room.name}</div>
-      <div class="chatroom-card-avatars">${avatarsHtml}</div>
-      <button type="button" class="chatroom-card-edit-btn" aria-label="채팅방 수정">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>
-      </button>`;
+      <div class="chatroom-card-bottom-row">
+        <div class="chatroom-card-avatars">${avatarsHtml}</div>
+        <button type="button" class="chatroom-card-edit-btn" aria-label="채팅방 수정">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>
+        </button>
+      </div>`;
     li.querySelector(".chatroom-card-edit-btn").addEventListener("click", (e) => {
       e.stopPropagation();
       openChatroomModal(room);

@@ -599,12 +599,11 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .record-list .record-title { font-weight: 600; }
 /* 채팅방 참여자 관리: 한 줄에 여러 장 들어가는 카드 그리드. */
 .chatroom-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-.chatroom-grid li { margin-bottom: 0; display: flex; flex-direction: column; gap: 10px; position: relative; padding-bottom: 38px; }
+.chatroom-grid li { margin-bottom: 0; display: flex; flex-direction: column; gap: 10px; }
 .chatroom-card-name { font-weight: 600; }
+.chatroom-card-bottom-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .chatroom-card-edit-btn {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
+  flex-shrink: 0;
   width: 24px;
   height: 24px;
   padding: 0;
