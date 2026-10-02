@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=170";
+} from "./firebase-config.js?v=171";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=170";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=170";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=171";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=171";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 기록, 스토리키 기록)는 인물 6명이 기본값.
@@ -423,8 +423,15 @@ const EMPTY_STATE_ICONS = {
 // 않았을 때 전체 목록 대신 보여주는 안내.
 const PHONE_CALL_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2a9 9 0 0 1 9 9" /><path d="M13 6a5 5 0 0 1 5 5" /><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg>';
-function talkPendingSelectionHtml() {
-  return `<li class="empty-state"><span class="empty-state-icon">${PHONE_CALL_ICON}</span>원하는 기록을 선택해 주세요!</li>`;
+// 선택지에 6명 이름이 전부 들어있으면("호감도 기록"처럼 복수 달성이 끼어
+// 있어도) "마법사를 선택해 주세요!", 아니면("카드 외 조건별 기록"처럼
+// 인물과 무관한 선택지면) "필터를 선택해 주세요!"로 문구를 바꾼다.
+function talkFilterHasCharacters(options) {
+  return CHARACTERS.every((ch) => options.some((opt) => opt.value === ch.id));
+}
+function talkPendingSelectionHtml(hasCharacters) {
+  const message = hasCharacters ? "마법사를 선택해 주세요!" : "필터를 선택해 주세요!";
+  return `<li class="empty-state"><span class="empty-state-icon">${PHONE_CALL_ICON}</span>${message}</li>`;
 }
 
 function emptyStateHtml(catId) {
@@ -603,7 +610,7 @@ async function renderListView(catId, subId) {
       renderRecords(records);
     } else {
       listCharacterFilterDropdown.setOptions(items, "__pending__", "");
-      listEl.innerHTML = talkPendingSelectionHtml();
+      listEl.innerHTML = talkPendingSelectionHtml(talkFilterHasCharacters(getTalkFilterOptions(subId)));
     }
   } else {
     listCharacterFilterWrap.classList.add("hidden");
