@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=167";
+} from "./firebase-config.js?v=168";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,23 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=167";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=167";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=168";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=168";
+
+// 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
+// 따로 지정 안 한 하위 카테고리(일별 기록, 스토리키 기록)는 인물 6명이 기본값.
+// 시즌 기록은 이 드롭다운 자체가 안 보이니 여기서 신경 안 써도 된다.
+const DEFAULT_TALK_FILTER_OPTIONS = CHARACTERS.map((ch) => ({ value: ch.id, label: ch.label }));
+const SUBCATEGORY_FILTER_OPTIONS = {
+  other_condition: [
+    { value: "summoner_levelup", label: "소환사 레벨업" },
+    { value: "story_view", label: "스토리 열람" },
+  ],
+  favor: [...DEFAULT_TALK_FILTER_OPTIONS, { value: "revenge", label: "복수 달성" }],
+};
+function getTalkFilterOptions(subId) {
+  return SUBCATEGORY_FILTER_OPTIONS[subId] || DEFAULT_TALK_FILTER_OPTIONS;
+}
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -555,9 +570,9 @@ async function renderListView(catId, subId) {
     initListSortable();
   }
 
-  // 톡 보관함(시즌별 기록 제외)에서만, 인물별로 걸러 보는 드롭다운을 보여준다.
+  // 톡 보관함(시즌별 기록 제외)에서만, 하위 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다.
   if (catId === "talk" && subId !== "season") {
-    const items = [{ value: "", label: "전체" }, ...CHARACTERS.map((ch) => ({ value: ch.id, label: ch.label }))];
+    const items = [{ value: "", label: "전체" }, ...getTalkFilterOptions(subId)];
     listCharacterFilterDropdown.setOptions(items, "");
     listCharacterFilterDropdown.onChange((val) => {
       renderRecords(val ? records.filter((r) => r.character === val) : records);
@@ -869,18 +884,22 @@ recordCategoryDropdown.setOptions(
   CATEGORIES[0].id
 );
 
-// 인물 드롭다운 항목은 고정이라 한 번만 채우고, 보이고/숨기는 것만 매번 다시 계산한다.
-recordCharacterDropdown.setOptions(
-  CHARACTERS.map((ch) => ({ value: ch.id, label: ch.label })),
-  CHARACTERS[0].id
-);
-
 function fillSubcategorySelect(catId, selectedSubId) {
   const cat = findCategory(catId);
   if (!cat) return;
   recordSubcategoryDropdown.setOptions(
     cat.subcategories.map((sub) => ({ value: sub.id, label: sub.label })),
     selectedSubId
+  );
+}
+
+// 하위 카테고리마다 선택지가 달라서(예: 호감도 기록은 인물+복수 달성, 카드 외
+// 조건별 기록은 소환사 레벨업/스토리 열람), 매번 현재 하위 카테고리에 맞는
+// 목록으로 다시 채운다.
+function updateCharacterOptions(selectedValue) {
+  recordCharacterDropdown.setOptions(
+    getTalkFilterOptions(recordSubcategoryDropdown.value),
+    selectedValue ?? recordCharacterDropdown.value
   );
 }
 
@@ -891,11 +910,15 @@ function updateCharacterFieldVisibility() {
 
 recordCategoryDropdown.onChange(() => {
   fillSubcategorySelect(recordCategoryDropdown.value);
+  updateCharacterOptions("");
   updateCharacterFieldVisibility();
   updateTitleRowVisibility();
   if (recordCategoryDropdown.value === "talk") loadChatroomOptions();
 });
-recordSubcategoryDropdown.onChange(updateCharacterFieldVisibility);
+recordSubcategoryDropdown.onChange(() => {
+  updateCharacterOptions("");
+  updateCharacterFieldVisibility();
+});
 
 let editingRecordId = null;
 
@@ -913,7 +936,7 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
       const data = snap.data();
       recordCategoryDropdown.value = data.category;
       fillSubcategorySelect(data.category, data.subcategory);
-      recordCharacterDropdown.value = data.character || CHARACTERS[0].id;
+      updateCharacterOptions(data.character || "");
       if (data.category === "talk") {
         const parsed = parseTalkTitle(data.title);
         recordPrefixInput.value = parsed.prefix;
@@ -928,7 +951,7 @@ async function renderEditorView({ categoryId, subcategoryId, recordId }) {
     editorBreadcrumb.innerHTML = `<a href="#/list/${categoryId}/${subcategoryId}" class="viewer-back-link" aria-label="목록으로">${ARROW_LEFT_ICON}</a> &nbsp;·&nbsp; <span class="editor-breadcrumb-label">새 기록 추가</span>`;
     recordCategoryDropdown.value = categoryId;
     fillSubcategorySelect(categoryId, subcategoryId);
-    recordCharacterDropdown.value = CHARACTERS[0].id;
+    updateCharacterOptions("");
     if (categoryId === "talk") await loadChatroomOptions();
   }
   updateCharacterFieldVisibility();
