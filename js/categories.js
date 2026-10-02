@@ -29,12 +29,12 @@ export const CATEGORIES = [
     label: "톡 보관함",
     icon: "icons/talk.webp",
     subcategories: [
-      { id: "daily", label: "일별 기록" },
-      { id: "by_card", label: "카드별 기록" },
-      { id: "story_key", label: "스토리키 기록" },
-      { id: "other_condition", label: "카드 외 조건별 기록" },
-      { id: "favor", label: "호감도 기록" },
-      { id: "season", label: "시즌 기록" },
+      { id: "daily", label: "일별 톡" },
+      { id: "by_card", label: "카드별 톡" },
+      { id: "story_key", label: "프리미엄 톡" },
+      { id: "other_condition", label: "카드 외 조건별 톡" },
+      { id: "favor", label: "호감도 톡" },
+      { id: "season", label: "시즌 톡" },
     ],
   },
   {

@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=171";
+} from "./firebase-config.js?v=172";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,12 +24,12 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=171";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=171";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=172";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=172";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
-// 따로 지정 안 한 하위 카테고리(일별 기록, 스토리키 기록)는 인물 6명이 기본값.
-// 시즌 기록은 이 드롭다운 자체가 안 보이니 여기서 신경 안 써도 된다.
+// 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
+// 시즌 톡은 이 드롭다운 자체가 안 보이니 여기서 신경 안 써도 된다.
 const DEFAULT_TALK_FILTER_OPTIONS = CHARACTERS.map((ch) => ({ value: ch.id, label: ch.label }));
 const SUBCATEGORY_FILTER_OPTIONS = {
   other_condition: [
@@ -423,8 +423,8 @@ const EMPTY_STATE_ICONS = {
 // 않았을 때 전체 목록 대신 보여주는 안내.
 const PHONE_CALL_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2a9 9 0 0 1 9 9" /><path d="M13 6a5 5 0 0 1 5 5" /><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg>';
-// 선택지에 6명 이름이 전부 들어있으면("호감도 기록"처럼 복수 달성이 끼어
-// 있어도) "마법사를 선택해 주세요!", 아니면("카드 외 조건별 기록"처럼
+// 선택지에 6명 이름이 전부 들어있으면("호감도 톡"처럼 복수 달성이 끼어
+// 있어도) "마법사를 선택해 주세요!", 아니면("카드 외 조건별 톡"처럼
 // 인물과 무관한 선택지면) "필터를 선택해 주세요!"로 문구를 바꾼다.
 function talkFilterHasCharacters(options) {
   return CHARACTERS.every((ch) => options.some((opt) => opt.value === ch.id));
@@ -597,7 +597,7 @@ async function renderListView(catId, subId) {
   }
 
   // 톡 보관함(시즌별 기록 제외)에서만, 하위 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다.
-  // 일별 기록만 예전처럼 "전체"가 기본 선택된 채 바로 전체 목록을 보여주고,
+  // 일별 톡만 예전처럼 "전체"가 기본 선택된 채 바로 전체 목록을 보여주고,
   // 나머지는 직접 고르기 전까지 선택을 안내한다.
   if (catId === "talk" && subId !== "season") {
     const items = [{ value: "", label: "전체" }, ...getTalkFilterOptions(subId)];
@@ -926,7 +926,7 @@ function fillSubcategorySelect(catId, selectedSubId) {
   );
 }
 
-// 하위 카테고리마다 선택지가 달라서(예: 호감도 기록은 인물+복수 달성, 카드 외
+// 하위 카테고리마다 선택지가 달라서(예: 호감도 톡은 인물+복수 달성, 카드 외
 // 조건별 기록은 소환사 레벨업/스토리 열람), 매번 현재 하위 카테고리에 맞는
 // 목록으로 다시 채운다.
 function updateCharacterOptions(selectedValue) {
