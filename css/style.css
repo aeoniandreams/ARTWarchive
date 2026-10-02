@@ -540,6 +540,7 @@ html.list-bg-talk .viewer-card {
   font-family: inherit;
   white-space: nowrap;
 }
+.dropdown-btn-label { font-weight: 600; }
 .dropdown-btn:hover { background: rgba(255, 255, 255, 0.8); }
 .dropdown-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 .dropdown-menu {
