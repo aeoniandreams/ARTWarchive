@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=168";
+} from "./firebase-config.js?v=169";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=168";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=168";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=169";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=169";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 기록, 스토리키 기록)는 인물 6명이 기본값.
@@ -419,6 +419,14 @@ const EMPTY_STATE_ICONS = {
   main_story: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1" /><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" /><path d="m9.5 17 5-5" /><path d="m9.5 12 5 5" /></svg>',
 };
 
+// 톡 보관함(시즌별 기록 제외) 리스트에서, 드롭다운으로 아직 아무것도 고르지
+// 않았을 때 전체 목록 대신 보여주는 안내.
+const PHONE_CALL_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2a9 9 0 0 1 9 9" /><path d="M13 6a5 5 0 0 1 5 5" /><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg>';
+function talkPendingSelectionHtml() {
+  return `<li class="empty-state"><span class="empty-state-icon">${PHONE_CALL_ICON}</span>원하는 기록을 선택해 주세요!</li>`;
+}
+
 function emptyStateHtml(catId) {
   const icon = EMPTY_STATE_ICONS[catId] || "";
   return `<li class="empty-state"><span class="empty-state-icon">${icon}</span>아직 기록이 없습니다.</li>`;
@@ -492,7 +500,10 @@ function createDropdown(wrap) {
     });
   }
 
-  function setOptions(items, selectedValue) {
+  // placeholder를 주면("" 포함) selectedValue가 items 안에 없을 때 items[0]으로
+  // 자동 선택하는 대신, 아무 항목도 선택 안 된 채로 placeholder 글자를 보여준다
+  // (리스트 필터처럼 "전체"를 포함해 사용자가 직접 골라야만 하는 경우에 쓴다).
+  function setOptions(items, selectedValue, placeholder) {
     currentItems = items;
     menuEl.innerHTML = items
       .map((it) => `<button type="button" class="dropdown-menu-item" data-value="${it.value}">${it.label}</button>`)
@@ -504,7 +515,15 @@ function createDropdown(wrap) {
         if (changeHandler) changeHandler(value);
       });
     });
-    applySelection(items.some((it) => it.value === selectedValue) ? selectedValue : items[0]?.value ?? "");
+    if (items.some((it) => it.value === selectedValue)) {
+      applySelection(selectedValue);
+    } else if (placeholder !== undefined) {
+      value = selectedValue;
+      labelEl.textContent = placeholder;
+      menuEl.querySelectorAll(".dropdown-menu-item").forEach((b) => b.classList.remove("active"));
+    } else {
+      applySelection(items[0]?.value ?? "");
+    }
   }
 
   return {
@@ -571,18 +590,19 @@ async function renderListView(catId, subId) {
   }
 
   // 톡 보관함(시즌별 기록 제외)에서만, 하위 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다.
+  // 직접 고르기 전까지는 전체 목록을 바로 보여주지 않고 선택을 안내한다.
   if (catId === "talk" && subId !== "season") {
     const items = [{ value: "", label: "전체" }, ...getTalkFilterOptions(subId)];
-    listCharacterFilterDropdown.setOptions(items, "");
+    listCharacterFilterDropdown.setOptions(items, "__pending__", "");
     listCharacterFilterDropdown.onChange((val) => {
       renderRecords(val ? records.filter((r) => r.character === val) : records);
     });
     listCharacterFilterWrap.classList.remove("hidden");
+    listEl.innerHTML = talkPendingSelectionHtml();
   } else {
     listCharacterFilterWrap.classList.add("hidden");
+    renderRecords(records);
   }
-
-  renderRecords(records);
 }
 
 // ── 리스트 드래그 정렬 ──
