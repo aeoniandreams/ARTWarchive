@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=165";
+} from "./firebase-config.js?v=166";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=165";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=165";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=166";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=166";
 
 // ── DOM refs ──
 const loadingView = document.getElementById("loading-view");
@@ -1452,13 +1452,23 @@ async function renderChatRoomsView() {
       .filter(Boolean)
       .map((entry) => `<img src="${entry.src}" alt="" />`)
       .join("");
-    li.innerHTML = `<div class="chatroom-card-name">${room.name}</div><div class="chatroom-card-avatars">${avatarsHtml}</div>`;
+    li.innerHTML = `
+      <div class="chatroom-card-name">${room.name}</div>
+      <div class="chatroom-card-avatars">${avatarsHtml}</div>
+      <button type="button" class="chatroom-card-edit-btn" aria-label="채팅방 수정">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>
+      </button>`;
+    li.querySelector(".chatroom-card-edit-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openChatroomModal(room);
+    });
     listEl.appendChild(li);
   });
 }
 
-// ── 채팅방 추가 모달 ──
+// ── 채팅방 추가/수정 모달 ──
 const chatroomModal = document.getElementById("chatroom-modal");
+const chatroomModalTitle = document.getElementById("chatroom-modal-title");
 const chatroomNameInput = document.getElementById("chatroom-name-input");
 const chatroomValidationMsg = document.getElementById("chatroom-validation-msg");
 const chatroomParticipantsBtn = document.getElementById("chatroom-participants-btn");
@@ -1466,6 +1476,7 @@ const chatroomParticipantsIcon = document.getElementById("chatroom-participants-
 const chatroomParticipantsPreview = document.getElementById("chatroom-participants-preview");
 const chatroomParticipantsMenu = document.getElementById("chatroom-participants-menu");
 let chatroomSelectedKeys = [];
+let editingChatroomId = null;
 
 function renderChatroomParticipantsPreview() {
   if (chatroomSelectedKeys.length === 0) {
@@ -1493,9 +1504,13 @@ function renderChatroomParticipantsMenu() {
     .join("");
 }
 
-function openChatroomModal() {
-  chatroomNameInput.value = "";
-  chatroomSelectedKeys = [];
+// room을 넘기면 수정 모드로 연다 (카드 기존 값으로 채워두고, 저장 시
+// addDoc 대신 updateDoc). 안 넘기면 빈 값으로 새로 추가하는 모드.
+function openChatroomModal(room) {
+  editingChatroomId = room ? room.id : null;
+  chatroomModalTitle.textContent = room ? "채팅방 수정" : "채팅방 추가";
+  chatroomNameInput.value = room ? room.name : "";
+  chatroomSelectedKeys = room ? [...(room.participants || [])] : [];
   chatroomValidationMsg.textContent = "";
   renderChatroomParticipantsPreview();
   renderChatroomParticipantsMenu();
@@ -1548,12 +1563,20 @@ document.getElementById("chatroom-save-btn").addEventListener("click", async () 
   }
   chatroomValidationMsg.textContent = "";
   try {
-    await addDoc(collection(adminDb, "chatRooms"), {
-      name,
-      participants: chatroomSelectedKeys,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
+    if (editingChatroomId) {
+      await updateDoc(doc(adminDb, "chatRooms", editingChatroomId), {
+        name,
+        participants: chatroomSelectedKeys,
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await addDoc(collection(adminDb, "chatRooms"), {
+        name,
+        participants: chatroomSelectedKeys,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    }
     closeChatroomModal();
     renderChatRoomsView();
   } catch (e) {
