@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=172";
+} from "./firebase-config.js?v=173";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=172";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=172";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=173";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=173";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -875,22 +875,24 @@ const editorBreadcrumb = document.getElementById("editor-breadcrumb");
 const editorUndo = setupUndoRedo(editorContent);
 
 // "[말머리] 채팅방 이름 - 제목" 형식의 제목을 세 조각으로 쪼개거나 다시 합친다.
+// 말머리는 선택 입력이라 "채팅방 이름 - 제목"처럼 대괄호 없이 올 수도 있다.
 // 뷰어의 extractChatRoomName도 이 파서를 함께 쓴다.
 function parseTalkTitle(title) {
   if (!title) return { prefix: "", chatroom: "", subtitle: "" };
   const bracketStart = title.indexOf("[");
   const bracketEnd = title.indexOf("]");
-  if (bracketStart === -1 || bracketEnd === -1 || bracketEnd < bracketStart) {
-    return { prefix: "", chatroom: "", subtitle: title.trim() };
+  let prefix = "";
+  let rest = title;
+  if (bracketStart !== -1 && bracketEnd !== -1 && bracketEnd > bracketStart) {
+    prefix = title.slice(bracketStart + 1, bracketEnd).trim();
+    rest = title.slice(bracketEnd + 1);
   }
-  const prefix = title.slice(bracketStart + 1, bracketEnd).trim();
-  const rest = title.slice(bracketEnd + 1);
   const dashIdx = rest.indexOf("-");
   if (dashIdx === -1) return { prefix, chatroom: rest.trim(), subtitle: "" };
   return { prefix, chatroom: rest.slice(0, dashIdx).trim(), subtitle: rest.slice(dashIdx + 1).trim() };
 }
 function composeTalkTitle(prefix, chatroom, subtitle) {
-  return `[${prefix}] ${chatroom} - ${subtitle}`;
+  return prefix ? `[${prefix}] ${chatroom} - ${subtitle}` : `${chatroom} - ${subtitle}`;
 }
 
 function updateTitleRowVisibility() {
@@ -1357,8 +1359,8 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     const prefix = recordPrefixInput.value.trim();
     const chatroom = recordChatroomDropdown.value;
     const subtitle = recordSubtitleInput.value.trim();
-    if (!prefix || !chatroom || !subtitle) {
-      alert("말머리, 채팅방, 제목을 모두 입력해주세요.");
+    if (!chatroom || !subtitle) {
+      alert("채팅방, 제목을 입력해주세요.");
       return;
     }
     title = composeTalkTitle(prefix, chatroom, subtitle);
