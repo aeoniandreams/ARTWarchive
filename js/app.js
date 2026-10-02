@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=173";
+} from "./firebase-config.js?v=174";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=173";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=173";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=174";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=174";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -40,6 +40,15 @@ const SUBCATEGORY_FILTER_OPTIONS = {
 };
 function getTalkFilterOptions(subId) {
   return SUBCATEGORY_FILTER_OPTIONS[subId] || DEFAULT_TALK_FILTER_OPTIONS;
+}
+
+// 다이어리는 하위 카테고리(인물)와 무관하게 전부 같은 두 가지 선택지를 쓴다.
+const DIARY_FILTER_OPTIONS = [
+  { value: "wizard_card", label: "마법사 카드" },
+  { value: "wish_card", label: "소원 카드" },
+];
+function getFilterOptions(catId, subId) {
+  return catId === "diary" ? DIARY_FILTER_OPTIONS : getTalkFilterOptions(subId);
 }
 
 // ── DOM refs ──
@@ -596,16 +605,19 @@ async function renderListView(catId, subId) {
     initListSortable();
   }
 
-  // 톡 보관함(시즌별 기록 제외)에서만, 하위 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다.
-  // 일별 톡만 예전처럼 "전체"가 기본 선택된 채 바로 전체 목록을 보여주고,
-  // 나머지는 직접 고르기 전까지 선택을 안내한다.
-  if (catId === "talk" && subId !== "season") {
-    const items = [{ value: "", label: "전체" }, ...getTalkFilterOptions(subId)];
+  // 톡 보관함(시즌별 기록 제외)과 다이어리(모든 하위 카테고리)에서, 하위
+  // 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다. 톡 보관함은
+  // 일별 톡만 예전처럼 "전체"가 기본 선택된 채 바로 전체 목록을 보여주고
+  // 나머지는 직접 고르기 전까지 선택을 안내하며, 다이어리는 항상 "전체"가
+  // 기본 선택된 채 바로 보여준다.
+  const showsFilter = (catId === "talk" && subId !== "season") || catId === "diary";
+  if (showsFilter) {
+    const items = [{ value: "", label: "전체" }, ...getFilterOptions(catId, subId)];
     listCharacterFilterDropdown.onChange((val) => {
       renderRecords(val ? records.filter((r) => r.character === val) : records);
     });
     listCharacterFilterWrap.classList.remove("hidden");
-    if (subId === "daily") {
+    if (catId === "diary" || subId === "daily") {
       listCharacterFilterDropdown.setOptions(items, "");
       renderRecords(records);
     } else {
@@ -933,13 +945,14 @@ function fillSubcategorySelect(catId, selectedSubId) {
 // 목록으로 다시 채운다.
 function updateCharacterOptions(selectedValue) {
   recordCharacterDropdown.setOptions(
-    getTalkFilterOptions(recordSubcategoryDropdown.value),
+    getFilterOptions(recordCategoryDropdown.value, recordSubcategoryDropdown.value),
     selectedValue ?? recordCharacterDropdown.value
   );
 }
 
 function updateCharacterFieldVisibility() {
-  const show = recordCategoryDropdown.value === "talk" && recordSubcategoryDropdown.value !== "season";
+  const cat = recordCategoryDropdown.value;
+  const show = (cat === "talk" && recordSubcategoryDropdown.value !== "season") || cat === "diary";
   recordCharacterWrap.classList.toggle("hidden", !show);
 }
 
@@ -1351,7 +1364,8 @@ document.addEventListener("click", (e) => {
 document.getElementById("save-record-btn").addEventListener("click", async () => {
   const category = recordCategoryDropdown.value;
   const subcategory = recordSubcategoryDropdown.value;
-  const character = category === "talk" && subcategory !== "season" ? recordCharacterDropdown.value : null;
+  const character =
+    (category === "talk" && subcategory !== "season") || category === "diary" ? recordCharacterDropdown.value : null;
   const tableHtml = editorContent.innerHTML;
 
   let title;
