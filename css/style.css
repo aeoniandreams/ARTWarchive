@@ -80,14 +80,15 @@ body.list-bg-call, html.list-bg-call {
   background-attachment: fixed;
 }
 body.list-bg-diary, html.list-bg-diary {
-  background-image: url("../images/list-bg/diary.webp");
+  background-image: url("../images/list-bg/diary.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
+/* 보이스는 메인 스토리처럼 흰 레이어를 얹어 투명도를 낮춘다. */
 body.list-bg-voice, html.list-bg-voice {
-  background-image: url("../images/list-bg/voice.webp");
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/voice.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
