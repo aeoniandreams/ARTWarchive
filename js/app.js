@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=205";
+} from "./firebase-config.js?v=206";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=205";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=205";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=206";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=206";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -319,7 +319,7 @@ function buildSidebar() {
   // 설정(관리자 전용): 라이브러리 관리 · 채팅방 참여자 관리
   buildCatGroup({
     iconHtml:
-      '<svg class="cat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
+      '<svg class="cat-icon icon-settings" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><defs><linearGradient id="settings-gear-grad" gradientUnits="userSpaceOnUse" x1="0" y1="1" x2="0" y2="23"><stop offset="0" stop-color="#543ab8"/><stop offset="0.4" stop-color="#3a267a"/><stop offset="1" stop-color="#1c1d39"/></linearGradient></defs><path d="M9.84 4.71 L9.92 2.22 A10.0 10.0 0 0 1 14.08 2.22 L14.16 4.71 A7.6 7.6 0 0 1 15.63 5.32 L15.63 5.32 L17.45 3.61 A10.0 10.0 0 0 1 20.39 6.55 L18.68 8.37 A7.6 7.6 0 0 1 19.29 9.84 L19.29 9.84 L21.78 9.92 A10.0 10.0 0 0 1 21.78 14.08 L19.29 14.16 A7.6 7.6 0 0 1 18.68 15.63 L18.68 15.63 L20.39 17.45 A10.0 10.0 0 0 1 17.45 20.39 L15.63 18.68 A7.6 7.6 0 0 1 14.16 19.29 L14.16 19.29 L14.08 21.78 A10.0 10.0 0 0 1 9.92 21.78 L9.84 19.29 A7.6 7.6 0 0 1 8.37 18.68 L8.37 18.68 L6.55 20.39 A10.0 10.0 0 0 1 3.61 17.45 L5.32 15.63 A7.6 7.6 0 0 1 4.71 14.16 L4.71 14.16 L2.22 14.08 A10.0 10.0 0 0 1 2.22 9.92 L4.71 9.84 A7.6 7.6 0 0 1 5.32 8.37 L5.32 8.37 L3.61 6.55 A10.0 10.0 0 0 1 6.55 3.61 L8.37 5.32 A7.6 7.6 0 0 1 9.84 4.71 Z M7.50 12 a4.50 4.50 0 1 0 9.00 0 a4.50 4.50 0 1 0 -9.00 0 Z" fill="url(#settings-gear-grad)" fill-rule="evenodd"/><path d="M9.84 4.71 L9.92 2.22 A10.0 10.0 0 0 1 14.08 2.22 L14.16 4.71 A7.6 7.6 0 0 1 15.63 5.32 L15.63 5.32 L17.45 3.61 A10.0 10.0 0 0 1 20.39 6.55 L18.68 8.37 A7.6 7.6 0 0 1 19.29 9.84 L19.29 9.84 L21.78 9.92 A10.0 10.0 0 0 1 21.78 14.08 L19.29 14.16 A7.6 7.6 0 0 1 18.68 15.63 L18.68 15.63 L20.39 17.45 A10.0 10.0 0 0 1 17.45 20.39 L15.63 18.68 A7.6 7.6 0 0 1 14.16 19.29 L14.16 19.29 L14.08 21.78 A10.0 10.0 0 0 1 9.92 21.78 L9.84 19.29 A7.6 7.6 0 0 1 8.37 18.68 L8.37 18.68 L6.55 20.39 A10.0 10.0 0 0 1 3.61 17.45 L5.32 15.63 A7.6 7.6 0 0 1 4.71 14.16 L4.71 14.16 L2.22 14.08 A10.0 10.0 0 0 1 2.22 9.92 L4.71 9.84 A7.6 7.6 0 0 1 5.32 8.37 L5.32 8.37 L3.61 6.55 A10.0 10.0 0 0 1 6.55 3.61 L8.37 5.32 A7.6 7.6 0 0 1 9.84 4.71 Z" fill="none" stroke="url(#settings-gear-grad)" stroke-width="1"/></svg>',
     label: "설정",
     adminOnly: true,
     extraClass: "cat-group-settings",
