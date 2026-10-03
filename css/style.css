@@ -466,9 +466,9 @@ html.list-bg-call .viewer-card,
 html.list-bg-diary .viewer-card {
   background: rgba(255, 255, 255, 0.65);
 }
-/* 톡 보관함만 불투명도 45%. */
+/* 톡 보관함만 불투명도 50%. */
 html.list-bg-talk .viewer-card {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* 데스크탑: 화면 세로 중앙에 고정, JS가 .viewer-card 위치를 재서 left/right를 잡아준다.
