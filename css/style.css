@@ -1201,9 +1201,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
     background: inherit;
   }
 
-  /* 사이드바 배경은 모바일에서만 75% 불투명 + 뒤 화면 블러 8px(데스크탑은 60%, 블러 없음). */
+  /* 사이드바는 모바일에서만 뒤 화면 블러 8px(배경 60% 불투명은 데스크탑과 같다). */
   #sidebar {
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.6);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
