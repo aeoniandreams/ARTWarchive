@@ -129,6 +129,8 @@ export function parseLibraryTable(container) {
 // options.bubbles: true면 엔터로 나뉜 문단마다 말풍선(.c-bubble)으로 감싼다 (톡 보관함용)
 export function renderLog(root, lib = {}, options = {}) {
   const showAvatars = options.showAvatars !== false;
+  // 뷰어의 같은 컨테이너를 기록마다 재사용하므로, 켜고 끄는 걸 매번 확실히 맞춘다.
+  root.classList.toggle("log-bubbles", options.bubbles === true);
   const tables = Array.from(root.querySelectorAll("table"));
   if (tables.length < 1) return;
 
@@ -303,6 +305,7 @@ export function renderLog(root, lib = {}, options = {}) {
       }
     });
     el.innerHTML = "";
+    let tailPlaced = false;
     groups.forEach((group) => {
       const p = document.createElement("p");
       if (bubbles) {
@@ -311,7 +314,16 @@ export function renderLog(root, lib = {}, options = {}) {
         group.forEach((node) => p.appendChild(node));
         // 글자 없이 사진·이모티콘만 있는 문단은 말풍선 없이 그림만 보여준다.
         const hasText = p.textContent.trim() !== "";
-        p.className = !hasText && p.querySelector("img") ? "c-plain" : "c-bubble";
+        if (!hasText && p.querySelector("img")) {
+          p.className = "c-plain";
+        } else {
+          p.className = "c-bubble";
+          // 같은 쪽에서 말풍선이 이어질 때 꼬리는 맨 위 말풍선에만 단다.
+          if (!tailPlaced) {
+            p.classList.add("c-tail");
+            tailPlaced = true;
+          }
+        }
         el.appendChild(p);
         return;
       }
