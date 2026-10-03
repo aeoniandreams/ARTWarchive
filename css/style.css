@@ -466,9 +466,9 @@ html.list-bg-call .viewer-card,
 html.list-bg-diary .viewer-card {
   background: rgba(255, 255, 255, 0.65);
 }
-/* 톡 보관함만 불투명도 55%. */
+/* 톡 보관함만 불투명도 45%. */
 html.list-bg-talk .viewer-card {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.45);
 }
 
 /* 데스크탑: 화면 세로 중앙에 고정, JS가 .viewer-card 위치를 재서 left/right를 잡아준다.
@@ -1026,7 +1026,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .log-render .c-talk .c-bubble {
   position: relative;
   width: fit-content;
-  max-width: 85%;
+  max-width: 90%;
   margin: 0;
   padding: 0.6em 0.95em;
   border-radius: 1em;
@@ -1045,9 +1045,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 /* 톡 보관함에서는 캐릭터 이름도 참고 이미지의 이름 글자색(#627c95)으로 통일한다.
    라이브러리에서 지정한 글자색(인라인 style)보다 우선하도록 !important. */
 .log-render.log-bubbles .c-name { color: #627c95 !important; }
-/* 오른쪽 줄의 .t-area는 내용 폭만큼만 줄어드는 박스라, 그 안에서 max-width: 85%를
-   잡으면 "자기 자신 폭의 85%"가 되어 파란 말풍선만 일찍 줄바꿈됐다. 남는 폭을
-   다 차지하게 해서 왼쪽(흰색)과 똑같이 대화 영역 폭의 85%가 기준이 되게 한다. */
+/* 오른쪽 줄의 .t-area는 내용 폭만큼만 줄어드는 박스라, 그 안에서 max-width: 90%를
+   잡으면 "자기 자신 폭의 90%"가 되어 파란 말풍선만 일찍 줄바꿈됐다. 남는 폭을
+   다 차지하게 해서 왼쪽(흰색)과 똑같이 대화 영역 폭의 90%가 기준이 되게 한다. */
 .log-render .is-right .t-area:has(> .c-talk > .c-bubble) { flex: 1; }
 /* 말풍선 꼬리: 같은 쪽에서 이어지는 말풍선 중 맨 위(.c-tail)에만 단다.
    예전엔 둥근 윗모서리 옆에 삼각형만 붙여서, 모서리의 곡선 때문에 꼬리 윗변과
