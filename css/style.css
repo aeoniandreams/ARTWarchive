@@ -88,7 +88,7 @@ body.list-bg-diary, html.list-bg-diary {
 }
 /* 보이스는 메인 스토리처럼 흰 레이어를 얹어 투명도를 낮춘다. */
 body.list-bg-voice, html.list-bg-voice {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/voice.webp");
+  background-image: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)), url("../images/list-bg/voice.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -233,10 +233,11 @@ button, input, select, textarea {
 }
 #sidebar-toggle-btn svg { width: 20px; height: 20px; }
 #sidebar-toggle-btn:hover { background: rgba(255, 255, 255, 0.15); }
-/* 메인 스토리·톡 보관함의 리스트/기록(뷰어) 화면에서는 배경과 더 잘 어울리는 색으로. */
+/* 메인 스토리·톡 보관함·다이어리의 리스트/기록(뷰어) 화면에서는 배경과 더 잘 어울리는 색으로. */
 html.list-bg-main_story #sidebar-toggle-btn,
 html.viewer-bg-main_story #sidebar-toggle-btn,
-html.list-bg-talk #sidebar-toggle-btn {
+html.list-bg-talk #sidebar-toggle-btn,
+html.list-bg-diary #sidebar-toggle-btn {
   color: #778FC2;
 }
 
