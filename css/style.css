@@ -88,7 +88,7 @@ body.list-bg-diary, html.list-bg-diary {
 }
 /* 보이스는 메인 스토리처럼 흰 레이어를 얹어 투명도를 낮춘다. */
 body.list-bg-voice, html.list-bg-voice {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)), url("../images/list-bg/voice.webp");
+  background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.25)), url("../images/list-bg/voice.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
