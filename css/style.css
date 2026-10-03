@@ -1041,7 +1041,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .log-render .c-talk .c-bubble + .c-bubble,
 .log-render .c-talk .c-bubble + .c-plain,
 .log-render .c-talk .c-plain + .c-bubble { margin-top: 6px; }
-.log-render .is-right .c-talk .c-bubble { margin-left: auto; background: #00b4ff; color: #ffffff; filter: none; }
+.log-render .is-right .c-talk .c-bubble { margin-left: auto; background: #00b4ff; color: #ffffff; }
 /* 톡 보관함에서는 캐릭터 이름도 참고 이미지의 이름 글자색(#627c95)으로 통일한다.
    라이브러리에서 지정한 글자색(인라인 style)보다 우선하도록 !important. */
 .log-render.log-bubbles .c-name { color: #627c95 !important; }
