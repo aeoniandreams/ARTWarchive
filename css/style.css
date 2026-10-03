@@ -1068,6 +1068,16 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   clip-path: polygon(0 0, 0 100%, 100% 0);
 }
 .log-render .c-talk .c-bubble img.log-emoticon { margin-bottom: 0 !important; }
+/* 이모티콘만 있는 문단(.c-plain)은 말풍선이 없는데, 예전 규칙들 때문에 아래로
+   20px 마진(.c-talk img)에 인라인 이미지의 줄 높이 여백까지 붙어서 다음 말풍선과
+   유독 벌어져 보였다. 마진을 없애고 block으로 두어 줄 여백도 없애면, 다음 말풍선과의
+   간격은 말풍선끼리와 같은 6px(.c-bubble + ... margin-top)만 남는다. 좌우 정렬은
+   기존 규칙(왼쪽 1px, 오른쪽 줄은 margin-left:auto)을 그대로 쓴다. */
+.log-render .c-talk .c-plain img.log-emoticon {
+  display: block !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
 
 .log-render .c-talk figure { margin: 10px 0 !important; }
 .log-render .c-talk figure img { display: block !important; opacity: 1 !important; visibility: visible !important; }
