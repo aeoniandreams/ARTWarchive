@@ -43,6 +43,12 @@ export const CATEGORIES = [
     icon: "icons/call.webp",
     subcategories: makeSix(),
   },
+  {
+    id: "voice",
+    label: "보이스",
+    icon: "icons/voice.webp",
+    subcategories: makeSix(),
+  },
 ];
 
 // 톡 보관함(시즌별 기록 제외)에서 글을 인물별로 걸러 보는 드롭다운과,

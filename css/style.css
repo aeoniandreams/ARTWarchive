@@ -317,6 +317,8 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 #sidebar.open { transform: translateX(0); }
 .sidebar-nav-group { flex: 1; display: flex; flex-direction: column; margin-top: 46px; }
 .cat-group { margin-bottom: 4px; }
+/* 설정은 일반 카테고리들과 간격을 더 벌려서 맨 아래에 따로 놓는다. */
+.cat-group-settings { margin-top: 20px; }
 .cat-header {
   display: flex;
   align-items: center;
@@ -327,7 +329,7 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 }
 .cat-header:hover { background: rgba(124, 75, 255, 0.1); }
 .cat-icon { width: 22px; height: 22px; object-fit: contain; border-radius: 6px; }
-.icon-main_story, .icon-talk, .icon-diary, .icon-call { position: relative; top: 1px; }
+.icon-main_story, .icon-talk, .icon-diary, .icon-call, .icon-voice { position: relative; top: 1px; }
 .cat-label { flex: 1; }
 .cat-chevron {
   width: 16px;

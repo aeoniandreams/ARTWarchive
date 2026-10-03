@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=199";
+} from "./firebase-config.js?v=200";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=199";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=199";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=200";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=200";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -263,9 +263,10 @@ function closeSubcatList(el) {
 // 1차 카테고리 하나(아이콘+라벨+펼침 화살표)와 그 안의 2차 카테고리 목록을
 // 만든다. CATEGORIES 기반의 일반 카테고리와, 아래의 관리자 전용 "설정"
 // 카테고리가 이 함수를 같이 쓴다.
-function buildCatGroup({ iconHtml, label, items, adminOnly }) {
+function buildCatGroup({ iconHtml, label, items, adminOnly, extraClass }) {
   const group = document.createElement("div");
   group.className = adminOnly ? "cat-group hidden" : "cat-group";
+  if (extraClass) group.classList.add(extraClass);
   if (adminOnly) group.setAttribute("data-admin-only", "");
 
   const header = document.createElement("div");
@@ -321,6 +322,7 @@ function buildSidebar() {
       '<svg class="cat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
     label: "설정",
     adminOnly: true,
+    extraClass: "cat-group-settings",
     items: [
       {
         id: "library-nav-btn",
@@ -422,6 +424,7 @@ function router() {
 
 // 카테고리별로 "아직 기록이 없습니다" 빈 상태에 보여줄 아이콘 (lucide-static).
 const EMPTY_STATE_ICONS = {
+  voice: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19v3" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><rect x="9" y="2" width="6" height="13" rx="3" /></svg>',
   call: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 2 6 6" /><path d="m22 2-6 6" /><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg>',
   talk: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /><path d="M12 11h.01" /><path d="M16 11h.01" /><path d="M8 11h.01" /></svg>',
   diary: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17h1.5" /><path d="M12 22h1.5" /><path d="M12 2h1.5" /><path d="M17.5 22H19a1 1 0 0 0 1-1" /><path d="M17.5 2H19a1 1 0 0 1 1 1v1.5" /><path d="M20 14v3h-2.5" /><path d="M20 8.5V10" /><path d="M4 10V8.5" /><path d="M4 19.5V14" /><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H8" /><path d="M8 22H6.5a1 1 0 0 1 0-5H8" /></svg>',
