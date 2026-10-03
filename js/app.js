@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=178";
+} from "./firebase-config.js?v=179";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=178";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=178";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=179";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=179";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -779,7 +779,7 @@ async function renderViewerView(recordId) {
   // 뷰어에서는 매번 새로 열 때마다(뒤로가기 후 다시 들어와도) 닫힌 상태로 시작하게 한다.
   viewerContent.querySelectorAll(".editor-toggle.open").forEach((el) => el.classList.remove("open"));
   // 프로필 사진은 톡 보관함 기록에서만 보여준다.
-  renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk" });
+  renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk", bubbles: data.category === "talk" });
 
   // 이전/다음 글: 리스트 화면과 동일한 정렬 기준으로 같은 카테고리/서브카테고리
   // 목록을 다시 가져와서, 지금 보고 있는 기록의 앞뒤를 찾는다. 리스트에서

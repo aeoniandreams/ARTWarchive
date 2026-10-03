@@ -1015,6 +1015,26 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .log-render .c-name { font-weight: bold; margin-bottom: 8px; color: inherit; }
 .log-render .c-talk { color: inherit; word-break: break-all; width: 100%; }
 
+/* 톡 보관함 말풍선: 엔터로 나뉜 문단 하나가 말풍선 하나. 색은 참고 이미지에서
+   뽑은 값 — 왼쪽(상대) 흰색 #ffffff + 글자 #1c1d39, 오른쪽(>이름) 파랑 #00b4ff +
+   흰 글자. 자동 줄바꿈은 한 말풍선 안에서 그대로 이어진다. */
+.log-render .c-talk .c-bubble {
+  width: fit-content;
+  max-width: 85%;
+  margin: 0;
+  padding: 0.6em 0.95em;
+  border-radius: 1.2em;
+  background: #ffffff;
+  color: #1c1d39;
+  text-align: left;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.log-render .c-talk .c-bubble + .c-bubble,
+.log-render .c-talk .c-bubble + .c-plain,
+.log-render .c-talk .c-plain + .c-bubble { margin-top: 6px; }
+.log-render .is-right .c-talk .c-bubble { margin-left: auto; background: #00b4ff; color: #ffffff; box-shadow: none; }
+.log-render .c-talk .c-bubble img.log-emoticon { margin-bottom: 0 !important; }
+
 .log-render .c-talk figure { margin: 10px 0 !important; }
 .log-render .c-talk figure img { display: block !important; opacity: 1 !important; visibility: visible !important; }
 .log-render .c-talk img { display: block !important; opacity: 1 !important; visibility: visible !important; margin-bottom: 20px !important; }

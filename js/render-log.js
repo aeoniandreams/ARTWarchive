@@ -126,6 +126,7 @@ export function parseLibraryTable(container) {
 // lib: parseLibraryTable()로 미리 만들어둔 전역 캐릭터 라이브러리 객체
 // options.showAvatars: false로 주면 라이브러리에 사진이 있어도 프로필 사진을 표시하지 않음
 //   (이름/내용은 그대로 나오고, 사진이 붙는 레이아웃만 빠짐 — 톡 보관함 외 카테고리용)
+// options.bubbles: true면 엔터로 나뉜 문단마다 말풍선(.c-bubble)으로 감싼다 (톡 보관함용)
 export function renderLog(root, lib = {}, options = {}) {
   const showAvatars = options.showAvatars !== false;
   const tables = Array.from(root.querySelectorAll("table"));
@@ -284,8 +285,15 @@ export function renderLog(root, lib = {}, options = {}) {
   // <br> 기준으로 내용을 잘라 각각 <p>로 감싸고, .c-talk p + p 규칙이 그 사이에만
   // margin을 주게 한다 — 화면 너비에 따라 저절로 꺾이는 자동 줄바꿈은 그대로 <p>
   // 하나 안에 있어서 영향받지 않는다.
+  //
+  // options.bubbles가 켜져 있으면(톡 보관함), 엔터로 나뉜 문단 하나하나를
+  // 말풍선(.c-bubble) 하나로 만든다: <br>이 없는 한 문단짜리 칸도 <p> 하나로
+  // 감싸고, 엔터를 연달아 눌러 생긴 빈 문단은 말풍선이 되지 않게 버린다.
+  // 나레이션은 대화가 아니라서 말풍선 없이 그대로 둔다.
+  const bubbles = options.bubbles === true;
   root.querySelectorAll(".c-talk").forEach((el) => {
-    if (!el.querySelector("br")) return;
+    if (bubbles && el.closest(".is-narration")) return;
+    if (!bubbles && !el.querySelector("br")) return;
     const groups = [[]];
     Array.from(el.childNodes).forEach((node) => {
       if (node.nodeName === "BR") {
@@ -297,6 +305,16 @@ export function renderLog(root, lib = {}, options = {}) {
     el.innerHTML = "";
     groups.forEach((group) => {
       const p = document.createElement("p");
+      if (bubbles) {
+        const isBlank = (node) => node.nodeType === Node.TEXT_NODE && !node.textContent.trim();
+        if (group.every(isBlank)) return;
+        group.forEach((node) => p.appendChild(node));
+        // 글자 없이 사진·이모티콘만 있는 문단은 말풍선 없이 그림만 보여준다.
+        const hasText = p.textContent.trim() !== "";
+        p.className = !hasText && p.querySelector("img") ? "c-plain" : "c-bubble";
+        el.appendChild(p);
+        return;
+      }
       // 엔터를 두 번(빈 줄) 눌러서 그룹이 비어있으면, 내용 없는 <p>는 줄 높이가
       // 0이라 위아래 마진이 서로 겹쳐 없어져버린다(margin collapsing). <br>을
       // 넣어 실제 한 줄만큼 높이를 갖게 해서 빈 줄이 진짜로 보이게 한다.
