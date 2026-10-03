@@ -1038,12 +1038,12 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   font-weight: 430;
   /* box-shadow는 ::before 꼬리를 따라가지 못해서, 꼬리까지 함께 그림자가
      생기는 drop-shadow를 쓴다. */
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.10));
 }
 .log-render .c-talk .c-bubble + .c-bubble,
 .log-render .c-talk .c-bubble + .c-plain,
 .log-render .c-talk .c-plain + .c-bubble { margin-top: 6px; }
-.log-render .is-right .c-talk .c-bubble { margin-left: auto; background: #00b4ff; color: #ffffff; }
+.log-render .is-right .c-talk .c-bubble { margin-left: auto; background: #00b4ff; color: #ffffff; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.16)); }
 /* 톡 보관함에서는 캐릭터 이름도 참고 이미지의 이름 글자색(#627c95)으로 통일한다.
    라이브러리에서 지정한 글자색(인라인 style)보다 우선하도록 !important. */
 .log-render.log-bubbles .c-name { color: #627c95 !important; }
@@ -1182,8 +1182,8 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
     background: inherit;
   }
 
-  /* 말풍선 글자 굵기는 모바일에서만 400(데스크톱은 430). */
-  .log-render .c-talk .c-bubble { font-weight: 400; }
+  /* 말풍선 글자 굵기는 모바일에서만 410(데스크톱은 430). */
+  .log-render .c-talk .c-bubble { font-weight: 410; }
 
   #editor-view .field-row { display: flex; flex-wrap: wrap; gap: 8px; }
   #record-category-wrap, #record-subcategory-wrap { flex: 1 1 140px; }
