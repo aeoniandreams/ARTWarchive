@@ -305,6 +305,10 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
   transition: opacity 0.22s ease;
 }
 #sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+/* 데스크탑에서는 사이드바를 열어도 화면을 어둡게 하지 않는다(바깥을 눌러 닫는 동작은 그대로). */
+@media (min-width: 769px) {
+  #sidebar-backdrop { background: transparent; }
+}
 
 #sidebar {
   position: fixed;
@@ -1194,6 +1198,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
     z-index: 30;
     background: inherit;
   }
+
+  /* 사이드바 배경은 모바일에서만 75% 불투명(데스크탑은 60%). */
+  #sidebar { background: rgba(255, 255, 255, 0.75); }
 
   /* 대화 안 프로필 사진은 모바일에서만 지름 40px(데스크톱은 45px). */
   .log-render { --p-size: 40px; }
