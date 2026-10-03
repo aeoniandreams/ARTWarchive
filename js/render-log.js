@@ -96,8 +96,10 @@ export function resizeContentImages(root) {
   });
 }
 
-// 라이브러리 표(1행: 이름, 2행: 이미지) 하나를 파싱해서 {name|color: {src,color}} 객체로 변환.
+// 라이브러리 표(1행: 이름, 2행: 이미지) 하나를 파싱해서 {"이름|": {src}} 객체로 변환.
 // 캐릭터 라이브러리 관리 화면에서 저장된 표 HTML을 렌더링용으로 미리 파싱해둘 때 사용.
+// 이름 글자색은 더 이상 사진을 찾는 키에 쓰지 않는다(이름만 같으면 같은 캐릭터).
+// 키 끝의 "|"는 참여자로 이미 저장된 키("스피카|")와의 호환을 위해 남겨둔다.
 export function parseLibraryTable(container) {
   const lib = {};
   const table = container.querySelector("table");
@@ -111,11 +113,8 @@ export function parseLibraryTable(container) {
     const name = cell.innerText.trim();
     const img = imgs[idx] ? imgs[idx].querySelector("img") : null;
     if (name && img) {
-      const color = getColor(cell);
-      const key = name + "|" + color;
-      lib[key] = {
+      lib[name + "|"] = {
         src: img.getAttribute("data-src") || img.getAttribute("src") || img.src,
-        color: color,
       };
     }
   });
@@ -242,7 +241,7 @@ export function renderLog(root, lib = {}, options = {}) {
 
       const isRight = rawName.startsWith(">");
       const name = isRight ? rawName.slice(1) : rawName;
-      const key = name + "|" + nameColor;
+      const key = name + "|";
       const entry = showAvatars ? lib[key] : undefined;
       const nameColorStyle = nameColor ? ` style="color:${nameColor}"` : "";
 
