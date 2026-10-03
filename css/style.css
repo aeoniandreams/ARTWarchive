@@ -1201,8 +1201,12 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
     background: inherit;
   }
 
-  /* 사이드바 배경은 모바일에서만 75% 불투명(데스크탑은 60%). */
-  #sidebar { background: rgba(255, 255, 255, 0.75); }
+  /* 사이드바 배경은 모바일에서만 75% 불투명 + 뒤 화면 블러 8px(데스크탑은 60%, 블러 없음). */
+  #sidebar {
+    background: rgba(255, 255, 255, 0.75);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
 
   /* 대화 안 프로필 사진은 모바일에서만 지름 40px(데스크톱은 45px). */
   .log-render { --p-size: 40px; }
