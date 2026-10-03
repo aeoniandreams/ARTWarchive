@@ -1162,6 +1162,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 
   .record-list li { padding: 12px; }
 
+  /* 말풍선 글자 굵기는 모바일에서만 400(데스크톱은 430). */
+  .log-render .c-talk .c-bubble { font-weight: 400; }
+
   #editor-view .field-row { display: flex; flex-wrap: wrap; gap: 8px; }
   #record-category-wrap, #record-subcategory-wrap { flex: 1 1 140px; }
   #record-category-wrap .dropdown-btn, #record-subcategory-wrap .dropdown-btn { width: 100%; }
