@@ -28,11 +28,11 @@ function applyImgSize(img, root) {
   if (!container) return;
   if (!img.naturalWidth || !img.naturalHeight) return;
   const cw = container.offsetWidth;
-  // 이모티콘은 데스크탑에서는 좀 더 작게(25%), 모바일에서는 그대로(35%) 보여준다.
+  // 이모티콘은 데스크탑에서는 25%, 모바일에서는 45%로 보여준다.
   // 일반 첨부 이미지는 항상 35%로 기존과 동일하다.
   const isEmoticon = img.classList.contains("log-emoticon");
   const isDesktop = document.documentElement.clientWidth > 768;
-  const ratio = isEmoticon && isDesktop ? 0.25 : 0.35;
+  const ratio = isEmoticon ? (isDesktop ? 0.25 : 0.45) : 0.35;
   const target = cw * ratio;
   const figure = img.closest("figure");
   const isLandscape = img.naturalWidth >= img.naturalHeight;

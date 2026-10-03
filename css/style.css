@@ -463,9 +463,12 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 }
 /* 메인 스토리를 제외한 카테고리는 내용 박스 불투명도를 조금 더 낮춘다. */
 html.list-bg-call .viewer-card,
-html.list-bg-diary .viewer-card,
-html.list-bg-talk .viewer-card {
+html.list-bg-diary .viewer-card {
   background: rgba(255, 255, 255, 0.65);
+}
+/* 톡 보관함만 불투명도 55%. */
+html.list-bg-talk .viewer-card {
+  background: rgba(255, 255, 255, 0.55);
 }
 
 /* 데스크탑: 화면 세로 중앙에 고정, JS가 .viewer-card 위치를 재서 left/right를 잡아준다.
@@ -581,6 +584,8 @@ html.list-bg-talk .viewer-card {
 @media (max-width: 768px) {
   #list-logo, .page-logo { height: 64px; }
   .viewer-card { padding: 25px 20px; }
+  /* 톡 보관함만 좌우 여백을 15px로(다른 카테고리는 20px 그대로). */
+  html.list-bg-talk .viewer-card { padding: 25px 15px; }
   #viewer-breadcrumb { margin-top: 0; }
   /* 관리자 모드여도 모바일에서는 기록 수정·삭제 버튼을 숨긴다. */
   .viewer-title-actions { display: none; }
@@ -1028,7 +1033,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   background: #ffffff;
   color: #1c1d39;
   text-align: left;
-  font-weight: 420;
+  font-weight: 430;
   /* box-shadow는 ::before 꼬리를 따라가지 못해서, 꼬리까지 함께 그림자가
      생기는 drop-shadow를 쓴다. */
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.16));
