@@ -1061,6 +1061,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   vertical-align: middle !important;
   margin-left: 1px !important;
   margin-right: 1px !important;
+  border-radius: 16% !important;
 }
 /* 수정창 안에서는 저장된 뒤(뷰어)보다 조금 더 크게 보여준다 — 그리드에서 고른
    크기에 가깝게, 편집할 때 알아보기 쉽도록. 저장 후 실제 보여지는 크기(1.6em)에는
