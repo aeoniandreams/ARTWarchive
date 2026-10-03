@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=200";
+} from "./firebase-config.js?v=201";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=200";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=200";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=201";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=201";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -345,7 +345,7 @@ function buildSidebar() {
 }
 
 // ── 라우팅 ──
-const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk", "list-bg-diary"];
+const LIST_BG_CLASSES = ["list-bg-main_story", "list-bg-call", "list-bg-talk", "list-bg-diary", "list-bg-voice"];
 // 뷰어(개별 기록 화면)에서 리스트보다 더 흐리게 보여줄 카테고리는 여기서 별도 클래스로 덮어쓴다.
 const VIEWER_BG_CLASS_MAP = { main_story: "viewer-bg-main_story" };
 const ALL_BG_CLASSES = [...LIST_BG_CLASSES, ...Object.values(VIEWER_BG_CLASS_MAP)];

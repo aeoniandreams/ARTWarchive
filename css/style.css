@@ -86,6 +86,13 @@ body.list-bg-diary, html.list-bg-diary {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
+body.list-bg-voice, html.list-bg-voice {
+  background-image: url("../images/list-bg/voice.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 body.list-bg-talk, html.list-bg-talk {
   background-image: url("../images/list-bg/talk.jpg");
   background-size: cover;
@@ -465,7 +472,8 @@ html.home-bg-active #site-subtitle.play-in { animation: home-subtitle-in 0.6s ea
 }
 /* 메인 스토리를 제외한 카테고리는 내용 박스 불투명도를 조금 더 낮춘다. */
 html.list-bg-call .viewer-card,
-html.list-bg-diary .viewer-card {
+html.list-bg-diary .viewer-card,
+html.list-bg-voice .viewer-card {
   background: rgba(255, 255, 255, 0.65);
 }
 /* 톡 보관함만 불투명도 50%. */
@@ -1173,6 +1181,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   body.viewer-bg-main_story::before,
   body.list-bg-call::before,
   body.list-bg-diary::before,
+  body.list-bg-voice::before,
   body.list-bg-talk::before {
     content: "";
     position: fixed;
