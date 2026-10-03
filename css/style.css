@@ -1028,7 +1028,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   background: #ffffff;
   color: #1c1d39;
   text-align: left;
-  font-weight: 450;
+  font-weight: 420;
   /* box-shadow는 ::before 꼬리를 따라가지 못해서, 꼬리까지 함께 그림자가
      생기는 drop-shadow를 쓴다. */
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.16));
@@ -1047,8 +1047,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 /* 말풍선 꼬리: 같은 쪽에서 이어지는 말풍선 중 맨 위(.c-tail)에만 단다.
    예전엔 둥근 윗모서리 옆에 삼각형만 붙여서, 모서리의 곡선 때문에 꼬리 윗변과
    말풍선 윗변 사이가 끊겨 보였다. 꼬리 쪽 윗모서리는 각지게(반지름 0) 만들고,
-   그 모서리에서 윗변을 그대로 이어 바깥으로 뻗는 삼각형(8px 폭 · 12px 높이)을
-   붙여서 하나의 도형처럼 보이게 한다. 삼각형은 1px 겹치게 해서 이음새가 안 보인다. */
+   그 모서리에서 윗변을 그대로 이어 바깥으로 뻗는 삼각형(8px 폭 · 9px 높이)을
+   붙여서 하나의 도형처럼 보이게 한다. 삼각형은 1px 겹치게 해서 이음새가 안 보인다.
+   (원래 높이는 12px였는데 9px로 줄여 더 가늘고 뾰족하게 했다. 뻗는 길이 8px는 그대로.) */
 .log-render .c-talk .c-bubble.c-tail { border-top-left-radius: 0; }
 .log-render .is-right .c-talk .c-bubble.c-tail { border-top-left-radius: 1em; border-top-right-radius: 0; }
 .log-render .c-talk .c-bubble.c-tail::before {
@@ -1057,7 +1058,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   top: 0;
   left: -8px;
   width: 9px;
-  height: 12px;
+  height: 9px;
   background: inherit;
   clip-path: polygon(100% 0, 100% 100%, 0 0);
 }
