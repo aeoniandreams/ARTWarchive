@@ -624,6 +624,69 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .record-list li:hover { border-color: var(--accent); }
 .record-list .record-title { font-weight: 600; }
 
+/* 보이스 리스트 맨 아래의 + 버튼(관리자만) */
+#voice-add-wrap { display: flex; justify-content: center; margin-top: 4px; }
+#voice-add-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#voice-add-btn svg { width: 20px; height: 20px; }
+@media (hover: hover) {
+  #voice-add-btn:hover { background: rgba(255, 255, 255, 0.8); color: var(--accent); }
+}
+/* 사이트 안 팝업(모달) 공통 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+.modal-card {
+  width: 380px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px 24px;
+  border-radius: 12px;
+  background: white;
+}
+.modal-title { margin: 0 0 16px; }
+.modal-label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 600; color: var(--text-dim); }
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+.modal-input:focus { outline: none; border-color: var(--accent); }
+.modal-row { margin-top: 14px; }
+.modal-actions { margin-top: 20px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.modal-msg { flex: 1; min-width: 0; font-size: 0.8rem; color: #c0392b; }
+.modal-cancel-btn {
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+#voice-modal .voice-save-btn { padding: 10px 20px; }
+
 /* ── 보이스 리스트: 긴 알약 모양 상자 ──
    대사는 왼쪽, 음성 재생 마이크는 오른쪽 끝. 줄바꿈 기준은 알약 너비에서
    (왼쪽 여백 22px + 대사와 마이크 사이 12px + 마이크 36px + 오른쪽 여백 8px) = 78px를

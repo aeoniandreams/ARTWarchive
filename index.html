@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ARTWarchive</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="stylesheet" href="css/pretendard-jp.css?v=212" />
-<link rel="stylesheet" href="css/style.css?v=212" />
+<link rel="stylesheet" href="css/pretendard-jp.css?v=214" />
+<link rel="stylesheet" href="css/style.css?v=214" />
 <script>
   // 로딩 화면을 최소 1초는 보여주기 위한 기준 시각. firebase-config.js는 ES
   // 모듈이라 import가 끝나야 실행되는데, 그 안에서 시각을 재면 이미 import
@@ -134,6 +134,11 @@
         </div>
       </div>
       <ul class="record-list" id="record-list"></ul>
+      <div id="voice-add-wrap" class="hidden">
+        <button type="button" id="voice-add-btn" data-admin-only class="hidden" aria-label="보이스 추가">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+        </button>
+      </div>
     </section>
 
     <!-- 에디터 화면 -->
@@ -334,7 +339,38 @@
   </div>
 </div>
 
+<!-- 보이스 대사 추가 -->
+<div id="voice-modal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <h3 class="modal-title">보이스 추가</h3>
+    <label class="modal-label" for="voice-line-input">대사</label>
+    <textarea id="voice-line-input" class="modal-input" rows="3" maxlength="300" placeholder="대사를 입력하세요"></textarea>
+    <div id="voice-tag-row" class="modal-row hidden">
+      <label class="modal-label">분류</label>
+      <div class="dropdown-wrap" id="voice-tag-wrap">
+        <button type="button" class="dropdown-btn" aria-label="분류 선택">
+          <span class="dropdown-btn-label"></span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+        <div class="dropdown-menu hidden"></div>
+      </div>
+    </div>
+    <div class="modal-row">
+      <label class="modal-label">음성 파일</label>
+      <div class="voice-edit-row">
+        <label class="voice-file-btn">음성 파일 선택<input type="file" id="voice-file-input" accept="audio/*" hidden /></label>
+        <span class="voice-file-name" id="voice-file-name">선택한 파일 없음</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <span id="voice-modal-msg" class="modal-msg"></span>
+      <button type="button" id="voice-modal-cancel" class="modal-cancel-btn">취소</button>
+      <button type="button" id="voice-modal-save" class="voice-save-btn">저장</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script type="module" src="js/app.js?v=212"></script>
+<script type="module" src="js/app.js?v=214"></script>
 </body>
 </html>

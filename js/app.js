@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=212";
+} from "./firebase-config.js?v=214";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=212";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=212";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=214";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=214";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -728,6 +728,94 @@ function buildVoiceEditPanel(data) {
   return panel;
 }
 
+
+// 보이스 리스트 맨 아래 + 버튼 → 대사·음성 파일을 넣는 사이트 내 팝업(관리자만).
+const voiceAddWrap = document.getElementById("voice-add-wrap");
+const voiceAddBtn = document.getElementById("voice-add-btn");
+const voiceModal = document.getElementById("voice-modal");
+const voiceLineInput = document.getElementById("voice-line-input");
+const voiceFileInput = document.getElementById("voice-file-input");
+const voiceFileNameEl = document.getElementById("voice-file-name");
+const voiceTagRow = document.getElementById("voice-tag-row");
+const voiceTagDropdown = createDropdown(document.getElementById("voice-tag-wrap"));
+const voiceModalMsg = document.getElementById("voice-modal-msg");
+const voiceModalSave = document.getElementById("voice-modal-save");
+let voiceAddCtx = null; // { catId, subId, records, filterValue(), refresh() } — 지금 열려 있는 보이스 리스트 정보
+
+function closeVoiceModal() {
+  voiceModal.classList.add("hidden");
+}
+function openVoiceModal() {
+  if (!voiceAddCtx) return;
+  voiceLineInput.value = "";
+  voiceFileInput.value = "";
+  voiceFileNameEl.textContent = "선택한 파일 없음";
+  voiceModalMsg.textContent = "";
+  // 리스트에서 "전체"를 보고 있을 때만 분류(홈 화면/옷장/…)를 직접 고르게 한다.
+  // 특정 분류를 보고 있으면 그 분류로 저장한다.
+  const needsTag = !voiceAddCtx.filterValue();
+  voiceTagRow.classList.toggle("hidden", !needsTag);
+  if (needsTag) voiceTagDropdown.setOptions(VOICE_FILTER_OPTIONS, "__pending__", "분류를 선택해 주세요");
+  voiceModal.classList.remove("hidden");
+  voiceLineInput.focus();
+}
+voiceAddBtn.addEventListener("click", openVoiceModal);
+document.getElementById("voice-modal-cancel").addEventListener("click", closeVoiceModal);
+voiceModal.addEventListener("click", (e) => {
+  if (e.target === voiceModal) closeVoiceModal();
+});
+voiceFileInput.addEventListener("change", () => {
+  const f = voiceFileInput.files[0];
+  voiceFileNameEl.textContent = f ? f.name : "선택한 파일 없음";
+  voiceModalMsg.textContent = "";
+});
+voiceModalSave.addEventListener("click", async () => {
+  const ctx = voiceAddCtx;
+  if (!ctx) return;
+  const line = voiceLineInput.value.trim();
+  const file = voiceFileInput.files[0];
+  // 아직 고르지 않았을 때 드롭다운 값은 "__pending__"라서, 실제 분류 값일 때만 인정한다.
+  const pickedTag = VOICE_FILTER_OPTIONS.some((o) => o.value === voiceTagDropdown.value) ? voiceTagDropdown.value : "";
+  const tag = ctx.filterValue() || pickedTag;
+  if (!line) return (voiceModalMsg.textContent = "대사를 입력해 주세요.");
+  if (!tag) return (voiceModalMsg.textContent = "분류를 선택해 주세요.");
+  if (file && !file.type.startsWith("audio/")) return (voiceModalMsg.textContent = "음성 파일(mp3, m4a 등)만 올릴 수 있어요.");
+  if (file && file.size > VOICE_MAX_BYTES) return (voiceModalMsg.textContent = "파일이 너무 커요. 2MB 이하로 올려 주세요.");
+  voiceModalSave.disabled = true;
+  voiceModalMsg.textContent = "저장하는 중...";
+  try {
+    // 새 알약은 맨 아래에 붙도록 지금 있는 순서 값의 최댓값 + 1을 준다.
+    const maxOrder = ctx.records.reduce((m, r) => (typeof r.order === "number" ? Math.max(m, r.order) : m), -1);
+    const ref = await addDoc(collection(adminDb, "records"), {
+      title: line,
+      category: ctx.catId,
+      subcategory: ctx.subId,
+      character: tag,
+      tableHtml: "",
+      authorUid: adminAuth.currentUser.uid,
+      order: maxOrder + 1,
+      hasVoice: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    if (file) {
+      try {
+        await saveVoiceFile(ref.id, file);
+      } catch (e) {
+        console.error("음성 저장 실패:", e);
+        alert("대사는 저장했지만 음성 파일은 저장하지 못했어요. 목록에서 연필 버튼을 눌러 다시 올려 주세요.");
+      }
+    }
+    closeVoiceModal();
+    ctx.refresh();
+  } catch (e) {
+    console.error("보이스 저장 실패:", e);
+    voiceModalMsg.textContent = "저장하지 못했어요: " + (e.code || e.message);
+  } finally {
+    voiceModalSave.disabled = false;
+  }
+});
+
 let voiceEditMode = false;
 function hasUnsavedVoiceFile() {
   return Array.from(document.querySelectorAll(".voice-edit-panel input[type=file]")).some((i) => i.files.length);
@@ -780,6 +868,8 @@ async function renderListView(catId, subId) {
   stopVoice();
   voiceEditMode = false;
   listEl.classList.toggle("voice-list", isVoice);
+  voiceAddWrap.classList.toggle("hidden", !isVoice);
+  voiceAddCtx = null;
   if (isVoice) {
     // 보이스 리스트의 + 버튼은 새 기록 추가 대신 수정 모드 스위치(연필 ↔ 저장)다.
     newRecordBtn.innerHTML = PENCIL_ICON;
@@ -813,6 +903,15 @@ async function renderListView(catId, subId) {
   }
 
   currentList = records;
+  if (isVoice) {
+    voiceAddCtx = {
+      catId,
+      subId,
+      records,
+      filterValue: () => listCharacterFilterDropdown.value,
+      refresh: () => renderListView(catId, subId),
+    };
+  }
   function rerenderCurrentList() {
     stopVoice();
     renderRecords(currentList);
