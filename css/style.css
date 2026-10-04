@@ -689,6 +689,20 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 }
 #voice-modal .voice-save-btn { padding: 10px 20px; }
 
+.modal-card-small { width: 340px; }
+.confirm-text { margin: 4px 0 0; line-height: 1.6; font-weight: 600; }
+.danger-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #c0392b;
+  color: white;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+.danger-btn:hover { background: #a93226; }
+
 /* ── 보이스 리스트: 긴 알약 모양 상자 ──
    대사는 왼쪽, 음성 재생 마이크는 오른쪽 끝. 줄바꿈 기준은 알약 너비에서
    (왼쪽 여백 22px + 대사와 마이크 사이 12px + 마이크 36px + 오른쪽 여백 8px) = 78px를
@@ -731,6 +745,25 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   transition: color 0.15s ease;
 }
 .voice-pill .pill-mic svg { width: 20px; height: 20px; }
+/* 연필(수정 모드)을 켰을 때만 마이크 왼쪽에 나오는 삭제 버튼. */
+.voice-pill .pill-btns { display: flex; align-items: center; flex: none; }
+.voice-pill .pill-delete {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #c0392b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.voice-pill .pill-delete svg { width: 20px; height: 20px; }
+.voice-pill .pill-delete:hover { background: rgba(192, 57, 43, 0.1); }
+.voice-list:not(.is-editing) .pill-delete { display: none; }
 @media (hover: hover) {
   .voice-pill .pill-mic:hover:not(:disabled) { color: var(--accent); }
 }

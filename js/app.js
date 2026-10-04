@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=219";
+} from "./firebase-config.js?v=220";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=219";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=219";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=220";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=220";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -592,6 +592,8 @@ const PLUS_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>';
 const PENCIL_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>';
+const TRASH_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6" /><path d="M14 11v6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>';
 const SAVE_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" /><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" /><path d="M7 3v4a1 1 0 0 0 1 1h7" /></svg>';
 
@@ -651,6 +653,47 @@ async function toggleVoicePlayback(recordId, btn) {
   } finally {
     btn.classList.remove("is-loading");
   }
+}
+
+// 사이트 안 확인 팝업. 확인을 누르면 true, 취소·바깥 클릭이면 false.
+function confirmDialog(message, okLabel = "삭제") {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("confirm-modal");
+    const okBtn = document.getElementById("confirm-modal-ok");
+    const cancelBtn = document.getElementById("confirm-modal-cancel");
+    document.getElementById("confirm-modal-text").textContent = message;
+    okBtn.textContent = okLabel;
+    const finish = (result) => {
+      modal.classList.add("hidden");
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      modal.removeEventListener("click", onBackdrop);
+      resolve(result);
+    };
+    const onOk = () => finish(true);
+    const onCancel = () => finish(false);
+    const onBackdrop = (e) => {
+      if (e.target === modal) finish(false);
+    };
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+    modal.addEventListener("click", onBackdrop);
+    modal.classList.remove("hidden");
+    cancelBtn.focus();
+  });
+}
+
+// 알약(기록)과 그 음성 조각을 함께 지운다.
+async function deleteVoiceRecord(recordId) {
+  const parts = await getDocs(collection(adminDb, "voices", recordId, "parts"));
+  const batch = writeBatch(adminDb);
+  parts.docs.forEach((d) => batch.delete(d.ref));
+  batch.delete(doc(adminDb, "voices", recordId));
+  batch.delete(doc(adminDb, "records", recordId));
+  await batch.commit();
+  const url = voiceUrlCache.get(recordId);
+  if (url) URL.revokeObjectURL(url);
+  voiceUrlCache.delete(recordId);
 }
 
 async function saveVoiceFile(recordId, file) {
@@ -827,9 +870,25 @@ function createVoicePill(data) {
   li.innerHTML = `
     <div class="pill-main">
       <div class="pill-text"></div>
-      <button type="button" class="pill-mic" aria-label="음성 재생">${MIC_ICON}</button>
+      <div class="pill-btns">
+        <button type="button" class="pill-delete" aria-label="삭제">${TRASH_ICON}</button>
+        <button type="button" class="pill-mic" aria-label="음성 재생">${MIC_ICON}</button>
+      </div>
     </div>`;
   li.querySelector(".pill-text").textContent = data.title || "(대사 없음)";
+  li.querySelector(".pill-delete").addEventListener("click", async (e) => {
+    e.stopPropagation();
+    const ok = await confirmDialog("정말 삭제하시겠어요? 삭제하면 되돌릴 수 없어요.");
+    if (!ok || !voiceAddCtx) return;
+    try {
+      stopVoice();
+      await deleteVoiceRecord(data.id);
+      voiceAddCtx.remove(data.id);
+    } catch (err) {
+      console.error("보이스 삭제 실패:", err);
+      alert("삭제하지 못했습니다: " + (err.code || err.message));
+    }
+  });
   const mic = li.querySelector(".pill-mic");
   mic.disabled = !data.hasVoice && !voiceEditMode;
   mic.addEventListener("click", (e) => {
@@ -923,6 +982,13 @@ async function renderListView(catId, subId) {
       records,
       filterValue: () => listCharacterFilterDropdown.value,
       refresh: () => renderListView(catId, subId),
+      // 지운 알약만 목록에서 빼고 다시 그린다(수정 모드는 그대로 유지).
+      remove: (id) => {
+        records = records.filter((r) => r.id !== id);
+        currentList = currentList.filter((r) => r.id !== id);
+        voiceAddCtx.records = records;
+        rerenderCurrentList();
+      },
     };
   }
   function rerenderCurrentList() {
@@ -1000,7 +1066,7 @@ function initListSortable() {
   listSortableInstance = Sortable.create(listEl, {
     animation: 150,
     // 보이스 알약의 마이크 버튼과 음성 등록 칸은 드래그가 아니라 눌러서 쓰는 곳이다.
-    filter: ".pill-mic, .voice-edit-panel",
+    filter: ".pill-mic, .pill-delete, .voice-edit-panel",
     preventOnFilter: false,
     disabled: !isAdmin || !isDesktopViewport(),
     onEnd: async () => {
