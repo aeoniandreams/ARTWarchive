@@ -750,12 +750,22 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
+/* 데스크탑에서는 비고 칸을 알약 너비의 20%로 한다. cqw는 알약(li) 너비의 1%이고, 지원하지 않는
+   브라우저는 안쪽 너비 기준 20.8%(= 알약의 약 20%)로 대신한다. */
+@media (min-width: 769px) {
+  .record-list li.voice-pill { container-type: inline-size; }
+  .voice-pill .pill-note {
+    flex: 0 0 20.8%;
+    flex-basis: 20cqw;
+    max-width: none;
+  }
+}
 /* 수정 모드: 비고 칸이 비어 있어도 눌러 쓸 수 있게 자리를 잡고 "비고"를 흐리게 보여 준다. */
 .voice-list.is-editing .pill-note-text {
   min-width: 2.5em;
   min-height: 1.5em;
   cursor: text;
-  border-radius: 6px;
+  border-radius: 0;
   box-shadow: inset 0 -1px 0 rgba(124, 75, 255, 0.35);
 }
 .voice-list.is-editing .pill-note-text:empty::before {
@@ -765,6 +775,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 }
 .voice-list.is-editing .pill-note-text:focus {
   outline: none;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.7);
   box-shadow: 0 0 0 2px rgba(124, 75, 255, 0.45);
 }
@@ -772,11 +783,12 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 /* 수정 모드: 대사를 눌러 바로 고칠 수 있음을 옅은 보라 밑줄로 알려 주고, 고치는 중에는 테두리를 준다. */
 .voice-list.is-editing .pill-text {
   cursor: text;
-  border-radius: 6px;
+  border-radius: 0;
   box-shadow: inset 0 -1px 0 rgba(124, 75, 255, 0.35);
 }
 .voice-list.is-editing .pill-text:focus {
   outline: none;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.7);
   box-shadow: 0 0 0 2px rgba(124, 75, 255, 0.45);
 }
