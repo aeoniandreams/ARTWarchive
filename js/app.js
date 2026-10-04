@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=223";
+} from "./firebase-config.js?v=224";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=223";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=223";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=224";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=224";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -859,6 +859,55 @@ voiceModalSave.addEventListener("click", async () => {
   }
 });
 
+// 수정 모드에서는 알약 안의 대사를 바로 고칠 수 있다. 글자를 누르고 고친 뒤
+// 바깥을 누르거나 Enter를 누르면 저장하고, Esc는 취소다. 한 줄 글이라 줄바꿈은 막는다.
+function makePillTextEditable(el, data) {
+  el.contentEditable = "true";
+  el.spellcheck = false;
+  el.setAttribute("role", "textbox");
+  el.setAttribute("aria-label", "대사 수정");
+  el.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      el.blur();
+    } else if (e.key === "Escape") {
+      el.textContent = data.title || "";
+      el.blur();
+    }
+  });
+  el.addEventListener("paste", (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text").replace(/\s+/g, " ");
+    document.execCommand("insertText", false, text);
+  });
+  el.addEventListener("blur", async () => {
+    const previous = data.title || "";
+    const next = el.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
+    if (next === previous) {
+      el.textContent = previous;
+      return;
+    }
+    if (!next) {
+      el.textContent = previous;
+      alert("대사는 비워 둘 수 없어요.");
+      return;
+    }
+    data.title = next; // 저장이 끝나기 전에 목록이 다시 그려져도 새 대사가 보이게 먼저 반영한다.
+    el.textContent = next;
+    el.classList.add("is-saving");
+    try {
+      await updateDoc(doc(adminDb, "records", data.id), { title: next, updatedAt: serverTimestamp() });
+    } catch (e) {
+      console.error("대사 수정 실패:", e);
+      data.title = previous;
+      el.textContent = previous;
+      alert("대사를 저장하지 못했습니다: " + (e.code || e.message));
+    } finally {
+      el.classList.remove("is-saving");
+    }
+  });
+}
+
 let voiceEditMode = false;
 function hasUnsavedVoiceFile() {
   return Array.from(document.querySelectorAll(".voice-edit-panel input[type=file]")).some((i) => i.files.length);
@@ -875,7 +924,9 @@ function createVoicePill(data) {
         <button type="button" class="pill-mic" aria-label="음성 재생">${MIC_ICON}</button>
       </div>
     </div>`;
-  li.querySelector(".pill-text").textContent = data.title || "(대사 없음)";
+  const pillText = li.querySelector(".pill-text");
+  pillText.textContent = data.title || "(대사 없음)";
+  if (voiceEditMode) makePillTextEditable(pillText, data);
   li.querySelector(".pill-delete").addEventListener("click", async (e) => {
     e.stopPropagation();
     const ok = await confirmDialog("정말 삭제하시겠어요? 삭제하면 되돌릴 수 없어요.");
@@ -1067,7 +1118,7 @@ function initListSortable() {
   listSortableInstance = Sortable.create(listEl, {
     animation: 150,
     // 보이스 알약의 마이크 버튼과 음성 등록 칸은 드래그가 아니라 눌러서 쓰는 곳이다.
-    filter: ".pill-mic, .pill-delete, .voice-edit-panel",
+    filter: ".pill-mic, .pill-delete, .voice-edit-panel, .pill-text[contenteditable]",
     preventOnFilter: false,
     disabled: !isAdmin || !isDesktopViewport(),
     onEnd: async () => {

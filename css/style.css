@@ -729,6 +729,18 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
+/* 수정 모드: 대사를 눌러 바로 고칠 수 있음을 옅은 보라 밑줄로 알려 주고, 고치는 중에는 테두리를 준다. */
+.voice-list.is-editing .pill-text {
+  cursor: text;
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 rgba(124, 75, 255, 0.35);
+}
+.voice-list.is-editing .pill-text:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px rgba(124, 75, 255, 0.45);
+}
+.voice-list.is-editing .pill-text.is-saving { opacity: 0.6; }
 .voice-pill .pill-mic {
   flex: 0 0 36px;
   width: 36px;
