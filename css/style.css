@@ -705,11 +705,11 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 
 /* ── 보이스 리스트: 긴 알약 모양 상자 ──
    대사는 왼쪽, 음성 재생 마이크는 오른쪽 끝. 줄바꿈 기준은 알약 너비에서
-   (왼쪽 여백 22px + 대사와 마이크 사이 12px + 마이크 36px + 오른쪽 여백 8px) = 78px를
+   (왼쪽 여백 18px + 대사와 마이크 사이 12px + 마이크 36px + 오른쪽 여백 6px) = 72px를
    뺀 폭이라, 대사가 길어져도 마이크 아래로 들어가거나 겹치지 않는다. */
 .record-list li.voice-pill {
   padding: 0;
-  border-radius: 28px;
+  border-radius: 26px;
   cursor: default;
   overflow: hidden;
 }
@@ -718,8 +718,8 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 8px 10px 22px;
-  min-height: 56px;
+  padding: 8px 6px 8px 18px;
+  min-height: 52px;
 }
 .voice-pill .pill-text {
   flex: 1;
