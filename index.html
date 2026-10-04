@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ARTWarchive</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="stylesheet" href="css/pretendard-jp.css?v=225" />
-<link rel="stylesheet" href="css/style.css?v=225" />
+<link rel="stylesheet" href="css/pretendard-jp.css?v=226" />
+<link rel="stylesheet" href="css/style.css?v=226" />
 <script>
   // 로딩 화면을 최소 1초는 보여주기 위한 기준 시각. firebase-config.js는 ES
   // 모듈이라 import가 끝나야 실행되는데, 그 안에서 시각을 재면 이미 import
@@ -364,6 +364,10 @@
     <h3 class="modal-title">보이스 추가</h3>
     <label class="modal-label" for="voice-line-input">대사</label>
     <textarea id="voice-line-input" class="modal-input" rows="3" maxlength="300" placeholder="대사를 입력하세요"></textarea>
+    <div class="modal-row">
+      <label class="modal-label" for="voice-note-input">비고 (선택)</label>
+      <input type="text" id="voice-note-input" class="modal-input" maxlength="200" placeholder="대사에 대한 메모를 적을 수 있어요" />
+    </div>
     <div id="voice-tag-row" class="modal-row hidden">
       <label class="modal-label">분류</label>
       <div class="dropdown-wrap" id="voice-tag-wrap">
@@ -390,6 +394,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script type="module" src="js/app.js?v=225"></script>
+<script type="module" src="js/app.js?v=226"></script>
 </body>
 </html>

@@ -729,6 +729,44 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
+/* 비고: 대사 오른쪽(마이크 왼쪽)에 회색 세로선을 긋고 그 오른쪽에 적는다. 굵기 400, 크기는 대사와 같다. */
+.voice-pill .pill-note {
+  flex: 0 1 auto;
+  max-width: 34%;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  margin: 2px 0;
+  padding-left: 12px;
+  border-left: 1px solid rgba(122, 122, 122, 0.45);
+}
+.voice-pill .pill-note-text {
+  min-width: 0;
+  line-height: 1.5;
+  font-weight: 400;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+/* 수정 모드: 비고 칸이 비어 있어도 눌러 쓸 수 있게 자리를 잡고 "비고"를 흐리게 보여 준다. */
+.voice-list.is-editing .pill-note-text {
+  min-width: 2.5em;
+  min-height: 1.5em;
+  cursor: text;
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 rgba(124, 75, 255, 0.35);
+}
+.voice-list.is-editing .pill-note-text:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+.voice-list.is-editing .pill-note-text:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px rgba(124, 75, 255, 0.45);
+}
+.voice-list.is-editing .pill-note-text.is-saving { opacity: 0.6; }
 /* 수정 모드: 대사를 눌러 바로 고칠 수 있음을 옅은 보라 밑줄로 알려 주고, 고치는 중에는 테두리를 준다. */
 .voice-list.is-editing .pill-text {
   cursor: text;
@@ -1411,8 +1449,8 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
     backdrop-filter: blur(4px);
   }
 
-  /* 보이스 알약 안 대사는 모바일에서만 13px(데스크탑은 14px). */
-  .voice-pill .pill-text { font-size: 13px; }
+  /* 보이스 알약 안 대사·비고는 모바일에서만 12px(데스크탑은 14px). */
+  .voice-pill .pill-text, .voice-pill .pill-note-text { font-size: 12px; }
 
   /* 대화 안 프로필 사진은 모바일에서만 지름 40px(데스크톱은 45px). */
   .log-render { --p-size: 40px; }

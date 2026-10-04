@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=225";
+} from "./firebase-config.js?v=226";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=225";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=225";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=226";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=226";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -777,6 +777,7 @@ const voiceAddWrap = document.getElementById("voice-add-wrap");
 const voiceAddBtn = document.getElementById("voice-add-btn");
 const voiceModal = document.getElementById("voice-modal");
 const voiceLineInput = document.getElementById("voice-line-input");
+const voiceNoteInput = document.getElementById("voice-note-input");
 const voiceFileInput = document.getElementById("voice-file-input");
 const voiceFileNameEl = document.getElementById("voice-file-name");
 const voiceTagRow = document.getElementById("voice-tag-row");
@@ -791,6 +792,7 @@ function closeVoiceModal() {
 function openVoiceModal() {
   if (!voiceAddCtx) return;
   voiceLineInput.value = "";
+  voiceNoteInput.value = "";
   voiceFileInput.value = "";
   voiceFileNameEl.textContent = "선택한 파일 없음";
   voiceModalMsg.textContent = "";
@@ -831,6 +833,7 @@ voiceModalSave.addEventListener("click", async () => {
     const maxOrder = ctx.records.reduce((m, r) => (typeof r.order === "number" ? Math.max(m, r.order) : m), -1);
     const ref = await addDoc(collection(adminDb, "records"), {
       title: line,
+      note: voiceNoteInput.value.replace(/\s+/g, " ").trim().slice(0, 200),
       category: ctx.catId,
       subcategory: ctx.subId,
       character: tag,
@@ -859,19 +862,20 @@ voiceModalSave.addEventListener("click", async () => {
   }
 });
 
-// 수정 모드에서는 알약 안의 대사를 바로 고칠 수 있다. 글자를 누르고 고친 뒤
+// 수정 모드에서는 알약 안의 대사와 비고를 바로 고칠 수 있다. 글자를 누르고 고친 뒤
 // 바깥을 누르거나 Enter를 누르면 저장하고, Esc는 취소다. 한 줄 글이라 줄바꿈은 막는다.
-function makePillTextEditable(el, data) {
+// field: "title"(대사, 비울 수 없음) 또는 "note"(비고, 비워도 됨).
+function makePillFieldEditable(el, data, field, { required, max, label, requiredMsg }) {
   el.contentEditable = "true";
   el.spellcheck = false;
   el.setAttribute("role", "textbox");
-  el.setAttribute("aria-label", "대사 수정");
+  el.setAttribute("aria-label", label);
   el.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       el.blur();
     } else if (e.key === "Escape") {
-      el.textContent = data.title || "";
+      el.textContent = data[field] || "";
       el.blur();
     }
   });
@@ -881,27 +885,27 @@ function makePillTextEditable(el, data) {
     document.execCommand("insertText", false, text);
   });
   el.addEventListener("blur", async () => {
-    const previous = data.title || "";
-    const next = el.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
+    const previous = data[field] || "";
+    const next = el.textContent.replace(/\s+/g, " ").trim().slice(0, max);
     if (next === previous) {
       el.textContent = previous;
       return;
     }
-    if (!next) {
+    if (required && !next) {
       el.textContent = previous;
-      alert("대사는 비워 둘 수 없어요.");
+      alert(requiredMsg);
       return;
     }
-    data.title = next; // 저장이 끝나기 전에 목록이 다시 그려져도 새 대사가 보이게 먼저 반영한다.
+    data[field] = next; // 저장이 끝나기 전에 목록이 다시 그려져도 새 내용이 보이게 먼저 반영한다.
     el.textContent = next;
     el.classList.add("is-saving");
     try {
-      await updateDoc(doc(adminDb, "records", data.id), { title: next, updatedAt: serverTimestamp() });
+      await updateDoc(doc(adminDb, "records", data.id), { [field]: next, updatedAt: serverTimestamp() });
     } catch (e) {
-      console.error("대사 수정 실패:", e);
-      data.title = previous;
+      console.error(`${label} 수정 실패:`, e);
+      data[field] = previous;
       el.textContent = previous;
-      alert("대사를 저장하지 못했습니다: " + (e.code || e.message));
+      alert(`${label} 저장에 실패했습니다: ` + (e.code || e.message));
     } finally {
       el.classList.remove("is-saving");
     }
@@ -926,7 +930,17 @@ function createVoicePill(data) {
     </div>`;
   const pillText = li.querySelector(".pill-text");
   pillText.textContent = data.title || "(대사 없음)";
-  if (voiceEditMode) makePillTextEditable(pillText, data);
+  if (voiceEditMode) makePillFieldEditable(pillText, data, "title", { required: true, max: 300, label: "대사", requiredMsg: "대사는 비워 둘 수 없어요." });
+  // 비고는 선택 사항: 있을 때, 또는 수정 모드일 때만 대사 오른쪽에 회색 세로선과 함께 나온다.
+  if (data.note || voiceEditMode) {
+    const note = document.createElement("div");
+    note.className = "pill-note";
+    note.innerHTML = '<span class="pill-note-text" data-placeholder="비고"></span>';
+    const noteText = note.querySelector(".pill-note-text");
+    noteText.textContent = data.note || "";
+    if (voiceEditMode) makePillFieldEditable(noteText, data, "note", { required: false, max: 200, label: "비고" });
+    li.querySelector(".pill-btns").before(note);
+  }
   li.querySelector(".pill-delete").addEventListener("click", async (e) => {
     e.stopPropagation();
     const ok = await confirmDialog("정말 삭제하시겠어요? 삭제하면 되돌릴 수 없어요.");
@@ -1118,7 +1132,7 @@ function initListSortable() {
   listSortableInstance = Sortable.create(listEl, {
     animation: 150,
     // 보이스 알약의 마이크 버튼과 음성 등록 칸은 드래그가 아니라 눌러서 쓰는 곳이다.
-    filter: ".pill-mic, .pill-delete, .voice-edit-panel, .pill-text[contenteditable]",
+    filter: ".pill-mic, .pill-delete, .voice-edit-panel, .pill-text[contenteditable], .pill-note-text[contenteditable]",
     preventOnFilter: false,
     disabled: !isAdmin || !isDesktopViewport(),
     onEnd: async () => {
