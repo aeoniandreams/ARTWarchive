@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=214";
+} from "./firebase-config.js?v=215";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=214";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=214";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=215";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=215";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -868,6 +868,19 @@ async function renderListView(catId, subId) {
   stopVoice();
   voiceEditMode = false;
   listEl.classList.toggle("voice-list", isVoice);
+  // 메인 스토리에서만: 양옆 버튼으로 이전 층/다음 층 리스트로 넘어간다.
+  const floors = catId === "main_story" ? cat?.subcategories ?? [] : [];
+  const floorIdx = floors.findIndex((f) => f.id === subId);
+  const prevFloor = floorIdx > 0 ? floors[floorIdx - 1] : null;
+  const nextFloor = floorIdx >= 0 && floorIdx < floors.length - 1 ? floors[floorIdx + 1] : null;
+  listNav.classList.toggle("hidden", floorIdx < 0);
+  listPrevBtn.classList.toggle("hidden", !prevFloor);
+  listNextBtn.classList.toggle("hidden", !nextFloor);
+  listPrevBtn.onclick = prevFloor ? () => { location.hash = `#/list/${catId}/${prevFloor.id}`; } : null;
+  listNextBtn.onclick = nextFloor ? () => { location.hash = `#/list/${catId}/${nextFloor.id}`; } : null;
+  listPrevBtn.setAttribute("aria-label", prevFloor ? `이전 층 (${prevFloor.label})` : "이전 층");
+  listNextBtn.setAttribute("aria-label", nextFloor ? `다음 층 (${nextFloor.label})` : "다음 층");
+  positionListNavButtons();
   voiceAddWrap.classList.toggle("hidden", !isVoice);
   voiceAddCtx = null;
   if (isVoice) {
@@ -1035,6 +1048,22 @@ function positionViewerNavButtons() {
   viewerNextBtn.style.right = `${Math.max(8, (rightSpace - btnWidth) / 2)}px`;
 }
 window.addEventListener("resize", positionViewerNavButtons);
+
+// 메인 스토리 리스트 양옆의 층 이동 버튼(문 아이콘). 기록 화면의 이전/다음 글 버튼과
+// 같은 모양·같은 위치 규칙인데, 기준이 되는 상자가 리스트 영역(#list-view)이다.
+const listNav = document.getElementById("list-nav");
+const listPrevBtn = document.getElementById("list-prev-btn");
+const listNextBtn = document.getElementById("list-next-btn");
+function positionListNavButtons() {
+  const viewportWidth = document.documentElement.clientWidth;
+  if (viewportWidth <= 768) return;
+  const rect = document.getElementById("list-view").getBoundingClientRect();
+  if (rect.width === 0) return;
+  const btnWidth = 44;
+  listPrevBtn.style.left = `${Math.max(8, (rect.left - btnWidth) / 2)}px`;
+  listNextBtn.style.right = `${Math.max(8, (viewportWidth - rect.right - btnWidth) / 2)}px`;
+}
+window.addEventListener("resize", positionListNavButtons);
 
 // 톡 보관함 기록 제목은 "[말머리] 채팅방 이름 - 제목" 형식이다. "]" 다음부터
 // 첫 "-" 전까지가 채팅방 이름.

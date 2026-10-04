@@ -509,6 +509,8 @@ html.list-bg-talk .viewer-card {
 }
 .viewer-nav-btn svg { width: 20px; height: 20px; color: #333333; transition: color 0.15s ease; }
 .viewer-nav-btn:hover svg { color: #7C4BFF; }
+/* 메인 스토리 리스트의 왼쪽(이전 층) 버튼은 문 아이콘을 좌우 반전해서 왼쪽으로 열리게 한다. */
+#list-prev-btn svg { transform: scaleX(-1); }
 
 @media (max-width: 768px) {
   .viewer-nav { display: flex; justify-content: center; gap: 16px; margin-top: 20px; }
