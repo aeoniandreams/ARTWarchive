@@ -623,6 +623,99 @@ html.list-bg-talk .viewer-card {
 html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); }
 .record-list li:hover { border-color: var(--accent); }
 .record-list .record-title { font-weight: 600; }
+
+/* ── 보이스 리스트: 긴 알약 모양 상자 ──
+   대사는 왼쪽, 음성 재생 마이크는 오른쪽 끝. 줄바꿈 기준은 알약 너비에서
+   (왼쪽 여백 22px + 대사와 마이크 사이 12px + 마이크 36px + 오른쪽 여백 8px) = 78px를
+   뺀 폭이라, 대사가 길어져도 마이크 아래로 들어가거나 겹치지 않는다. */
+.record-list li.voice-pill {
+  padding: 0;
+  border-radius: 28px;
+  cursor: default;
+  overflow: hidden;
+}
+.record-list li.voice-pill:hover { border-color: var(--border); }
+.voice-pill .pill-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px 10px 22px;
+  min-height: 56px;
+}
+.voice-pill .pill-text {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.5;
+  font-weight: 500;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.voice-pill .pill-mic {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.voice-pill .pill-mic svg { width: 20px; height: 20px; }
+@media (hover: hover) {
+  .voice-pill .pill-mic:hover:not(:disabled) { color: var(--accent); }
+}
+.voice-pill .pill-mic.is-playing,
+.voice-pill .pill-mic.is-active { color: var(--accent); }
+.voice-pill .pill-mic.is-loading { opacity: 0.6; }
+/* 아직 음성이 없는 알약(보기 전용일 때)은 눌러도 반응이 없게 흐리게 둔다. */
+.voice-pill .pill-mic:disabled { opacity: 0.35; cursor: default; }
+/* 수정 모드에서 마이크를 누르면 알약 아래로 펼쳐지는 음성 파일 등록 칸. */
+.voice-edit-panel {
+  padding: 4px 22px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.voice-edit-note { font-size: 0.8rem; color: var(--text-dim); }
+.voice-edit-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.voice-file-btn,
+.voice-save-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.voice-file-btn {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text);
+}
+.voice-file-btn:hover { border-color: var(--accent); }
+.voice-file-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.voice-save-btn {
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+}
+.voice-save-btn:disabled { opacity: 0.6; cursor: default; }
+.voice-edit-msg { font-size: 0.8rem; color: var(--text-dim); min-height: 1em; }
+.voice-edit-msg:empty { display: none; }
+.voice-edit-msg.is-error { color: #c0392b; }
 /* 채팅방 참여자 관리: 한 줄에 여러 장 들어가는 카드 그리드. */
 .chatroom-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 .chatroom-grid li { margin-bottom: 0; display: flex; flex-direction: column; gap: 10px; }

@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=210";
+} from "./firebase-config.js?v=212";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,9 +23,10 @@ import {
   serverTimestamp,
   writeBatch,
   deleteDoc,
+  Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=210";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=210";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=212";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=212";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -577,6 +578,190 @@ function createDropdown(wrap) {
 const listCharacterFilterWrap = document.getElementById("list-character-filter-wrap");
 const listCharacterFilterDropdown = createDropdown(listCharacterFilterWrap);
 
+
+// ── 보이스 카테고리: 알약 리스트 · 음성 재생 · 음성 파일 등록 ──
+// 음성 파일은 Firestore에 저장한다(Storage는 쓰지 않는다). 문서 하나가 1MB
+// 제한이라 파일을 약 0.9MB 조각으로 잘라 voices/{기록 id}/parts/{번호}에 넣고,
+// voices/{기록 id}에는 형식·크기·조각 수만 둔다. 재생할 때 조각을 모두 받아 하나의
+// Blob으로 이어 붙여서 재생하므로 조각 경계에서 끊기지 않는다.
+const VOICE_CHUNK_BYTES = 900000;
+const VOICE_MAX_BYTES = 2 * 1024 * 1024;
+const MIC_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19v3" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><rect x="9" y="2" width="6" height="13" rx="3" /></svg>';
+const PLUS_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>';
+const PENCIL_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></svg>';
+const SAVE_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" /><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" /><path d="M7 3v4a1 1 0 0 0 1 1h7" /></svg>';
+
+const voiceAudio = new Audio();
+const voiceUrlCache = new Map(); // 기록 id -> Blob URL (같은 음성을 다시 틀 때 Firestore를 또 읽지 않는다)
+let voicePlayingBtn = null;
+let voicePlayToken = 0;
+
+function setVoicePlaying(btn) {
+  if (voicePlayingBtn && voicePlayingBtn !== btn) voicePlayingBtn.classList.remove("is-playing");
+  voicePlayingBtn = btn;
+  if (btn) btn.classList.add("is-playing");
+}
+function stopVoice() {
+  voicePlayToken++;
+  voiceAudio.pause();
+  if (voicePlayingBtn) voicePlayingBtn.classList.remove("is-playing");
+  voicePlayingBtn = null;
+}
+// 끝나거나 멈추면 아이콘을 원래 색으로 되돌린다.
+voiceAudio.addEventListener("ended", () => setVoicePlaying(null));
+voiceAudio.addEventListener("pause", () => {
+  if (voicePlayingBtn) voicePlayingBtn.classList.remove("is-playing");
+});
+
+async function loadVoiceUrl(recordId) {
+  if (voiceUrlCache.has(recordId)) return voiceUrlCache.get(recordId);
+  const metaSnap = await getDoc(doc(db, "voices", recordId));
+  if (!metaSnap.exists()) throw new Error("음성 정보가 없습니다.");
+  const meta = metaSnap.data();
+  const partsSnap = await getDocs(query(collection(db, "voices", recordId, "parts"), orderBy("i")));
+  const parts = partsSnap.docs.map((d) => d.data().data.toUint8Array());
+  if (parts.length !== meta.parts) throw new Error("음성 조각이 빠져 있습니다.");
+  const url = URL.createObjectURL(new Blob(parts, { type: meta.mime || "audio/mpeg" }));
+  voiceUrlCache.set(recordId, url);
+  return url;
+}
+
+async function toggleVoicePlayback(recordId, btn) {
+  if (voicePlayingBtn === btn && !voiceAudio.paused) {
+    stopVoice();
+    return;
+  }
+  stopVoice();
+  const token = voicePlayToken;
+  btn.classList.add("is-loading");
+  try {
+    const url = await loadVoiceUrl(recordId);
+    if (token !== voicePlayToken) return; // 그 사이 다른 걸 눌렀다.
+    voiceAudio.src = url;
+    voiceAudio.currentTime = 0;
+    await voiceAudio.play();
+    setVoicePlaying(btn);
+  } catch (e) {
+    console.error("음성 재생 실패:", e);
+    alert("음성을 재생하지 못했습니다: " + (e.message || e.code));
+  } finally {
+    btn.classList.remove("is-loading");
+  }
+}
+
+async function saveVoiceFile(recordId, file) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const total = Math.ceil(bytes.length / VOICE_CHUNK_BYTES);
+  const old = await getDocs(collection(adminDb, "voices", recordId, "parts"));
+  const batch = writeBatch(adminDb);
+  old.docs.forEach((d) => batch.delete(d.ref)); // 다시 올리면 이전 조각을 지운다.
+  for (let i = 0; i < total; i++) {
+    const chunk = bytes.slice(i * VOICE_CHUNK_BYTES, (i + 1) * VOICE_CHUNK_BYTES);
+    batch.set(doc(adminDb, "voices", recordId, "parts", String(i).padStart(4, "0")), {
+      i,
+      data: Bytes.fromUint8Array(chunk),
+    });
+  }
+  batch.set(doc(adminDb, "voices", recordId), {
+    mime: file.type || "audio/mpeg",
+    size: bytes.length,
+    parts: total,
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(adminDb, "records", recordId), { hasVoice: true, updatedAt: serverTimestamp() });
+  await batch.commit();
+  const oldUrl = voiceUrlCache.get(recordId);
+  if (oldUrl) URL.revokeObjectURL(oldUrl);
+  voiceUrlCache.delete(recordId);
+}
+
+// 수정 모드에서 마이크를 누르면 알약 아래에 펼쳐지는 음성 파일 등록 칸.
+function buildVoiceEditPanel(data) {
+  const panel = document.createElement("div");
+  panel.className = "voice-edit-panel";
+  panel.innerHTML = `
+    <div class="voice-edit-note">${data.hasVoice ? "등록된 음성이 있어요. 새 파일을 저장하면 바뀌어요." : "아직 등록된 음성이 없어요."}</div>
+    <div class="voice-edit-row">
+      <label class="voice-file-btn">음성 파일 선택<input type="file" accept="audio/*" hidden /></label>
+      <span class="voice-file-name">선택한 파일 없음</span>
+      <button type="button" class="voice-save-btn">저장</button>
+    </div>
+    <div class="voice-edit-msg" aria-live="polite"></div>`;
+  const input = panel.querySelector("input[type=file]");
+  const nameEl = panel.querySelector(".voice-file-name");
+  const msgEl = panel.querySelector(".voice-edit-msg");
+  const saveBtn = panel.querySelector(".voice-save-btn");
+  const showMsg = (text, isError) => {
+    msgEl.textContent = text;
+    msgEl.classList.toggle("is-error", !!isError);
+  };
+  input.addEventListener("change", () => {
+    const f = input.files[0];
+    nameEl.textContent = f ? f.name : "선택한 파일 없음";
+    showMsg("");
+  });
+  saveBtn.addEventListener("click", async () => {
+    const f = input.files[0];
+    if (!f) return showMsg("음성 파일을 먼저 선택해 주세요.", true);
+    if (!f.type.startsWith("audio/")) return showMsg("음성 파일(mp3, m4a 등)만 올릴 수 있어요.", true);
+    if (f.size > VOICE_MAX_BYTES) return showMsg("파일이 너무 커요. 2MB 이하로 올려 주세요.", true);
+    saveBtn.disabled = true;
+    showMsg("저장하는 중...");
+    try {
+      await saveVoiceFile(data.id, f);
+      data.hasVoice = true;
+      input.value = "";
+      nameEl.textContent = "선택한 파일 없음";
+      panel.querySelector(".voice-edit-note").textContent = "저장했어요. 새 음성이 등록돼 있어요.";
+      showMsg("");
+    } catch (e) {
+      console.error("음성 저장 실패:", e);
+      showMsg("저장하지 못했어요: " + (e.code || e.message), true);
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+  return panel;
+}
+
+let voiceEditMode = false;
+function hasUnsavedVoiceFile() {
+  return Array.from(document.querySelectorAll(".voice-edit-panel input[type=file]")).some((i) => i.files.length);
+}
+function createVoicePill(data) {
+  const li = document.createElement("li");
+  li.className = "voice-pill";
+  li.dataset.id = data.id;
+  li.innerHTML = `
+    <div class="pill-main">
+      <div class="pill-text"></div>
+      <button type="button" class="pill-mic" aria-label="음성 재생">${MIC_ICON}</button>
+    </div>`;
+  li.querySelector(".pill-text").textContent = data.title || "(대사 없음)";
+  const mic = li.querySelector(".pill-mic");
+  mic.disabled = !data.hasVoice && !voiceEditMode;
+  mic.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (voiceEditMode) {
+      const open = li.querySelector(".voice-edit-panel");
+      if (open) {
+        open.remove();
+        mic.classList.remove("is-active");
+      } else {
+        li.appendChild(buildVoiceEditPanel(data));
+        mic.classList.add("is-active");
+      }
+      return;
+    }
+    if (data.hasVoice) toggleVoicePlayback(data.id, mic);
+  });
+  return li;
+}
+
 // ── 리스트 화면 ──
 async function renderListView(catId, subId) {
   const cat = findCategory(catId);
@@ -588,11 +773,34 @@ async function renderListView(catId, subId) {
     addBgClass(`list-bg-${catId}`);
   }
 
-  document.getElementById("new-record-btn").onclick = () => {
-    location.hash = `#/new/${catId}/${subId}`;
-  };
-
+  const newRecordBtn = document.getElementById("new-record-btn");
   const listEl = document.getElementById("record-list");
+  const isVoice = catId === "voice";
+  let currentList = []; // 지금 화면에 그려진 목록(수정 모드를 켜고 끌 때 다시 그린다)
+  stopVoice();
+  voiceEditMode = false;
+  listEl.classList.toggle("voice-list", isVoice);
+  if (isVoice) {
+    // 보이스 리스트의 + 버튼은 새 기록 추가 대신 수정 모드 스위치(연필 ↔ 저장)다.
+    newRecordBtn.innerHTML = PENCIL_ICON;
+    newRecordBtn.setAttribute("aria-label", "음성 수정");
+    newRecordBtn.onclick = () => {
+      if (voiceEditMode && hasUnsavedVoiceFile() && !confirm("저장하지 않은 음성 파일이 있어요. 그래도 수정을 마칠까요?")) return;
+      voiceEditMode = !voiceEditMode;
+      newRecordBtn.innerHTML = voiceEditMode ? SAVE_ICON : PENCIL_ICON;
+      newRecordBtn.setAttribute("aria-label", voiceEditMode ? "수정 마치기" : "음성 수정");
+      listEl.classList.toggle("is-editing", voiceEditMode);
+      rerenderCurrentList();
+    };
+  } else {
+    newRecordBtn.innerHTML = PLUS_ICON;
+    newRecordBtn.setAttribute("aria-label", "새 기록 추가");
+    listEl.classList.remove("is-editing");
+    newRecordBtn.onclick = () => {
+      location.hash = `#/new/${catId}/${subId}`;
+    };
+  }
+
   listEl.innerHTML = "<li class='empty-state'>불러오는 중...</li>";
 
   let records;
@@ -604,13 +812,23 @@ async function renderListView(catId, subId) {
     return;
   }
 
+  currentList = records;
+  function rerenderCurrentList() {
+    stopVoice();
+    renderRecords(currentList);
+  }
   function renderRecords(list) {
+    currentList = list;
     if (list.length === 0) {
       listEl.innerHTML = emptyStateHtml(catId);
       return;
     }
     listEl.innerHTML = "";
     list.forEach((data) => {
+      if (isVoice) {
+        listEl.appendChild(createVoicePill(data));
+        return;
+      }
       const li = document.createElement("li");
       li.dataset.id = data.id;
       li.innerHTML = `<div class="record-title">${data.title || "(제목 없음)"}</div>`;
@@ -669,6 +887,9 @@ function initListSortable() {
   const listEl = document.getElementById("record-list");
   listSortableInstance = Sortable.create(listEl, {
     animation: 150,
+    // 보이스 알약의 마이크 버튼과 음성 등록 칸은 드래그가 아니라 눌러서 쓰는 곳이다.
+    filter: ".pill-mic, .voice-edit-panel",
+    preventOnFilter: false,
     disabled: !isAdmin || !isDesktopViewport(),
     onEnd: async () => {
       const ids = Array.from(listEl.children)
