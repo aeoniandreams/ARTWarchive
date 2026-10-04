@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=224";
+} from "./firebase-config.js?v=225";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=224";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=224";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=225";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=225";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.

@@ -725,7 +725,7 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   flex: 1;
   min-width: 0;
   line-height: 1.5;
-  font-weight: 500;
+  font-weight: 450;
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
@@ -1410,6 +1410,9 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
   }
+
+  /* 보이스 알약 안 대사는 모바일에서만 13px(데스크탑은 14px). */
+  .voice-pill .pill-text { font-size: 13px; }
 
   /* 대화 안 프로필 사진은 모바일에서만 지름 40px(데스크톱은 45px). */
   .log-render { --p-size: 40px; }
