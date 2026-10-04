@@ -729,8 +729,8 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
-/* 비고: 대사 오른쪽(마이크 왼쪽)에 회색 세로선을 긋고 그 오른쪽에 적는다. 굵기 400, 크기는 대사와 같다.
-   칸 너비를 고정(알약 안쪽의 34%, 최대 220px)해서 비고가 한 줄이든 여러 줄이든 세로선과 마이크 사이의
+/* 비고: 알약 맨 앞(대사 왼쪽)에 적고 그 오른쪽에 회색 세로선을 긋는다(비고 | 대사 | 마이크). 굵기 400, 크기는 대사와 같다.
+   칸 너비를 고정(알약 안쪽의 34%, 최대 220px)해서 비고가 한 줄이든 여러 줄이든 세로선과 대사의
    위치가 바뀌지 않는다. */
 .voice-pill .pill-note {
   flex: 0 0 34%;
@@ -740,8 +740,8 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   display: flex;
   align-items: center;
   margin: 2px 0;
-  padding-left: 12px;
-  border-left: 1px solid rgba(122, 122, 122, 0.45);
+  padding-right: 12px;
+  border-right: 1px solid rgba(122, 122, 122, 0.45);
 }
 .voice-pill .pill-note-text {
   min-width: 0;

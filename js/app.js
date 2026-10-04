@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=227";
+} from "./firebase-config.js?v=228";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=227";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=227";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=228";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=228";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -931,7 +931,7 @@ function createVoicePill(data) {
   const pillText = li.querySelector(".pill-text");
   pillText.textContent = data.title || "(대사 없음)";
   if (voiceEditMode) makePillFieldEditable(pillText, data, "title", { required: true, max: 300, label: "대사", requiredMsg: "대사는 비워 둘 수 없어요." });
-  // 비고는 선택 사항: 있을 때, 또는 수정 모드일 때만 대사 오른쪽에 회색 세로선과 함께 나온다.
+  // 비고는 선택 사항: 있을 때, 또는 수정 모드일 때만 대사 왼쪽에 회색 세로선과 함께 나온다(비고 | 대사 | 마이크 순서).
   if (data.note || voiceEditMode) {
     const note = document.createElement("div");
     note.className = "pill-note";
@@ -939,7 +939,7 @@ function createVoicePill(data) {
     const noteText = note.querySelector(".pill-note-text");
     noteText.textContent = data.note || "";
     if (voiceEditMode) makePillFieldEditable(noteText, data, "note", { required: false, max: 200, label: "비고" });
-    li.querySelector(".pill-btns").before(note);
+    pillText.before(note);
   }
   li.querySelector(".pill-delete").addEventListener("click", async (e) => {
     e.stopPropagation();
