@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=208";
+} from "./firebase-config.js?v=209";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -24,8 +24,8 @@ import {
   writeBatch,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=208";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=208";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=209";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=209";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -47,8 +47,22 @@ const DIARY_FILTER_OPTIONS = [
   { value: "wizard_card", label: "마법사 카드" },
   { value: "wish_card", label: "소원 카드" },
 ];
+// 보이스도 하위 카테고리(인물)와 무관하게 전부 같은 네 가지 선택지를 쓴다.
+const VOICE_FILTER_OPTIONS = [
+  { value: "home", label: "홈 화면" },
+  { value: "closet", label: "옷장" },
+  { value: "surprise_summon", label: "깜짝 소환" },
+  { value: "battle", label: "전투" },
+];
 function getFilterOptions(catId, subId) {
-  return catId === "diary" ? DIARY_FILTER_OPTIONS : getTalkFilterOptions(subId);
+  if (catId === "diary") return DIARY_FILTER_OPTIONS;
+  if (catId === "voice") return VOICE_FILTER_OPTIONS;
+  return getTalkFilterOptions(subId);
+}
+// 리스트 필터/에디터의 이 드롭다운(character 필드)이 있는 카테고리인지.
+// 톡 보관함은 시즌 톡만 빠진다.
+function categoryHasFilter(catId, subId) {
+  return (catId === "talk" && subId !== "season") || catId === "diary" || catId === "voice";
 }
 
 // ── DOM refs ──
@@ -424,7 +438,7 @@ function router() {
 
 // 카테고리별로 "아직 기록이 없습니다" 빈 상태에 보여줄 아이콘 (lucide-static).
 const EMPTY_STATE_ICONS = {
-  voice: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19v3" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><rect x="9" y="2" width="6" height="13" rx="3" /></svg>',
+  voice: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="2" y2="22" /><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2" /><path d="M5 10v2a7 7 0 0 0 12 5" /><path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" /><path d="M9 9v3a3 3 0 0 0 5.12 2.12" /><line x1="12" x2="12" y1="19" y2="22" /></svg>',
   call: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 2 6 6" /><path d="m22 2-6 6" /><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></svg>',
   talk: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /><path d="M12 11h.01" /><path d="M16 11h.01" /><path d="M8 11h.01" /></svg>',
   diary: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17h1.5" /><path d="M12 22h1.5" /><path d="M12 2h1.5" /><path d="M17.5 22H19a1 1 0 0 0 1-1" /><path d="M17.5 2H19a1 1 0 0 1 1 1v1.5" /><path d="M20 14v3h-2.5" /><path d="M20 8.5V10" /><path d="M4 10V8.5" /><path d="M4 19.5V14" /><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H8" /><path d="M8 22H6.5a1 1 0 0 1 0-5H8" /></svg>',
@@ -608,19 +622,19 @@ async function renderListView(catId, subId) {
     initListSortable();
   }
 
-  // 톡 보관함(시즌별 기록 제외)과 다이어리(모든 하위 카테고리)에서, 하위
+  // 톡 보관함(시즌별 기록 제외)·다이어리·보이스(모든 하위 카테고리)에서, 하위
   // 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다. 톡 보관함은
   // 일별 톡만 예전처럼 "전체"가 기본 선택된 채 바로 전체 목록을 보여주고
   // 나머지는 직접 고르기 전까지 선택을 안내하며, 다이어리는 항상 "전체"가
   // 기본 선택된 채 바로 보여준다.
-  const showsFilter = (catId === "talk" && subId !== "season") || catId === "diary";
+  const showsFilter = categoryHasFilter(catId, subId);
   if (showsFilter) {
     const items = [{ value: "", label: "전체" }, ...getFilterOptions(catId, subId)];
     listCharacterFilterDropdown.onChange((val) => {
       renderRecords(val ? records.filter((r) => r.character === val) : records);
     });
     listCharacterFilterWrap.classList.remove("hidden");
-    if (catId === "diary" || subId === "daily") {
+    if (catId === "diary" || catId === "voice" || subId === "daily") {
       listCharacterFilterDropdown.setOptions(items, "");
       renderRecords(records);
     } else {
@@ -955,7 +969,7 @@ function updateCharacterOptions(selectedValue) {
 
 function updateCharacterFieldVisibility() {
   const cat = recordCategoryDropdown.value;
-  const show = (cat === "talk" && recordSubcategoryDropdown.value !== "season") || cat === "diary";
+  const show = categoryHasFilter(cat, recordSubcategoryDropdown.value);
   recordCharacterWrap.classList.toggle("hidden", !show);
 }
 
@@ -1367,8 +1381,7 @@ document.addEventListener("click", (e) => {
 document.getElementById("save-record-btn").addEventListener("click", async () => {
   const category = recordCategoryDropdown.value;
   const subcategory = recordSubcategoryDropdown.value;
-  const character =
-    (category === "talk" && subcategory !== "season") || category === "diary" ? recordCharacterDropdown.value : null;
+  const character = categoryHasFilter(category, subcategory) ? recordCharacterDropdown.value : null;
   const tableHtml = editorContent.innerHTML;
 
   let title;
