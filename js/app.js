@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=245";
+} from "./firebase-config.js?v=247";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=245";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=245";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=247";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=247";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1329,7 +1329,8 @@ function positionViewerNavButtons() {
   // (getBoundingClientRect)는 스크롤바를 뺀 문서 영역 기준이라 그 차이만큼
   // 오른쪽 버튼만 카드에 더 붙어 보였다. document.documentElement.clientWidth는
   // 스크롤바를 뺀 값이라 카드 위치와 같은 기준으로 계산된다.
-  const viewportWidth = document.documentElement.clientWidth;
+  // 데스크탑에서는 창이 아니라 #app-shell이 스크롤되므로, 스크롤바를 뺀 그 칸의 너비를 기준으로 한다.
+  const viewportWidth = document.getElementById("app-shell").clientWidth || document.documentElement.clientWidth;
   if (viewportWidth <= 768) return;
   const card = document.querySelector(".viewer-card");
   if (!card) return;
@@ -1339,7 +1340,8 @@ function positionViewerNavButtons() {
   const leftSpace = rect.left;
   const rightSpace = viewportWidth - rect.right;
   viewerPrevBtn.style.left = `${Math.max(8, (leftSpace - btnWidth) / 2)}px`;
-  viewerNextBtn.style.right = `${Math.max(8, (rightSpace - btnWidth) / 2)}px`;
+  const gutter = Math.max(0, document.documentElement.clientWidth - viewportWidth); // #app-shell 스크롤바 칸
+  viewerNextBtn.style.right = `${gutter + Math.max(8, (rightSpace - btnWidth) / 2)}px`;
 }
 window.addEventListener("resize", positionViewerNavButtons);
 
@@ -1349,13 +1351,15 @@ const listNav = document.getElementById("list-nav");
 const listPrevBtn = document.getElementById("list-prev-btn");
 const listNextBtn = document.getElementById("list-next-btn");
 function positionListNavButtons() {
-  const viewportWidth = document.documentElement.clientWidth;
+  // 데스크탑에서는 창이 아니라 #app-shell이 스크롤되므로, 스크롤바를 뺀 그 칸의 너비를 기준으로 한다.
+  const viewportWidth = document.getElementById("app-shell").clientWidth || document.documentElement.clientWidth;
   if (viewportWidth <= 768) return;
   const rect = document.getElementById("list-view").getBoundingClientRect();
   if (rect.width === 0) return;
   const btnWidth = 44;
   listPrevBtn.style.left = `${Math.max(8, (rect.left - btnWidth) / 2)}px`;
-  listNextBtn.style.right = `${Math.max(8, (viewportWidth - rect.right - btnWidth) / 2)}px`;
+  const gutter = Math.max(0, document.documentElement.clientWidth - viewportWidth); // #app-shell 스크롤바 칸
+  listNextBtn.style.right = `${gutter + Math.max(8, (viewportWidth - rect.right - btnWidth) / 2)}px`;
 }
 window.addEventListener("resize", positionListNavButtons);
 

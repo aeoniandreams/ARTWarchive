@@ -1434,3 +1434,20 @@ body.popup-open { overflow: hidden; }
   /* 좁은 화면에서 표시되는 부분을 오른쪽으로 좀 더 이동 */
   html.list-bg-main_story, html.viewer-bg-main_story { background-position: 58% center; }
 }
+
+/* 데스크탑: 창 전체 스크롤바는 브라우저가 화면 가장자리에 따로 그려서 배경 이미지가 그 뒤까지 닿지 않고 흰 칸이
+   된다. 그래서 창 자체는 스크롤되지 않게 막고, 화면을 꽉 채운 #app-shell이 대신 스크롤되게 한다. 이 스크롤바는
+   (팝업처럼) 투명한 바탕이라 뒤의 배경 이미지가 그대로 비친다. 앱이 보일 때만, 데스크탑에서만 적용한다. */
+@media (min-width: 769px) {
+  html:has(#app-shell:not(.hidden)),
+  body:has(#app-shell:not(.hidden)) {
+    height: 100%;
+    overflow: hidden;
+  }
+  #app-shell {
+    height: 100vh;
+    height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
