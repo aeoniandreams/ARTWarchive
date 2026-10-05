@@ -1459,7 +1459,9 @@ body.popup-open { overflow: hidden; }
 .log-render .s-fold-btn:hover { color: var(--fold-btn-active-color); }
 .log-render .s-fold-btns.has-open .s-fold-btn:not(.open):hover { color: inherit; opacity: 0.6; }
 .log-render .s-fold-btn.open { color: var(--fold-btn-active-color); }
-.log-render .s-fold-btn::before {
+/* 선택지(접기) 버튼 앞의 세모 기호. 불러오기 링크 문구 앞에도 같은 기호를 쓴다. */
+.log-render .s-fold-btn::before,
+.log-render .s-link::before {
   content: "";
   display: inline-block;
   width: 1em;
