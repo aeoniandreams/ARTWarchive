@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=266";
+} from "./firebase-config.js?v=267";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=266";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=266";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=267";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=267";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -501,7 +501,7 @@ async function fetchSortedRecords(catId, subId) {
   return sortRecordsByOrder(records);
 }
 
-// 메인 스토리에서 새 글을 맨 아래에 붙이기 위한 순서 계획.
+// 메인 스토리·전화 기록에서 새 글을 맨 아래에 붙이기 위한 순서 계획.
 // 리스트는 order가 있는 글을 먼저(오름차순), 없는 글을 그 뒤에 최신순으로 보여 주기 때문에,
 // 새 글에 order만 주면 order 없는 옛 글들보다 위로 올라가 버린다. 그래서 지금 보이는 순서
 // 그대로 기존 글에 0, 1, 2…를 다시 매겨(이미 맞는 글은 건드리지 않는다) 두고, 새 글에는
@@ -2100,8 +2100,8 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
         updatedAt: serverTimestamp(),
       });
       location.hash = `#/view/${editingRecordId}`;
-    } else if (category === "main_story") {
-      // 메인 스토리는 새 글이 기존 글 아래(맨 끝)에 오게 한다.
+    } else if (category === "main_story" || category === "call") {
+      // 메인 스토리와 전화 기록은 새 글이 기존 글 아래(맨 끝)에 오게 한다.
       const plan = await planAppendOrder(category, subcategory);
       const batch = writeBatch(adminDb);
       plan.renumber.forEach((x) => batch.update(doc(adminDb, "records", x.id), { order: x.order }));
