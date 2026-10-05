@@ -683,153 +683,27 @@ body.popup-open { overflow: hidden; }
 }
 .record-popup-body { font-size: 14px; }
 @media (min-width: 769px) {
+  /* 가로세로 비율 1.2:1(세로는 화면의 80%이니 가로는 그 1.2배 = 화면 세로의 96%). 좁은 화면에서는 92vw까지만. */
   .modal-card.record-popup-card {
-    width: 50vw;
-    min-width: min(560px, 92vw); /* 화면이 좁은 데스크톱에서 너무 좁아지지 않게 */
+    width: min(96vh, 92vw);
     height: 80vh;
     max-height: none;
-    padding: 24px 28px 28px;
+    padding: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
-  .record-popup-head { flex: none; }
+  .record-popup-head { flex: none; padding: 24px 28px 0; }
+  /* 스크롤바가 팝업 오른쪽 맨 끝에 오도록, 스크롤되는 칸을 팝업 가로 전체로 두고 글이 놓일 자리는 안쪽 여백으로 잡는다
+     (글 폭은 기록 화면과 같이 최대 820px, 가운데). */
   .record-popup-body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     width: 100%;
-    max-width: 820px;
-    margin: 0 auto;
+    padding: 0 max(28px, calc((100% - 820px) / 2)) 28px;
   }
 }
-
-/* 보이스 리스트 맨 아래의 + 버튼(관리자만) */
-#voice-add-wrap { display: flex; justify-content: center; margin-top: 4px; }
-#voice-add-btn {
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-#voice-add-btn svg { width: 20px; height: 20px; }
-@media (hover: hover) {
-  #voice-add-btn:hover { background: rgba(255, 255, 255, 0.8); color: var(--accent); }
-}
-/* 사이트 안 팝업(모달) 공통 */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-}
-.modal-card {
-  width: 380px;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 28px 24px;
-  border-radius: 12px;
-  background: white;
-}
-.modal-title { margin: 0 0 16px; }
-.modal-label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 600; color: var(--text-dim); }
-.modal-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 0.9rem;
-  resize: vertical;
-}
-.modal-input:focus { outline: none; border-color: var(--accent); }
-.modal-row { margin-top: 14px; }
-.modal-actions { margin-top: 20px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-.modal-msg { flex: 1; min-width: 0; font-size: 0.8rem; color: #c0392b; }
-.modal-cancel-btn {
-  padding: 10px 14px;
-  border: none;
-  background: none;
-  color: var(--text-dim);
-  font-family: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-#voice-modal .voice-save-btn { padding: 10px 20px; }
-
-.modal-card-small { width: 340px; }
-.confirm-text { margin: 4px 0 0; line-height: 1.6; font-weight: 600; white-space: pre-line; }
-.danger-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #c0392b;
-  color: white;
-  font-family: inherit;
-  font-weight: bold;
-  cursor: pointer;
-}
-.danger-btn:hover { background: #a93226; }
-
-/* ── 보이스 리스트: 긴 알약 모양 상자 ──
-   대사는 왼쪽, 음성 재생 마이크는 오른쪽 끝. 줄바꿈 기준은 알약 너비에서
-   (왼쪽 여백 22px + 대사와 마이크 사이 12px + 마이크 36px + 오른쪽 여백 8px) = 78px를
-   뺀 폭이라, 대사가 길어져도 마이크 아래로 들어가거나 겹치지 않는다. */
-.record-list li.voice-pill {
-  padding: 0;
-  border-radius: 26px;
-  cursor: default;
-  overflow: hidden;
-}
-.record-list li.voice-pill:hover { border-color: var(--border); }
-.voice-pill .pill-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 8px 8px 22px;
-  min-height: 52px;
-}
-.voice-pill .pill-text {
-  flex: 1;
-  min-width: 0;
-  line-height: 1.5;
-  font-weight: 450;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
-/* 비고: 알약 맨 앞(대사 왼쪽)에 적고 그 오른쪽에 회색 세로선을 긋는다(비고 | 대사 | 마이크). 굵기 400, 크기는 대사와 같다.
-   칸 너비를 고정(알약 안쪽의 26%, 최대 167px)해서 비고가 한 줄이든 여러 줄이든 세로선과 대사의
-   위치가 바뀌지 않는다. */
-.voice-pill .pill-note {
-  flex: 0 0 26%;
-  max-width: 167px;
-  min-width: 0;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  margin: 2px 0;
-  padding-right: 12px;
-  border-right: 1px solid rgba(122, 122, 122, 0.45);
-}
-
-.voice-pill .pill-note-text {
-  min-width: 0;
-  line-height: 1.5;
-  font-weight: 400;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
-/* 데스크탑에서는 비고 칸을 알약 너비의 20%로 한다. cqw는 알약(li) 너비의 1%이고, 지원하지 않는
-   브라우저는 안쪽 너비 기준 20.8%(= 알약의 약 20%)로 대신한다. */
 @media (min-width: 769px) {
   .record-list li.voice-pill { container-type: inline-size; }
   .voice-pill .pill-note {
