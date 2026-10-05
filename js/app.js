@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=269";
+} from "./firebase-config.js?v=270";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=269";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=269";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=270";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=270";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -989,6 +989,24 @@ function createVoicePill(data) {
   return li;
 }
 
+// 톡 보관함·전화 기록 제목은 "[말머리] 이름 - 제목" 꼴이다. 말머리가 있으면 말머리와 나머지를 따로 묶어 두고,
+// 모바일에서는 CSS가 말머리 다음에서 줄을 바꿔 보여 준다(데스크탑은 한 줄 그대로).
+function setTitleWithPrefix(el, title, category) {
+  el.textContent = "";
+  const m = category === "talk" || category === "call" ? title.match(/^\s*(\[[^\]]*\])\s*(.*)$/) : null;
+  if (!m) {
+    el.textContent = title;
+    return;
+  }
+  const prefix = document.createElement("span");
+  prefix.className = "title-prefix";
+  prefix.textContent = m[1];
+  const rest = document.createElement("span");
+  rest.className = "title-rest";
+  rest.textContent = " " + m[2];
+  el.append(prefix, rest);
+}
+
 // ── 리스트 화면 ──
 async function renderListView(catId, subId) {
   const cat = findCategory(catId);
@@ -1090,7 +1108,8 @@ async function renderListView(catId, subId) {
       }
       const li = document.createElement("li");
       li.dataset.id = data.id;
-      li.innerHTML = `<div class="record-title">${data.title || "(제목 없음)"}</div>`;
+      li.innerHTML = `<div class="record-title"></div>`;
+      setTitleWithPrefix(li.querySelector(".record-title"), data.title || "(제목 없음)", data.category);
       li.addEventListener("click", () => {
         location.hash = `#/view/${data.id}`;
       });
@@ -1445,7 +1464,7 @@ async function renderViewerView(recordId) {
     }
   };
   applyAdminUI();
-  viewerTitle.textContent = data.title || "(제목 없음)";
+  setTitleWithPrefix(viewerTitle, data.title || "(제목 없음)", data.category);
   const viewerParticipants = document.getElementById("viewer-participants");
   viewerParticipants.innerHTML = "";
   resolveViewerParticipants(data).then((participantKeys) => {
