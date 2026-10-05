@@ -1451,3 +1451,32 @@ body.popup-open { overflow: hidden; }
     overflow-y: auto;
   }
 }
+
+/* 데스크탑 스크롤바: 카테고리 리스트·기록 화면(배경 이미지가 있는 화면)에서는 막대를 흰색으로 한다.
+   마우스를 올리면 사이트 기본처럼 accent. (팝업·드롭다운 등 다른 스크롤바는 그대로) */
+@media (min-width: 769px) {
+  html.list-bg-main_story #app-shell,
+  html.viewer-bg-main_story #app-shell,
+  html.list-bg-diary #app-shell,
+  html.list-bg-talk #app-shell,
+  html.list-bg-call #app-shell,
+  html.list-bg-voice #app-shell {
+    scrollbar-color: #ffffff transparent;
+  }
+  html.list-bg-main_story #app-shell::-webkit-scrollbar-thumb,
+  html.viewer-bg-main_story #app-shell::-webkit-scrollbar-thumb,
+  html.list-bg-diary #app-shell::-webkit-scrollbar-thumb,
+  html.list-bg-talk #app-shell::-webkit-scrollbar-thumb,
+  html.list-bg-call #app-shell::-webkit-scrollbar-thumb,
+  html.list-bg-voice #app-shell::-webkit-scrollbar-thumb {
+    background: #ffffff;
+  }
+  html.list-bg-main_story #app-shell::-webkit-scrollbar-thumb:hover,
+  html.viewer-bg-main_story #app-shell::-webkit-scrollbar-thumb:hover,
+  html.list-bg-diary #app-shell::-webkit-scrollbar-thumb:hover,
+  html.list-bg-talk #app-shell::-webkit-scrollbar-thumb:hover,
+  html.list-bg-call #app-shell::-webkit-scrollbar-thumb:hover,
+  html.list-bg-voice #app-shell::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+}
