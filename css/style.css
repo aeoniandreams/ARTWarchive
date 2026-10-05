@@ -191,7 +191,16 @@ button, input, select, textarea {
   width: min(320px, 90vw);
   text-align: center;
 }
-#login-box h1 { font-size: 1.2rem; margin-bottom: 20px; }
+/* 로그인 박스 맨 위: 홈 화면의 로고 + "ARCHIVE" 문구를 줄여서(로고 160px -> 96px, 문구 15px -> 10px) 넣고, 문구는 accent 색. */
+#login-brand { margin-bottom: 20px; }
+#login-logo { display: block; height: 96px; width: auto; margin: 0 auto 8px; }
+#login-subtitle {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 10px;
+  padding-left: 10px; /* 글자 뒤에 붙는 자간만큼 왼쪽을 비워 가운데에 보이게 */
+}
 #login-box input {
   width: 100%;
   padding: 10px;
