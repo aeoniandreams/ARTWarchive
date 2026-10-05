@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=250";
+} from "./firebase-config.js?v=251";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=250";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=250";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=251";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=251";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1554,8 +1554,8 @@ const editorUndo = setupUndoRedo(editorContent);
 // "[말머리] 채팅방 이름 - 제목" 형식의 제목을 세 조각으로 쪼개거나 다시 합친다.
 // 말머리는 선택 입력이라 "채팅방 이름 - 제목"처럼 대괄호 없이 올 수도 있다.
 // 뷰어의 extractChatRoomName도 이 파서를 함께 쓴다.
-// 톡 보관함 제목에서 맨 앞 말머리 "[…]"를 뺀 "채팅방 이름 - 제목" 꼴. "/불러오기"에서 말머리 없이
-// 기록을 찾을 수 있도록 톡 보관함 기록에 titleKey로 같이 저장해 둔다(scripts의 백필과 같은 규칙).
+// 제목에서 맨 앞 말머리 "[…]"를 뺀 "이름 - 제목" 꼴. "/불러오기"에서 말머리 없이 기록을 찾을 수 있도록
+// 톡 보관함·전화 기록에 titleKey로 같이 저장해 둔다(관리자 스크립트의 백필과 같은 규칙).
 function talkTitleKey(title) {
   const bs = title.indexOf("[");
   const be = title.indexOf("]");
@@ -2073,7 +2073,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     if (editingRecordId) {
       await updateDoc(doc(adminDb, "records", editingRecordId), {
         title,
-        titleKey: category === "talk" ? talkTitleKey(title) : deleteField(),
+        titleKey: category === "talk" || category === "call" ? talkTitleKey(title) : deleteField(),
         category,
         subcategory,
         character,
@@ -2103,7 +2103,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     } else {
       const newDoc = await addDoc(collection(adminDb, "records"), {
         title,
-        ...(category === "talk" ? { titleKey: talkTitleKey(title) } : {}),
+        ...(category === "talk" || category === "call" ? { titleKey: talkTitleKey(title) } : {}),
         category,
         subcategory,
         character,
