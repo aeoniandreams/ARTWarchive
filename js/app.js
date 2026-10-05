@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=270";
+} from "./firebase-config.js?v=271";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=270";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=270";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=271";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=271";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -989,8 +989,9 @@ function createVoicePill(data) {
   return li;
 }
 
-// 톡 보관함·전화 기록 제목은 "[말머리] 이름 - 제목" 꼴이다. 말머리가 있으면 말머리와 나머지를 따로 묶어 두고,
-// 모바일에서는 CSS가 말머리 다음에서 줄을 바꿔 보여 준다(데스크탑은 한 줄 그대로).
+// 톡 보관함·전화 기록 제목은 "[말머리] 이름 - 제목" 꼴이다(기록 본문 화면의 제목에서만 쓴다). 말머리와 나머지를
+// 따로 묶어 두고, 괄호·띄어쓰기를 포함한 말머리가 10자 이상이면 .is-long을 붙인다. 모바일에서는 CSS가 .is-long일 때만
+// 말머리 다음에서 줄을 바꿔 보여 준다(짧은 말머리나 데스크탑은 한 줄 그대로).
 function setTitleWithPrefix(el, title, category) {
   el.textContent = "";
   const m = category === "talk" || category === "call" ? title.match(/^\s*(\[[^\]]*\])\s*(.*)$/) : null;
@@ -1000,6 +1001,7 @@ function setTitleWithPrefix(el, title, category) {
   }
   const prefix = document.createElement("span");
   prefix.className = "title-prefix";
+  if (Array.from(m[1]).length >= 10) prefix.classList.add("is-long");
   prefix.textContent = m[1];
   const rest = document.createElement("span");
   rest.className = "title-rest";
@@ -1108,8 +1110,7 @@ async function renderListView(catId, subId) {
       }
       const li = document.createElement("li");
       li.dataset.id = data.id;
-      li.innerHTML = `<div class="record-title"></div>`;
-      setTitleWithPrefix(li.querySelector(".record-title"), data.title || "(제목 없음)", data.category);
+      li.innerHTML = `<div class="record-title">${data.title || "(제목 없음)"}</div>`;
       li.addEventListener("click", () => {
         location.hash = `#/view/${data.id}`;
       });

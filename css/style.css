@@ -616,8 +616,8 @@ html.list-bg-talk .viewer-card {
 #list-logo { cursor: pointer; }
 @media (max-width: 768px) {
   #list-logo, .page-logo { height: 64px; }
-  /* 톡 보관함·전화 기록 제목: 말머리가 있으면 말머리 다음에서 줄을 바꾼다(말머리 / 제목). */
-  .title-prefix { display: block; }
+  /* 톡 보관함·전화 기록의 기록 화면 제목: 괄호 포함 10자 이상인 긴 말머리만 말머리 다음에서 줄을 바꾼다(말머리 / 제목). */
+  .title-prefix.is-long { display: block; }
   /* 로그인 박스 로고는 모바일에서 70px(데스크탑은 85px). */
   #login-logo { height: 70px; }
   /* 고정 상단바(70px)가 로고 윗부분을 가리지 않도록 리스트 로고의 위쪽 -10px 여백을 없앤다. */
