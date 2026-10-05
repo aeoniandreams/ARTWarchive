@@ -627,19 +627,22 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .record-list .record-title { font-weight: 600; }
 
 /* 로그 안 "/불러오기" 링크 줄과, 눌렀을 때 뜨는 기록 팝업 */
-.log-render .s-row.is-link { margin-bottom: var(--row-margin); }
+/* 링크 줄: 나레이션과 같은 좌우 들여쓰기(10px), 평소엔 기본 글자색·밑줄 없음, 마우스를 올리면 accent. */
+.log-render .s-row.is-link { margin-bottom: var(--row-margin); padding: 0 10px; }
 .log-render .s-link {
   padding: 0;
   border: none;
   background: none;
-  color: var(--accent);
+  color: inherit;
   font: inherit;
   text-align: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration: none;
   cursor: pointer;
+  transition: color 0.15s ease;
 }
-.log-render .s-link:hover { opacity: 0.75; }
+@media (hover: hover) {
+  .log-render .s-link:hover { color: var(--accent); }
+}
 body.popup-open { overflow: hidden; }
 .record-popup-card { width: min(720px, 92vw); max-height: 86vh; padding: 20px 20px 24px; }
 .record-popup-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
@@ -728,7 +731,7 @@ body.popup-open { overflow: hidden; }
 #voice-modal .voice-save-btn { padding: 10px 20px; }
 
 .modal-card-small { width: 340px; }
-.confirm-text { margin: 4px 0 0; line-height: 1.6; font-weight: 600; }
+.confirm-text { margin: 4px 0 0; line-height: 1.6; font-weight: 600; white-space: pre-line; }
 .danger-btn {
   padding: 10px 20px;
   border: none;

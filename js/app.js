@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=236";
+} from "./firebase-config.js?v=237";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=236";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=236";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=237";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=237";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1170,11 +1170,13 @@ function initListSortable() {
 
 
 // ── 다른 기록 불러오기 팝업 ──
-// 로그의 "/불러오기 기록 제목" 줄을 누르면, 그 제목과 정확히 같은 기록을 찾아서 로그 위에 팝업으로
-// 보여 준다. 바깥 배경·X 버튼·Esc로 닫으면 다시 원래 로그다. 팝업 안의 링크를 누르면 그 위에 한 겹
-// 더 뜨고, 닫으면 한 겹씩 돌아온다.
-const recordPopupCache = new Map(); // 제목 -> 기록(없으면 null)
-let recordPopupDepth = 0;
+// 로그의 "/불러오기 기록 제목" 줄을 누르면, 그 제목의 기록을 찾아서 로그 위에 팝업으로 보여 준다.
+// 바깥 배경·X 버튼·Esc·(휴대폰) 뒤로가기로 닫으면 다시 원래 로그다. 팝업 안의 링크를 누르면 그 위에
+// 한 겹 더 뜨고, 닫으면 한 겹씩 돌아온다.
+// 닫는 방법을 하나로 맞추려고, 팝업을 열 때 브라우저 기록에 항목을 하나 쌓고(pushState) 닫을 때는
+// 전부 history.back()으로 되돌린다. 그러면 뒤로가기 버튼도 같은 길로 팝업만 닫는다.
+const recordPopupCache = new Map(); // 제목 -> 찾은 기록(못 찾은 건 저장하지 않아서 나중에 만든 기록도 찾는다)
+const recordPopupStack = []; // 지금 떠 있는 팝업들(맨 뒤가 맨 위)
 const X_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>';
 
@@ -1185,14 +1187,31 @@ async function findRecordByTitle(title) {
   let snap = await getDocs(query(collection(db, "records"), where("titleKey", "==", talkTitleKey(title))));
   if (!snap.docs.length) snap = await getDocs(query(collection(db, "records"), where("title", "==", title)));
   const found = snap.docs.length ? { id: snap.docs[0].id, ...snap.docs[0].data() } : null;
-  recordPopupCache.set(title, found);
+  if (found) recordPopupCache.set(title, found);
   return found;
 }
+
+function removeTopRecordPopup() {
+  const top = recordPopupStack.pop();
+  if (!top) return;
+  document.removeEventListener("keydown", top.onKey, true);
+  top.backdrop.remove();
+  if (!recordPopupStack.length) document.body.classList.remove("popup-open");
+}
+// 뒤로가기(또는 위의 닫기 동작이 부른 history.back())가 일어나면, 기록에 남은 팝업 수에 맞춰 닫는다.
+window.addEventListener("popstate", (e) => {
+  const wanted = e.state && typeof e.state.recordPopup === "number" ? e.state.recordPopup : 0;
+  while (recordPopupStack.length > wanted) removeTopRecordPopup();
+});
+// 다른 화면으로 넘어가면 남은 팝업은 모두 걷는다.
+window.addEventListener("hashchange", () => {
+  while (recordPopupStack.length) removeTopRecordPopup();
+});
 
 async function openRecordPopup(title) {
   const backdrop = document.createElement("div");
   backdrop.className = "modal-backdrop record-popup-backdrop";
-  backdrop.style.zIndex = String(110 + recordPopupDepth);
+  backdrop.style.zIndex = String(110 + recordPopupStack.length);
   backdrop.innerHTML = `
     <div class="modal-card record-popup-card" role="dialog" aria-modal="true">
       <div class="record-popup-head">
@@ -1205,28 +1224,29 @@ async function openRecordPopup(title) {
   const body = backdrop.querySelector(".record-popup-body");
   body.textContent = "불러오는 중...";
 
-  recordPopupDepth++;
-  document.body.appendChild(backdrop);
-  document.body.classList.add("popup-open");
-
-  const close = () => {
-    document.removeEventListener("keydown", onKey, true);
-    backdrop.remove();
-    recordPopupDepth = Math.max(0, recordPopupDepth - 1);
-    if (recordPopupDepth === 0) document.body.classList.remove("popup-open");
+  const entry = { backdrop, closing: false, onKey: null };
+  // 닫기는 항상 맨 위 팝업만, 한 번만.
+  const dismiss = () => {
+    if (entry.closing || recordPopupStack[recordPopupStack.length - 1] !== entry) return;
+    entry.closing = true;
+    history.back();
   };
-  const onKey = (e) => {
-    // 여러 겹이 떠 있으면 맨 위 한 겹만 닫는다.
-    if (e.key === "Escape" && backdrop === Array.from(document.querySelectorAll(".record-popup-backdrop")).pop()) {
+  entry.onKey = (e) => {
+    if (e.key === "Escape" && recordPopupStack[recordPopupStack.length - 1] === entry) {
       e.stopPropagation();
-      close();
+      dismiss();
     }
   };
-  document.addEventListener("keydown", onKey, true);
+  document.addEventListener("keydown", entry.onKey, true);
   backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) close();
+    if (e.target === backdrop) dismiss();
   });
-  backdrop.querySelector(".record-popup-close").addEventListener("click", close);
+  backdrop.querySelector(".record-popup-close").addEventListener("click", dismiss);
+
+  recordPopupStack.push(entry);
+  document.body.appendChild(backdrop);
+  document.body.classList.add("popup-open");
+  history.pushState({ recordPopup: recordPopupStack.length }, "");
 
   let record = null;
   try {
@@ -1245,6 +1265,36 @@ async function openRecordPopup(title) {
   body.querySelectorAll(".editor-toggle.open").forEach((el) => el.classList.remove("open"));
   const isTalk = record.category === "talk";
   renderLog(body, libraryData, { showAvatars: isTalk, bubbles: isTalk, onOpenRecord: openRecordPopup });
+}
+
+// 저장할 때 "/불러오기" 줄의 제목이 실제 기록과 맞는지 확인하기 위한 도우미.
+function extractLinkTitles(tableHtml) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = tableHtml;
+  const titles = new Set();
+  tmp.querySelectorAll("tr").forEach((tr) => {
+    const cell = tr.querySelector("td");
+    if (!cell) return;
+    const text = cell.textContent.replace(/\u00a0/g, " ").trim();
+    if (text.startsWith("/불러오기")) {
+      const t = text.slice("/불러오기".length).trim();
+      if (t) titles.add(t);
+    }
+  });
+  return Array.from(titles);
+}
+async function findMissingLinkTitles(tableHtml, ownTitle) {
+  const own = new Set([ownTitle, talkTitleKey(ownTitle)]);
+  const missing = [];
+  for (const t of extractLinkTitles(tableHtml)) {
+    if (own.has(t) || own.has(talkTitleKey(t))) continue; // 지금 저장하는 기록 자신은 아직 없을 수 있다.
+    try {
+      if (!(await findRecordByTitle(t))) missing.push(t);
+    } catch (e) {
+      console.error("불러오기 제목 확인 실패:", e); // 확인이 안 되는 건 저장을 막지 않는다.
+    }
+  }
+  return missing;
 }
 
 // ── 뷰어 화면 ──
@@ -1985,6 +2035,19 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
       alert("제목을 입력해주세요.");
       return;
     }
+  }
+
+  // "/불러오기"에 쓴 제목이 실제 기록과 안 맞으면(오타 등) 저장 전에 알려 준다. 그래도 저장은 할 수 있다.
+  recordPopupCache.clear();
+  const missingLinks = await findMissingLinkTitles(tableHtml, title);
+  if (missingLinks.length) {
+    const ok = await confirmDialog(
+      "불러오기에 쓴 제목 중 찾을 수 없는 기록이 있어요.\n" +
+        missingLinks.map((t) => `· ${t}`).join("\n") +
+        "\n그래도 저장할까요?",
+      "그래도 저장"
+    );
+    if (!ok) return;
   }
 
   try {
