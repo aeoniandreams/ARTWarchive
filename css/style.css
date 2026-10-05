@@ -1654,3 +1654,26 @@ body.popup-open { overflow: hidden; }
 .record-popup-card.bg-talk::-webkit-scrollbar-thumb:hover, .record-popup-card.bg-talk .record-popup-body::-webkit-scrollbar-thumb:hover,
 .record-popup-card.bg-call::-webkit-scrollbar-thumb:hover, .record-popup-card.bg-call .record-popup-body::-webkit-scrollbar-thumb:hover,
 .record-popup-card.bg-voice::-webkit-scrollbar-thumb:hover, .record-popup-card.bg-voice .record-popup-body::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* 사이드바 스크롤바 막대 색도 현재 카테고리의 사이드바 버튼(☰) 색과 같게(데스크탑·모바일 공통).
+   메인 스토리·다이어리·톡 보관함 #778FC2, 전화 기록·보이스 흰색, 그 밖의 화면은 기본색. 마우스를 올리면 accent. */
+html.list-bg-main_story #sidebar,
+html.viewer-bg-main_story #sidebar,
+html.list-bg-diary #sidebar,
+html.list-bg-talk #sidebar { scrollbar-color: #778fc2 transparent; }
+html.list-bg-main_story #sidebar::-webkit-scrollbar-thumb,
+html.viewer-bg-main_story #sidebar::-webkit-scrollbar-thumb,
+html.list-bg-diary #sidebar::-webkit-scrollbar-thumb,
+html.list-bg-talk #sidebar::-webkit-scrollbar-thumb { background: #778fc2; }
+
+html.list-bg-call #sidebar,
+html.list-bg-voice #sidebar { scrollbar-color: #ffffff transparent; }
+html.list-bg-call #sidebar::-webkit-scrollbar-thumb,
+html.list-bg-voice #sidebar::-webkit-scrollbar-thumb { background: #ffffff; }
+
+html.list-bg-main_story #sidebar::-webkit-scrollbar-thumb:hover,
+html.viewer-bg-main_story #sidebar::-webkit-scrollbar-thumb:hover,
+html.list-bg-diary #sidebar::-webkit-scrollbar-thumb:hover,
+html.list-bg-talk #sidebar::-webkit-scrollbar-thumb:hover,
+html.list-bg-call #sidebar::-webkit-scrollbar-thumb:hover,
+html.list-bg-voice #sidebar::-webkit-scrollbar-thumb:hover { background: var(--accent); }
