@@ -131,7 +131,9 @@ button, input, select, textarea {
   position: fixed;
   inset: 0;
   background: var(--bg) url("../images/loading-bg.webp") center / cover no-repeat;
+  /* 휴대폰은 100vh가 주소창·하단바가 접혔을 때 기준이라 실제 보이는 화면보다 커서 가운데가 아래로 쏠린다. 보이는 높이(dvh)를 쓴다. */
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -178,6 +180,7 @@ button, input, select, textarea {
 /* ── 로그인 화면 ── */
 #login-screen {
   min-height: 100vh;
+  min-height: 100dvh; /* 휴대폰 주소창·하단바를 뺀 실제 보이는 높이 기준으로 가운데 정렬 */
   display: flex;
   align-items: center;
   justify-content: center;
