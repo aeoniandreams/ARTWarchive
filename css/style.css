@@ -1580,9 +1580,9 @@ body.popup-open { overflow: hidden; }
   }
 }
 
-/* 스크롤바 막대 색.
-   - 데스크탑 페이지 스크롤바(#app-shell): 기본은 accent(홈·에디터·설정 등 카테고리가 없는 화면, 창이 낮아 내용이 넘칠 때 포함).
-     카테고리 화면은 메인 스토리·다이어리 #778FC2, 톡 보관함·전화 기록·보이스 흰색.
+/* 스크롤바 막대 색 = 각 카테고리의 사이드바 버튼(☰) 색과 같게.
+   - 데스크탑 페이지 스크롤바(#app-shell): 메인 스토리·다이어리·톡 보관함 #778FC2, 전화 기록·보이스 흰색.
+     카테고리가 없는 화면(홈·에디터·설정 등, 창이 낮아 내용이 넘칠 때 포함)은 accent.
    - 불러오기 팝업: 그 기록이 속한 카테고리의 막대 색을 그대로 쓴다.
    마우스를 올리면 사이트 기본처럼 accent. (드롭다운 등 다른 스크롤바는 그대로) */
 @media (min-width: 769px) {
@@ -1591,15 +1591,15 @@ body.popup-open { overflow: hidden; }
 
   html.list-bg-main_story #app-shell,
   html.viewer-bg-main_story #app-shell,
-  html.list-bg-diary #app-shell { scrollbar-color: #778fc2 transparent; }
+  html.list-bg-diary #app-shell,
+  html.list-bg-talk #app-shell { scrollbar-color: #778fc2 transparent; }
   html.list-bg-main_story #app-shell::-webkit-scrollbar-thumb,
   html.viewer-bg-main_story #app-shell::-webkit-scrollbar-thumb,
-  html.list-bg-diary #app-shell::-webkit-scrollbar-thumb { background: #778fc2; }
+  html.list-bg-diary #app-shell::-webkit-scrollbar-thumb,
+  html.list-bg-talk #app-shell::-webkit-scrollbar-thumb { background: #778fc2; }
 
-  html.list-bg-talk #app-shell,
   html.list-bg-call #app-shell,
   html.list-bg-voice #app-shell { scrollbar-color: #ffffff transparent; }
-  html.list-bg-talk #app-shell::-webkit-scrollbar-thumb,
   html.list-bg-call #app-shell::-webkit-scrollbar-thumb,
   html.list-bg-voice #app-shell::-webkit-scrollbar-thumb { background: #ffffff; }
 
@@ -1613,14 +1613,14 @@ body.popup-open { overflow: hidden; }
 
 /* 불러오기 팝업 스크롤바: 팝업 카드(모바일은 카드 자체, 데스크탑은 본문 칸)의 막대 색을 카테고리 화면과 같게. */
 .record-popup-card.bg-main_story, .record-popup-card.bg-main_story .record-popup-body,
-.record-popup-card.bg-diary, .record-popup-card.bg-diary .record-popup-body { scrollbar-color: #778fc2 transparent; }
+.record-popup-card.bg-diary, .record-popup-card.bg-diary .record-popup-body,
+.record-popup-card.bg-talk, .record-popup-card.bg-talk .record-popup-body { scrollbar-color: #778fc2 transparent; }
 .record-popup-card.bg-main_story::-webkit-scrollbar-thumb, .record-popup-card.bg-main_story .record-popup-body::-webkit-scrollbar-thumb,
-.record-popup-card.bg-diary::-webkit-scrollbar-thumb, .record-popup-card.bg-diary .record-popup-body::-webkit-scrollbar-thumb { background: #778fc2; }
+.record-popup-card.bg-diary::-webkit-scrollbar-thumb, .record-popup-card.bg-diary .record-popup-body::-webkit-scrollbar-thumb,
+.record-popup-card.bg-talk::-webkit-scrollbar-thumb, .record-popup-card.bg-talk .record-popup-body::-webkit-scrollbar-thumb { background: #778fc2; }
 
-.record-popup-card.bg-talk, .record-popup-card.bg-talk .record-popup-body,
 .record-popup-card.bg-call, .record-popup-card.bg-call .record-popup-body,
 .record-popup-card.bg-voice, .record-popup-card.bg-voice .record-popup-body { scrollbar-color: #ffffff transparent; }
-.record-popup-card.bg-talk::-webkit-scrollbar-thumb, .record-popup-card.bg-talk .record-popup-body::-webkit-scrollbar-thumb,
 .record-popup-card.bg-call::-webkit-scrollbar-thumb, .record-popup-card.bg-call .record-popup-body::-webkit-scrollbar-thumb,
 .record-popup-card.bg-voice::-webkit-scrollbar-thumb, .record-popup-card.bg-voice .record-popup-body::-webkit-scrollbar-thumb { background: #ffffff; }
 
