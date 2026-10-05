@@ -184,7 +184,7 @@ button, input, select, textarea {
   background: var(--bg) url("../images/loading-bg.webp") center / cover no-repeat;
 }
 #login-box {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.6); /* 카테고리 리스트의 기록 박스(.record-list li)와 같은 농도 */
   border: none;
   border-radius: 12px;
   padding: 40px;
