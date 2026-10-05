@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=252";
+} from "./firebase-config.js?v=253";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=252";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=252";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=253";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=253";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1263,9 +1263,9 @@ async function openRecordPopup(title) {
   }
   // 팝업 배경은 그 기록이 속한 카테고리의 배경(톡 보관함·전화 기록 등)을 쓴다.
   backdrop.querySelector(".record-popup-card").classList.add(`bg-${record.category}`);
-  // 제목은 기록 화면과 똑같이 보이게, 톡 보관함은 말머리를 뺀 "채팅방 이름 - 제목"으로 쓴다.
+  // 팝업 제목은 말머리를 뺀 "이름 - 제목"으로 보여 준다(톡 보관함·전화 기록). 다른 카테고리는 제목 그대로.
   backdrop.querySelector(".record-popup-title").textContent =
-    record.category === "talk" ? talkTitleKey(record.title || title) : record.title || title;
+    record.category === "talk" || record.category === "call" ? talkTitleKey(record.title || title) : record.title || title;
   // 참여자 프로필 사진(톡 보관함)은 제목 줄 오른쪽 끝에, 채팅방 참여자 관리처럼 겹쳐서 보여 준다.
   if (record.category === "talk") {
     resolveViewerParticipants(record).then((keys) => {
