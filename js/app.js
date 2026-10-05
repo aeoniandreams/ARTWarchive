@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=239";
+} from "./firebase-config.js?v=240";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=239";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=239";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=240";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=240";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1186,7 +1186,7 @@ async function findRecordByTitle(title) {
   // 기록을 찾는다. 말머리까지 쓴 예전 방식도 그대로 된다.
   let snap = await getDocs(query(collection(db, "records"), where("titleKey", "==", talkTitleKey(title))));
   if (!snap.docs.length) snap = await getDocs(query(collection(db, "records"), where("title", "==", title)));
-  const found = snap.docs.length ? { id: snap.docs[0].id, ...snap.docs[0].data(), matchCount: snap.docs.length } : null;
+  const found = snap.docs.length ? { id: snap.docs[0].id, ...snap.docs[0].data() } : null;
   if (found) recordPopupCache.set(title, found);
   return found;
 }
@@ -1302,18 +1302,15 @@ function extractLinkTitles(tableHtml) {
 async function findMissingLinkTitles(tableHtml, ownTitle) {
   const own = new Set([ownTitle, talkTitleKey(ownTitle)]);
   const missing = [];
-  const ambiguous = [];
   for (const t of extractLinkTitles(tableHtml)) {
     if (own.has(t) || own.has(talkTitleKey(t))) continue; // 지금 저장하는 기록 자신은 아직 없을 수 있다.
     try {
-      const found = await findRecordByTitle(t);
-      if (!found) missing.push(t);
-      else if (found.matchCount > 1) ambiguous.push(t); // 같은 제목이 여러 개면 그중 하나만 뜬다.
+      if (!(await findRecordByTitle(t))) missing.push(t);
     } catch (e) {
       console.error("불러오기 제목 확인 실패:", e); // 확인이 안 되는 건 저장을 막지 않는다.
     }
   }
-  return { missing, ambiguous };
+  return missing;
 }
 
 // ── 뷰어 화면 ──
@@ -2058,15 +2055,9 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
 
   // "/불러오기"에 쓴 제목이 실제 기록과 안 맞으면(오타 등) 저장 전에 알려 준다. 그래도 저장은 할 수 있다.
   recordPopupCache.clear();
-  const { missing: missingLinks, ambiguous: ambiguousLinks } = await findMissingLinkTitles(tableHtml, title);
-  if (missingLinks.length || ambiguousLinks.length) {
-    let message = "";
-    if (missingLinks.length) {
-      message += "불러오기에 쓴 제목 중 찾을 수 없는 기록이 있어요.\n" + missingLinks.map((t) => `· ${t}`).join("\n") + "\n";
-    }
-    if (ambiguousLinks.length) {
-      message += "같은 제목의 기록이 여러 개라 그중 하나만 뜰 수 있어요.\n" + ambiguousLinks.map((t) => `· ${t}`).join("\n") + "\n";
-    }
+  const missingLinks = await findMissingLinkTitles(tableHtml, title);
+  if (missingLinks.length) {
+    const message = "불러오기에 쓴 제목 중 찾을 수 없는 기록이 있어요.\n" + missingLinks.map((t) => `· ${t}`).join("\n") + "\n";
     const ok = await confirmDialog(message + "그래도 저장할까요?", "그래도 저장");
     if (!ok) return;
   }
