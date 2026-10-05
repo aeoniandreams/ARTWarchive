@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=262";
+} from "./firebase-config.js?v=263";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=262";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=262";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=263";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=263";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1191,6 +1191,16 @@ async function findRecordByTitle(title) {
   return found;
 }
 
+// 참여자 n명을 한 줄 최대 perRow명으로 나눌 때 줄별 인원. 줄 수는 필요한 만큼만 두고 인원은 고르게,
+// 남는 한 명씩은 뒤쪽 줄로 보낸다(5명 -> [2, 3], 7명 -> [3, 4]).
+function avatarRowSizes(n, perRow) {
+  if (n <= 0) return [];
+  const rows = Math.max(1, Math.ceil(n / perRow));
+  const base = Math.floor(n / rows);
+  const extra = n % rows;
+  return Array.from({ length: rows }, (_, i) => base + (i >= rows - extra ? 1 : 0));
+}
+
 function removeTopRecordPopup() {
   const top = recordPopupStack.pop();
   if (!top) return;
@@ -1269,11 +1279,20 @@ async function openRecordPopup(title) {
   // 참여자 프로필 사진(톡 보관함)은 제목 줄 오른쪽 끝에, 채팅방 참여자 관리처럼 겹쳐서 보여 준다.
   if (record.category === "talk") {
     resolveViewerParticipants(record).then((keys) => {
-      backdrop.querySelector(".record-popup-avatars").innerHTML = keys
+      const imgs = keys
         .map((key) => libraryData[key])
         .filter(Boolean)
-        .map((entry) => `<img src="${entry.src}" alt="" />`)
-        .join("");
+        .map((entry) => `<img src="${entry.src}" alt="" />`);
+      // 모바일에서는 한 줄에 4명까지만 두고 줄마다 비슷하게 나눈다(5명 2+3, 6명 3+3, 7명 3+4).
+      // 데스크탑은 한 줄로 그대로 보여 준다.
+      const perRow = window.matchMedia("(max-width: 768px)").matches ? 4 : Infinity;
+      let html = "";
+      let start = 0;
+      avatarRowSizes(imgs.length, perRow).forEach((size) => {
+        html += `<div class="avatar-row">${imgs.slice(start, start + size).join("")}</div>`;
+        start += size;
+      });
+      backdrop.querySelector(".record-popup-avatars").innerHTML = html;
     });
   }
   body.innerHTML = record.tableHtml || "";

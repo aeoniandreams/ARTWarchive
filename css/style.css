@@ -661,7 +661,9 @@ body.popup-open { overflow: hidden; }
 .modal-card.record-popup-card { width: min(720px, 92vw); max-height: 86vh; padding: 20px 20px 24px; }
 .record-popup-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 .record-popup-title { flex: 1; min-width: 0; }
-.record-popup-avatars { flex: none; }
+/* 참여자 사진: 줄(.avatar-row) 단위로 쌓는다. 모바일은 JS가 한 줄 최대 4명으로 나눠 준다. */
+.record-popup-avatars { flex: none; flex-direction: column; align-items: flex-end; gap: 2px; }
+.record-popup-avatars .avatar-row { display: flex; }
 .record-popup-avatars:empty { display: none; }
 /* 팝업 배경: 기록이 속한 카테고리의 배경 이미지 위에 흰 막. 톡 보관함·전화 기록은 기록 화면(.viewer-card)보다 10%p 옅게. */
 .record-popup-card.bg-talk {
