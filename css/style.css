@@ -613,6 +613,8 @@ html.list-bg-talk .viewer-card {
 #list-logo { cursor: pointer; }
 @media (max-width: 768px) {
   #list-logo, .page-logo { height: 64px; }
+  /* 로그인 박스 로고는 모바일에서 70px(데스크탑은 85px). */
+  #login-logo { height: 70px; }
   /* 고정 상단바(70px)가 로고 윗부분을 가리지 않도록 리스트 로고의 위쪽 -10px 여백을 없앤다. */
   #list-logo { margin-top: 0; }
   .viewer-card { padding: 25px 20px; }
