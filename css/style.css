@@ -626,6 +626,44 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
 .record-list li:hover { border-color: var(--accent); }
 .record-list .record-title { font-weight: 600; }
 
+/* 로그 안 "/불러오기" 링크 줄과, 눌렀을 때 뜨는 기록 팝업 */
+.log-render .s-row.is-link { margin-bottom: var(--row-margin); }
+.log-render .s-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-align: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.log-render .s-link:hover { opacity: 0.75; }
+body.popup-open { overflow: hidden; }
+.record-popup-card { width: min(720px, 92vw); max-height: 86vh; padding: 20px 20px 24px; }
+.record-popup-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.record-popup-title { margin: 0; font-size: 1.05rem; line-height: 1.4; word-break: keep-all; }
+.record-popup-close {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.record-popup-close svg { width: 20px; height: 20px; }
+@media (hover: hover) {
+  .record-popup-close:hover { color: var(--accent); background: rgba(124, 75, 255, 0.08); }
+}
+.record-popup-body { font-size: 14px; }
+
 /* 보이스 리스트 맨 아래의 + 버튼(관리자만) */
 #voice-add-wrap { display: flex; justify-content: center; margin-top: 4px; }
 #voice-add-btn {

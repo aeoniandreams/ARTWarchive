@@ -126,6 +126,8 @@ export function parseLibraryTable(container) {
 // options.showAvatars: false로 주면 라이브러리에 사진이 있어도 프로필 사진을 표시하지 않음
 //   (이름/내용은 그대로 나오고, 사진이 붙는 레이아웃만 빠짐 — 톡 보관함 외 카테고리용)
 // options.bubbles: true면 엔터로 나뉜 문단마다 말풍선(.c-bubble)으로 감싼다 (톡 보관함용)
+// options.onOpenRecord(title): 이름 칸이 "/불러오기 기록 제목"인 줄을 눌렀을 때 부르는 함수.
+//   오른쪽 칸의 글이 링크 글자로 보이고, 누르면 그 제목을 넘겨 준다.
 export function renderLog(root, lib = {}, options = {}) {
   const showAvatars = options.showAvatars !== false;
   // 뷰어의 같은 컨테이너를 기록마다 재사용하므로, 켜고 끄는 걸 매번 확실히 맞춘다.
@@ -238,6 +240,30 @@ export function renderLog(root, lib = {}, options = {}) {
       }
 
       justEndedFold = false;
+
+      // 다른 기록 불러오기: 왼쪽 칸 "/불러오기 기록 제목", 오른쪽 칸 링크로 보일 글.
+      if (rawName.startsWith("/불러오기")) {
+        const linkTitle = rawName.slice("/불러오기".length).replace(/\u00a0/g, " ").trim();
+        if (!linkTitle) return;
+        const linkRow = document.createElement("div");
+        linkRow.className = "s-row is-link";
+        if (textAlign) linkRow.style.textAlign = textAlign;
+        const linkBtn = document.createElement("button");
+        linkBtn.type = "button";
+        linkBtn.className = "s-link";
+        linkBtn.dataset.recordTitle = linkTitle;
+        if (cells[1].innerText.trim() || cells[1].querySelector("img")) {
+          linkBtn.innerHTML = content;
+        } else {
+          linkBtn.textContent = linkTitle; // 오른쪽 칸이 비어 있으면 기록 제목을 링크 글자로 쓴다.
+        }
+        if (typeof options.onOpenRecord === "function") {
+          linkBtn.addEventListener("click", () => options.onOpenRecord(linkTitle));
+        }
+        linkRow.appendChild(linkBtn);
+        (foldContent || container).appendChild(linkRow);
+        return;
+      }
 
       const isRight = rawName.startsWith(">");
       const name = isRight ? rawName.slice(1) : rawName;

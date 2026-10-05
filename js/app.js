@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=234";
+} from "./firebase-config.js?v=235";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -25,8 +25,8 @@ import {
   deleteDoc,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=234";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=234";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=235";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=235";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1167,6 +1167,82 @@ function initListSortable() {
   });
 }
 
+
+// ── 다른 기록 불러오기 팝업 ──
+// 로그의 "/불러오기 기록 제목" 줄을 누르면, 그 제목과 정확히 같은 기록을 찾아서 로그 위에 팝업으로
+// 보여 준다. 바깥 배경·X 버튼·Esc로 닫으면 다시 원래 로그다. 팝업 안의 링크를 누르면 그 위에 한 겹
+// 더 뜨고, 닫으면 한 겹씩 돌아온다.
+const recordPopupCache = new Map(); // 제목 -> 기록(없으면 null)
+let recordPopupDepth = 0;
+const X_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>';
+
+async function findRecordByTitle(title) {
+  if (recordPopupCache.has(title)) return recordPopupCache.get(title);
+  const snap = await getDocs(query(collection(db, "records"), where("title", "==", title)));
+  const found = snap.docs.length ? { id: snap.docs[0].id, ...snap.docs[0].data() } : null;
+  recordPopupCache.set(title, found);
+  return found;
+}
+
+async function openRecordPopup(title) {
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop record-popup-backdrop";
+  backdrop.style.zIndex = String(110 + recordPopupDepth);
+  backdrop.innerHTML = `
+    <div class="modal-card record-popup-card" role="dialog" aria-modal="true">
+      <div class="record-popup-head">
+        <h3 class="record-popup-title"></h3>
+        <button type="button" class="record-popup-close" aria-label="닫기">${X_ICON}</button>
+      </div>
+      <div class="record-popup-body log-render"></div>
+    </div>`;
+  backdrop.querySelector(".record-popup-title").textContent = title;
+  const body = backdrop.querySelector(".record-popup-body");
+  body.textContent = "불러오는 중...";
+
+  recordPopupDepth++;
+  document.body.appendChild(backdrop);
+  document.body.classList.add("popup-open");
+
+  const close = () => {
+    document.removeEventListener("keydown", onKey, true);
+    backdrop.remove();
+    recordPopupDepth = Math.max(0, recordPopupDepth - 1);
+    if (recordPopupDepth === 0) document.body.classList.remove("popup-open");
+  };
+  const onKey = (e) => {
+    // 여러 겹이 떠 있으면 맨 위 한 겹만 닫는다.
+    if (e.key === "Escape" && backdrop === Array.from(document.querySelectorAll(".record-popup-backdrop")).pop()) {
+      e.stopPropagation();
+      close();
+    }
+  };
+  document.addEventListener("keydown", onKey, true);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+  backdrop.querySelector(".record-popup-close").addEventListener("click", close);
+
+  let record = null;
+  try {
+    record = await findRecordByTitle(title);
+  } catch (e) {
+    console.error("불러오기 실패:", e);
+    body.textContent = "기록을 불러오지 못했어요.";
+    return;
+  }
+  if (!record) {
+    body.textContent = "해당 제목의 기록을 찾을 수 없어요.";
+    return;
+  }
+  body.innerHTML = record.tableHtml || "";
+  body.querySelectorAll("[contenteditable]").forEach((el) => el.removeAttribute("contenteditable"));
+  body.querySelectorAll(".editor-toggle.open").forEach((el) => el.classList.remove("open"));
+  const isTalk = record.category === "talk";
+  renderLog(body, libraryData, { showAvatars: isTalk, bubbles: isTalk, onOpenRecord: openRecordPopup });
+}
+
 // ── 뷰어 화면 ──
 const viewerPrevBtn = document.getElementById("viewer-prev-btn");
 const viewerNextBtn = document.getElementById("viewer-next-btn");
@@ -1291,7 +1367,7 @@ async function renderViewerView(recordId) {
   // 뷰어에서는 매번 새로 열 때마다(뒤로가기 후 다시 들어와도) 닫힌 상태로 시작하게 한다.
   viewerContent.querySelectorAll(".editor-toggle.open").forEach((el) => el.classList.remove("open"));
   // 프로필 사진은 톡 보관함 기록에서만 보여준다.
-  renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk", bubbles: data.category === "talk" });
+  renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk", bubbles: data.category === "talk", onOpenRecord: openRecordPopup });
 
   // 이전/다음 글: 리스트 화면과 동일한 정렬 기준으로 같은 카테고리/서브카테고리
   // 목록을 다시 가져와서, 지금 보고 있는 기록의 앞뒤를 찾는다. 리스트에서
