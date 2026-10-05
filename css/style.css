@@ -684,7 +684,8 @@ body.popup-open { overflow: hidden; }
 .record-popup-body { font-size: 14px; }
 @media (min-width: 769px) {
   .modal-card.record-popup-card {
-    width: 66vw;
+    width: 50vw;
+    min-width: min(560px, 92vw); /* 화면이 좁은 데스크톱에서 너무 좁아지지 않게 */
     height: 80vh;
     max-height: none;
     padding: 24px 28px 28px;
