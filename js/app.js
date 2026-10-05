@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=271";
+} from "./firebase-config.js?v=272";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=271";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=271";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=272";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=272";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1116,8 +1116,14 @@ async function renderListView(catId, subId) {
       });
       listEl.appendChild(li);
     });
-    initListSortable();
+    initListSortable({
+      getList: () => currentList,
+      afterSave: () => sortRecordsByOrder(records), // records 배열 자체를 새 번호 순으로 다시 정렬
+    });
   }
+
+  // 보이스의 "전체"는 드롭다운 순서대로 묶어서 보여 준다. 그 밖의 카테고리는 지금 순서 그대로.
+  const allForDisplay = () => (isVoice ? groupVoiceByFilterOrder(records) : records);
 
   // 톡 보관함(시즌별 기록 제외)·다이어리·보이스(모든 하위 카테고리)에서, 하위
   // 카테고리에 맞는 선택지로 걸러 보는 드롭다운을 보여준다. 톡 보관함은
@@ -1128,12 +1134,12 @@ async function renderListView(catId, subId) {
   if (showsFilter) {
     const items = [{ value: "", label: "전체" }, ...getFilterOptions(catId, subId)];
     listCharacterFilterDropdown.onChange((val) => {
-      renderRecords(val ? records.filter((r) => r.character === val) : records);
+      renderRecords(val ? records.filter((r) => r.character === val) : allForDisplay());
     });
     listCharacterFilterWrap.classList.remove("hidden");
     if (catId === "diary" || catId === "voice" || subId === "daily") {
       listCharacterFilterDropdown.setOptions(items, "");
-      renderRecords(records);
+      renderRecords(allForDisplay());
     } else {
       listCharacterFilterDropdown.setOptions(items, "__pending__", "");
       listEl.innerHTML = talkPendingSelectionHtml(talkFilterHasCharacters(getTalkFilterOptions(subId)));
@@ -1142,6 +1148,32 @@ async function renderListView(catId, subId) {
     listCharacterFilterWrap.classList.add("hidden");
     renderRecords(records);
   }
+}
+
+// 드래그가 끝난 뒤의 줄 순서(ids)대로, 지금 화면에 보이는 기록들(displayed)에 순서 번호를 다시 나눠 준다.
+// 보이는 기록들이 원래 가지고 있던 번호 값을 작은 것부터 모아서 새 순서에 차례로 나눠 주기 때문에, 필터로 일부만
+// 보고 있을 때도 안 보이는 기록들의 번호와 겹치지 않는다. (번호가 없는 기록이 섞여 있으면 0, 1, 2…로 매긴다.)
+// 바뀌어야 하는 것만 [{ id, order }]로 돌려준다.
+function planDragOrders(displayed, ids) {
+  const byId = new Map(displayed.map((r) => [r.id, r]));
+  const seq = ids.map((id) => byId.get(id)).filter(Boolean);
+  let values = seq.map((r) => r.order);
+  if (values.some((v) => typeof v !== "number")) values = seq.map((_, i) => i);
+  else values = [...values].sort((a, b) => a - b);
+  const updates = [];
+  seq.forEach((r, i) => {
+    if (r.order !== values[i]) updates.push({ id: r.id, order: values[i] });
+  });
+  return updates;
+}
+
+// 보이스 "전체" 보기: 드롭다운 순서(홈 화면, 옷장, 깜짝 소환, 전투)대로 묶고, 묶음 안에서는 지금 순서 그대로.
+function groupVoiceByFilterOrder(records) {
+  const rank = (r) => {
+    const i = VOICE_FILTER_OPTIONS.findIndex((o) => o.value === r.character);
+    return i === -1 ? VOICE_FILTER_OPTIONS.length : i;
+  };
+  return [...records].sort((a, b) => rank(a) - rank(b)); // 안정 정렬이라 묶음 안 순서는 유지된다.
 }
 
 // ── 리스트 드래그 정렬 ──
@@ -1157,7 +1189,7 @@ window.addEventListener("resize", () => {
   if (listSortableInstance) listSortableInstance.option("disabled", !isAdmin || !isDesktopViewport());
 });
 
-function initListSortable() {
+function initListSortable(hooks = {}) {
   if (listSortableInstance) {
     listSortableInstance.destroy();
     listSortableInstance = null;
@@ -1174,12 +1206,20 @@ function initListSortable() {
       const ids = Array.from(listEl.children)
         .map((li) => li.dataset.id)
         .filter(Boolean);
+      const displayed = hooks.getList ? hooks.getList() : ids.map((id) => ({ id }));
+      const updates = planDragOrders(displayed, ids);
+      if (updates.length === 0) return;
       const batch = writeBatch(adminDb);
-      ids.forEach((id, index) => {
-        batch.update(doc(adminDb, "records", id), { order: index });
-      });
+      updates.forEach((u) => batch.update(doc(adminDb, "records", u.id), { order: u.order }));
       try {
         await batch.commit();
+        // 화면에 들고 있는 기록들에도 새 번호를 반영해서, 다른 필터를 보다가 돌아와도 순서가 유지되게 한다.
+        const byId = new Map(displayed.map((r) => [r.id, r]));
+        updates.forEach((u) => {
+          const r = byId.get(u.id);
+          if (r) r.order = u.order;
+        });
+        if (hooks.afterSave) hooks.afterSave();
       } catch (e) {
         console.error("순서 저장 실패:", e.code, e.message);
         alert("순서 저장에 실패했습니다: " + (e.code || e.message));
