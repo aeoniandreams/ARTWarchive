@@ -191,9 +191,9 @@ button, input, select, textarea {
   width: min(320px, 90vw);
   text-align: center;
 }
-/* 로그인 박스 맨 위: 홈 화면의 로고 + "ARCHIVE" 문구를 줄여서(로고 160px -> 96px, 문구 15px -> 10px) 넣고, 문구는 accent 색. */
+/* 로그인 박스 맨 위: 홈 화면의 로고 + "ARCHIVE" 문구를 줄여서(로고 160px -> 85px, 문구 15px -> 10px) 넣고, 문구는 accent 색. */
 #login-brand { margin-bottom: 20px; }
-#login-logo { display: block; height: 96px; width: auto; margin: 0 auto 8px; }
+#login-logo { display: block; height: 85px; width: auto; margin: 0 auto 8px; }
 #login-subtitle {
   color: var(--accent);
   font-weight: 600;
