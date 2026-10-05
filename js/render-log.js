@@ -126,12 +126,15 @@ export function parseLibraryTable(container) {
 // options.showAvatars: false로 주면 라이브러리에 사진이 있어도 프로필 사진을 표시하지 않음
 //   (이름/내용은 그대로 나오고, 사진이 붙는 레이아웃만 빠짐 — 톡 보관함 외 카테고리용)
 // options.bubbles: true면 엔터로 나뉜 문단마다 말풍선(.c-bubble)으로 감싼다 (톡 보관함용)
+// options.nameStyle: true면 캐릭터 이름 색을 톡 보관함과 같게 통일한다 (톡 보관함·전화 기록용)
 // options.onOpenRecord(title): 이름 칸이 "/불러오기 기록 제목"인 줄을 눌렀을 때 부르는 함수.
 //   오른쪽 칸의 글이 링크 글자로 보이고, 누르면 그 제목을 넘겨 준다.
 export function renderLog(root, lib = {}, options = {}) {
   const showAvatars = options.showAvatars !== false;
   // 뷰어의 같은 컨테이너를 기록마다 재사용하므로, 켜고 끄는 걸 매번 확실히 맞춘다.
   root.classList.toggle("log-bubbles", options.bubbles === true);
+  // options.nameStyle: true면 캐릭터 이름을 톡 보관함과 같은 색(#627c95)으로 보여 준다(말풍선 없이도 쓸 수 있다).
+  root.classList.toggle("log-names", options.nameStyle === true);
   const tables = Array.from(root.querySelectorAll("table"));
   if (tables.length < 1) return;
 

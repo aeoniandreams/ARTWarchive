@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=242";
+} from "./firebase-config.js?v=243";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=242";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=242";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=243";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=243";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1279,8 +1279,10 @@ async function openRecordPopup(title) {
   body.innerHTML = record.tableHtml || "";
   body.querySelectorAll("[contenteditable]").forEach((el) => el.removeAttribute("contenteditable"));
   body.querySelectorAll(".editor-toggle.open").forEach((el) => el.classList.remove("open"));
+  // 톡 보관함과 전화 기록은 프로필 사진·이름 색이 같고, 말풍선만 톡 보관함에만 있다.
   const isTalk = record.category === "talk";
-  renderLog(body, libraryData, { showAvatars: isTalk, bubbles: isTalk, onOpenRecord: openRecordPopup });
+  const talkStyle = isTalk || record.category === "call";
+  renderLog(body, libraryData, { showAvatars: talkStyle, bubbles: isTalk, nameStyle: talkStyle, onOpenRecord: openRecordPopup });
 }
 
 // 저장할 때 "/불러오기" 줄의 제목이 실제 기록과 맞는지 확인하기 위한 도우미.
@@ -1436,8 +1438,9 @@ async function renderViewerView(recordId) {
   // 에디터에서는 토글을 삽입하면 기본이 열림 상태라 그 상태 그대로 저장돼 있는데,
   // 뷰어에서는 매번 새로 열 때마다(뒤로가기 후 다시 들어와도) 닫힌 상태로 시작하게 한다.
   viewerContent.querySelectorAll(".editor-toggle.open").forEach((el) => el.classList.remove("open"));
-  // 프로필 사진은 톡 보관함 기록에서만 보여준다.
-  renderLog(viewerContent, libraryData, { showAvatars: data.category === "talk", bubbles: data.category === "talk", onOpenRecord: openRecordPopup });
+  // 프로필 사진·이름 색은 톡 보관함과 전화 기록에서 보여주고, 말풍선은 톡 보관함에서만 쓴다.
+  const talkStyle = data.category === "talk" || data.category === "call";
+  renderLog(viewerContent, libraryData, { showAvatars: talkStyle, bubbles: data.category === "talk", nameStyle: talkStyle, onOpenRecord: openRecordPopup });
 
   // 이전/다음 글: 리스트 화면과 동일한 정렬 기준으로 같은 카테고리/서브카테고리
   // 목록을 다시 가져와서, 지금 보고 있는 기록의 앞뒤를 찾는다. 리스트에서
