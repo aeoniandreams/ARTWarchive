@@ -651,7 +651,7 @@ body.popup-open { overflow: hidden; }
 .record-popup-avatars:empty { display: none; }
 /* 팝업 배경: 기록이 속한 카테고리의 배경 이미지 위에 흰 막. 톡 보관함·전화 기록은 기록 화면(.viewer-card)보다 10%p 옅게. */
 .record-popup-card.bg-talk {
-  background: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url("../images/list-bg/talk.jpg") center / cover no-repeat;
+  background: linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)), url("../images/list-bg/talk.jpg") center / cover no-repeat;
 }
 .record-popup-card.bg-call {
   background: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/call.webp") center / cover no-repeat;
