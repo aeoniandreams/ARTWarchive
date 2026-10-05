@@ -635,11 +635,15 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   background: none;
   color: inherit;
   font: inherit;
+  font-weight: bold; /* 선택지(접기) 버튼처럼 기본이 굵게 */
   text-align: inherit;
   text-decoration: none;
   cursor: pointer;
   transition: color 0.15s ease;
 }
+/* 직접 볼드 처리한 문구는 더 굵어지지 않고 그대로(<b>는 원래 부모보다 더 굵게 만든다). */
+.log-render .s-link b,
+.log-render .s-link strong { font-weight: inherit; }
 @media (hover: hover) {
   .log-render .s-link:hover { color: var(--accent); }
 }
