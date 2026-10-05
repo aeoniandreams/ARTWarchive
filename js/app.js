@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=235";
+} from "./firebase-config.js?v=236";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -23,10 +23,11 @@ import {
   serverTimestamp,
   writeBatch,
   deleteDoc,
+  deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=235";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=235";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=236";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=236";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1179,7 +1180,10 @@ const X_ICON =
 
 async function findRecordByTitle(title) {
   if (recordPopupCache.has(title)) return recordPopupCache.get(title);
-  const snap = await getDocs(query(collection(db, "records"), where("title", "==", title)));
+  // 톡 보관함은 말머리 없이 "채팅방 이름 - 제목"만 써도 찾고(titleKey), 그 밖에는 제목 전체가 같은
+  // 기록을 찾는다. 말머리까지 쓴 예전 방식도 그대로 된다.
+  let snap = await getDocs(query(collection(db, "records"), where("titleKey", "==", talkTitleKey(title))));
+  if (!snap.docs.length) snap = await getDocs(query(collection(db, "records"), where("title", "==", title)));
   const found = snap.docs.length ? { id: snap.docs[0].id, ...snap.docs[0].data() } : null;
   recordPopupCache.set(title, found);
   return found;
@@ -1477,6 +1481,16 @@ const editorUndo = setupUndoRedo(editorContent);
 // "[말머리] 채팅방 이름 - 제목" 형식의 제목을 세 조각으로 쪼개거나 다시 합친다.
 // 말머리는 선택 입력이라 "채팅방 이름 - 제목"처럼 대괄호 없이 올 수도 있다.
 // 뷰어의 extractChatRoomName도 이 파서를 함께 쓴다.
+// 톡 보관함 제목에서 맨 앞 말머리 "[…]"를 뺀 "채팅방 이름 - 제목" 꼴. "/불러오기"에서 말머리 없이
+// 기록을 찾을 수 있도록 톡 보관함 기록에 titleKey로 같이 저장해 둔다(scripts의 백필과 같은 규칙).
+function talkTitleKey(title) {
+  const bs = title.indexOf("[");
+  const be = title.indexOf("]");
+  const rest = bs !== -1 && be !== -1 && be > bs ? title.slice(be + 1) : title;
+  const d = rest.indexOf("-");
+  return d === -1 ? rest.trim() : `${rest.slice(0, d).trim()} - ${rest.slice(d + 1).trim()}`;
+}
+
 function parseTalkTitle(title) {
   if (!title) return { prefix: "", chatroom: "", subtitle: "" };
   const bracketStart = title.indexOf("[");
@@ -1977,6 +1991,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     if (editingRecordId) {
       await updateDoc(doc(adminDb, "records", editingRecordId), {
         title,
+        titleKey: category === "talk" ? talkTitleKey(title) : deleteField(),
         category,
         subcategory,
         character,
@@ -2006,6 +2021,7 @@ document.getElementById("save-record-btn").addEventListener("click", async () =>
     } else {
       const newDoc = await addDoc(collection(adminDb, "records"), {
         title,
+        ...(category === "talk" ? { titleKey: talkTitleKey(title) } : {}),
         category,
         subcategory,
         character,
