@@ -644,8 +644,24 @@ html.list-bg-main_story .record-list li { background: rgba(255, 255, 255, 0.7); 
   .log-render .s-link:hover { color: var(--accent); }
 }
 body.popup-open { overflow: hidden; }
-.record-popup-card { width: min(720px, 92vw); max-height: 86vh; padding: 20px 20px 24px; }
-.record-popup-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.modal-card.record-popup-card { width: min(720px, 92vw); max-height: 86vh; padding: 20px 20px 24px; }
+.record-popup-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.record-popup-title { flex: 1; min-width: 0; }
+.record-popup-avatars { flex: none; }
+.record-popup-avatars:empty { display: none; }
+/* 팝업 배경: 기록이 속한 카테고리의 배경 이미지 위에 기록 화면(.viewer-card)과 같은 농도의 흰 막. */
+.record-popup-card.bg-talk {
+  background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url("../images/list-bg/talk.jpg") center / cover no-repeat;
+}
+.record-popup-card.bg-call {
+  background: linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url("../images/list-bg/call.webp") center / cover no-repeat;
+}
+.record-popup-card.bg-diary {
+  background: linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url("../images/list-bg/diary.jpg") center / cover no-repeat;
+}
+.record-popup-card.bg-main_story {
+  background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("../images/list-bg/main_story.webp") center / cover no-repeat;
+}
 .record-popup-title { margin: 0; font-size: 1.05rem; line-height: 1.4; word-break: keep-all; }
 .record-popup-close {
   flex: 0 0 36px;
@@ -666,6 +682,25 @@ body.popup-open { overflow: hidden; }
   .record-popup-close:hover { color: var(--accent); background: rgba(124, 75, 255, 0.08); }
 }
 .record-popup-body { font-size: 14px; }
+@media (min-width: 769px) {
+  .modal-card.record-popup-card {
+    width: 80vw;
+    height: 80vh;
+    max-height: none;
+    padding: 24px 28px 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .record-popup-head { flex: none; }
+  .record-popup-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+}
 
 /* 보이스 리스트 맨 아래의 + 버튼(관리자만) */
 #voice-add-wrap { display: flex; justify-content: center; margin-top: 4px; }
