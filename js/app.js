@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=278";
+} from "./firebase-config.js?v=279";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=278";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=278";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=279";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=279";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1212,23 +1212,29 @@ function initListSortable(hooks = {}) {
       const displayed = hooks.getList ? hooks.getList() : ids.map((id) => ({ id }));
       const updates = planDragOrders(displayed, ids);
       if (updates.length === 0) return;
+      // 화면에 들고 있는 기록들에 새 번호를 먼저(저장을 기다리지 않고) 반영하고, 목록 자체도 드래그한 줄 순서로 맞춘다.
+      // 그래야 저장이 끝나기 전에 수정 모드를 켜고 끄거나 다른 필터로 가도 새 순서가 유지된다.
+      const byId = new Map(displayed.map((r) => [r.id, r]));
+      const previous = updates.map((u) => ({ id: u.id, order: byId.get(u.id)?.order }));
+      updates.forEach((u) => {
+        const r = byId.get(u.id);
+        if (r) r.order = u.order;
+      });
+      const pos = new Map(ids.map((id, i) => [id, i]));
+      displayed.sort((x, y) => (pos.get(x.id) ?? 0) - (pos.get(y.id) ?? 0));
+      if (hooks.afterSave) hooks.afterSave(); // records 배열 자체를 새 번호 순으로 다시 정렬
       const batch = writeBatch(adminDb);
       updates.forEach((u) => batch.update(doc(adminDb, "records", u.id), { order: u.order }));
       try {
         await batch.commit();
-        // 화면에 들고 있는 기록들에도 새 번호를 반영해서, 다른 필터를 보다가 돌아와도 순서가 유지되게 한다.
-        const byId = new Map(displayed.map((r) => [r.id, r]));
-        updates.forEach((u) => {
-          const r = byId.get(u.id);
-          if (r) r.order = u.order;
-        });
-        // 지금 화면에 들고 있는 목록(displayed) 자체도 드래그한 줄 순서로 맞춘다. 안 그러면 수정 모드를 마치고
-        // 목록을 다시 그릴 때 드래그 전 순서로 돌아간다.
-        const pos = new Map(ids.map((id, i) => [id, i]));
-        displayed.sort((x, y) => (pos.get(x.id) ?? 0) - (pos.get(y.id) ?? 0));
-        if (hooks.afterSave) hooks.afterSave();
       } catch (e) {
         console.error("순서 저장 실패:", e.code, e.message);
+        // 저장이 안 됐으니 화면에 들고 있던 번호도 원래대로 되돌린다.
+        previous.forEach((p) => {
+          const r = byId.get(p.id);
+          if (r) r.order = p.order;
+        });
+        if (hooks.afterSave) hooks.afterSave();
         alert("순서 저장에 실패했습니다: " + (e.code || e.message));
       }
     },
