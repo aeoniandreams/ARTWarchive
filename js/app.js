@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=274";
+} from "./firebase-config.js?v=275";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=274";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=274";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=275";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=275";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1040,7 +1040,7 @@ async function renderListView(catId, subId) {
   listPrevBtn.setAttribute("aria-label", prevFloor ? `이전 층 (${prevFloor.label})` : "이전 층");
   listNextBtn.setAttribute("aria-label", nextFloor ? `다음 층 (${nextFloor.label})` : "다음 층");
   positionListNavButtons();
-  voiceAddWrap.classList.add("hidden"); // 맨 아래 + 버튼은 연필로 수정 모드에 들어갔을 때만 보인다.
+  voiceAddWrap.classList.add("hidden"); // 저장 버튼 옆 + 버튼은 연필로 수정 모드에 들어갔을 때만 보인다.
   voiceAddCtx = null;
   if (isVoice) {
     // 보이스 리스트의 + 버튼은 새 기록 추가 대신 수정 모드 스위치(연필 ↔ 저장)다.

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ARTWarchive</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="stylesheet" href="css/pretendard-jp.css?v=274" />
-<link rel="stylesheet" href="css/style.css?v=274" />
+<link rel="stylesheet" href="css/pretendard-jp.css?v=275" />
+<link rel="stylesheet" href="css/style.css?v=275" />
 <script>
   // 로딩 화면을 최소 1초는 보여주기 위한 기준 시각. firebase-config.js는 ES
   // 모듈이라 import가 끝나야 실행되는데, 그 안에서 시각을 재면 이미 import
@@ -124,6 +124,11 @@
       <div class="list-header-row">
         <div class="breadcrumb" id="list-breadcrumb"></div>
         <div class="list-header-actions">
+          <div id="voice-add-wrap" class="hidden">
+            <button type="button" id="voice-add-btn" aria-label="보이스 추가">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+            </button>
+          </div>
           <button id="new-record-btn" data-admin-only class="hidden" aria-label="새 기록 추가">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
           </button>
@@ -143,11 +148,6 @@
         </button>
         <button id="list-next-btn" class="viewer-nav-btn viewer-nav-next hidden" aria-label="다음 층">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20H2" /><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z" /><path d="M11 4H8a2 2 0 0 0-2 2v14" /><path d="M14 12h.01" /><path d="M22 20h-3" /></svg>
-        </button>
-      </div>
-      <div id="voice-add-wrap" class="hidden">
-        <button type="button" id="voice-add-btn" data-admin-only class="hidden" aria-label="보이스 추가">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
         </button>
       </div>
     </section>
@@ -398,6 +398,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script type="module" src="js/app.js?v=274"></script>
+<script type="module" src="js/app.js?v=275"></script>
 </body>
 </html>

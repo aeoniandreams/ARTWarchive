@@ -728,11 +728,11 @@ body.popup-open { overflow: hidden; }
   }
 }
 
-/* 보이스 리스트 맨 아래의 + 버튼(관리자만) */
-#voice-add-wrap { display: flex; justify-content: center; margin-top: 4px; }
+/* 보이스 수정 모드의 + 버튼: 저장 버튼 바로 왼쪽(관리자만, 수정 모드에서만) */
+#voice-add-wrap { display: flex; }
 #voice-add-btn {
-  width: 44px;
-  height: 44px;
+  width: 35px;
+  height: 35px;
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.6);
@@ -742,7 +742,7 @@ body.popup-open { overflow: hidden; }
   justify-content: center;
   cursor: pointer;
 }
-#voice-add-btn svg { width: 20px; height: 20px; }
+#voice-add-btn svg { width: 18px; height: 18px; }
 @media (hover: hover) {
   #voice-add-btn:hover { background: rgba(255, 255, 255, 0.8); color: var(--accent); }
 }
