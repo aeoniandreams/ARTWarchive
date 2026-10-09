@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=275";
+} from "./firebase-config.js?v=276";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=275";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=275";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=276";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=276";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1010,7 +1010,7 @@ function setTitleWithPrefix(el, title, category) {
 }
 
 // ── 리스트 화면 ──
-async function renderListView(catId, subId) {
+async function renderListView(catId, subId, { keepVoiceEdit = false } = {}) {
   const cat = findCategory(catId);
   const sub = findSubcategory(catId, subId);
   document.getElementById("list-breadcrumb").innerHTML = `${cat?.label ?? catId}${BREADCRUMB_CHEVRON}${sub?.label ?? subId}`;
@@ -1025,8 +1025,9 @@ async function renderListView(catId, subId) {
   const isVoice = catId === "voice";
   let currentList = []; // 지금 화면에 그려진 목록(수정 모드를 켜고 끌 때 다시 그린다)
   stopVoice();
-  voiceEditMode = false;
+  voiceEditMode = isVoice && keepVoiceEdit; // 보이스를 추가·저장한 뒤 다시 그릴 때는 수정 모드를 그대로 유지한다.
   listEl.classList.toggle("voice-list", isVoice);
+  listEl.classList.toggle("is-editing", voiceEditMode);
   // 메인 스토리에서만: 양옆 버튼으로 이전 층/다음 층 리스트로 넘어간다.
   const floors = catId === "main_story" ? cat?.subcategories ?? [] : [];
   const floorIdx = floors.findIndex((f) => f.id === subId);
@@ -1040,12 +1041,12 @@ async function renderListView(catId, subId) {
   listPrevBtn.setAttribute("aria-label", prevFloor ? `이전 층 (${prevFloor.label})` : "이전 층");
   listNextBtn.setAttribute("aria-label", nextFloor ? `다음 층 (${nextFloor.label})` : "다음 층");
   positionListNavButtons();
-  voiceAddWrap.classList.add("hidden"); // 저장 버튼 옆 + 버튼은 연필로 수정 모드에 들어갔을 때만 보인다.
+  voiceAddWrap.classList.toggle("hidden", !voiceEditMode); // 저장 버튼 옆 + 버튼은 연필로 수정 모드에 들어갔을 때만 보인다.
   voiceAddCtx = null;
   if (isVoice) {
     // 보이스 리스트의 + 버튼은 새 기록 추가 대신 수정 모드 스위치(연필 ↔ 저장)다.
-    newRecordBtn.innerHTML = PENCIL_ICON;
-    newRecordBtn.setAttribute("aria-label", "음성 수정");
+    newRecordBtn.innerHTML = voiceEditMode ? SAVE_ICON : PENCIL_ICON;
+    newRecordBtn.setAttribute("aria-label", voiceEditMode ? "수정 마치기" : "음성 수정");
     newRecordBtn.onclick = () => {
       if (voiceEditMode && hasUnsavedVoiceFile() && !confirm("저장하지 않은 음성 파일이 있어요. 그래도 수정을 마칠까요?")) return;
       voiceEditMode = !voiceEditMode;
@@ -1082,7 +1083,7 @@ async function renderListView(catId, subId) {
       subId,
       records,
       filterValue: () => listCharacterFilterDropdown.value,
-      refresh: () => renderListView(catId, subId),
+      refresh: () => renderListView(catId, subId, { keepVoiceEdit: voiceEditMode }),
       // 지운 알약만 목록에서 빼고 다시 그린다(수정 모드는 그대로 유지).
       remove: (id) => {
         records = records.filter((r) => r.id !== id);
