@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=276";
+} from "./firebase-config.js?v=277";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=276";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=276";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=277";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=277";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1010,7 +1010,7 @@ function setTitleWithPrefix(el, title, category) {
 }
 
 // ── 리스트 화면 ──
-async function renderListView(catId, subId, { keepVoiceEdit = false } = {}) {
+async function renderListView(catId, subId, { keepVoiceEdit = false, keepFilter = "" } = {}) {
   const cat = findCategory(catId);
   const sub = findSubcategory(catId, subId);
   document.getElementById("list-breadcrumb").innerHTML = `${cat?.label ?? catId}${BREADCRUMB_CHEVRON}${sub?.label ?? subId}`;
@@ -1083,7 +1083,7 @@ async function renderListView(catId, subId, { keepVoiceEdit = false } = {}) {
       subId,
       records,
       filterValue: () => listCharacterFilterDropdown.value,
-      refresh: () => renderListView(catId, subId, { keepVoiceEdit: voiceEditMode }),
+      refresh: () => renderListView(catId, subId, { keepVoiceEdit: voiceEditMode, keepFilter: listCharacterFilterDropdown.value }),
       // 지운 알약만 목록에서 빼고 다시 그린다(수정 모드는 그대로 유지).
       remove: (id) => {
         records = records.filter((r) => r.id !== id);
@@ -1139,8 +1139,10 @@ async function renderListView(catId, subId, { keepVoiceEdit = false } = {}) {
     });
     listCharacterFilterWrap.classList.remove("hidden");
     if (catId === "diary" || catId === "voice" || subId === "daily") {
-      listCharacterFilterDropdown.setOptions(items, "");
-      renderRecords(allForDisplay());
+      // 추가·저장 뒤에 다시 그릴 때는 보고 있던 분류를 그대로 유지한다.
+      const startFilter = items.some((o) => o.value === keepFilter) ? keepFilter : "";
+      listCharacterFilterDropdown.setOptions(items, startFilter);
+      renderRecords(startFilter ? records.filter((r) => r.character === startFilter) : allForDisplay());
     } else {
       listCharacterFilterDropdown.setOptions(items, "__pending__", "");
       listEl.innerHTML = talkPendingSelectionHtml(talkFilterHasCharacters(getTalkFilterOptions(subId)));
