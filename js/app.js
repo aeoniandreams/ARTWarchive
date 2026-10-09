@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=279";
+} from "./firebase-config.js?v=280";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=279";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=279";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=280";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=280";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -844,8 +844,9 @@ voiceModalSave.addEventListener("click", async () => {
   voiceModalSave.disabled = true;
   voiceModalMsg.textContent = "저장하는 중...";
   try {
-    // 새 알약은 맨 아래에 붙도록 지금 있는 순서 값의 최댓값 + 1을 준다.
-    const maxOrder = ctx.records.reduce((m, r) => (typeof r.order === "number" ? Math.max(m, r.order) : m), -1);
+    // 새 알약은 맨 위에 오도록 지금 있는 순서 값의 최솟값 - 1을 준다(기존 기록의 번호는 건드리지 않는다).
+    const orders = ctx.records.map((r) => r.order).filter((o) => typeof o === "number");
+    const newOrder = orders.length ? Math.min(...orders) - 1 : 0;
     const ref = await addDoc(collection(adminDb, "records"), {
       title: line,
       note: voiceNoteInput.value.replace(/\s+/g, " ").trim().slice(0, 200),
@@ -854,7 +855,7 @@ voiceModalSave.addEventListener("click", async () => {
       character: tag,
       tableHtml: "",
       authorUid: adminAuth.currentUser.uid,
-      order: maxOrder + 1,
+      order: newOrder,
       hasVoice: false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
