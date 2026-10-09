@@ -7,7 +7,7 @@ import {
   verifyAdminPassword,
   logoutAdmin,
   logoutAll,
-} from "./firebase-config.js?v=277";
+} from "./firebase-config.js?v=278";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
@@ -26,8 +26,8 @@ import {
   deleteField,
   Bytes,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=277";
-import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=277";
+import { CATEGORIES, CHARACTERS, findCategory, findSubcategory } from "./categories.js?v=278";
+import { renderLog, parseLibraryTable, resizeContentImages } from "./render-log.js?v=278";
 
 // 톡 보관함 하위 카테고리별로 리스트 필터/에디터 드롭다운의 선택지가 다르다.
 // 따로 지정 안 한 하위 카테고리(일별 톡, 프리미엄 톡)는 인물 6명이 기본값.
@@ -1222,6 +1222,10 @@ function initListSortable(hooks = {}) {
           const r = byId.get(u.id);
           if (r) r.order = u.order;
         });
+        // 지금 화면에 들고 있는 목록(displayed) 자체도 드래그한 줄 순서로 맞춘다. 안 그러면 수정 모드를 마치고
+        // 목록을 다시 그릴 때 드래그 전 순서로 돌아간다.
+        const pos = new Map(ids.map((id, i) => [id, i]));
+        displayed.sort((x, y) => (pos.get(x.id) ?? 0) - (pos.get(y.id) ?? 0));
         if (hooks.afterSave) hooks.afterSave();
       } catch (e) {
         console.error("순서 저장 실패:", e.code, e.message);
